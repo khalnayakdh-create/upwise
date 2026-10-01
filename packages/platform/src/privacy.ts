@@ -61,11 +61,22 @@ export async function handleComplianceWebhook(
 
   let note: string;
   switch (topic) {
-    case "SHOP_REDACT":
+    case "SHOP_REDACT": {
+      // shop/redact is scheduled 48h after uninstall. If the merchant has
+      // reinstalled since, the data now belongs to the active install: keep it.
+      const [current] = await db
+        .select({ uninstalledAt: shopTable.uninstalledAt })
+        .from(shopTable)
+        .where(eq(shopTable.shop, args.shop));
+      if (current && current.uninstalledAt === null) {
+        note = "Shop has reinstalled since uninstalling; active install data kept.";
+        break;
+      }
       await hooks.purgeShop?.(db, args.shop);
       await purgeShopPlatformData(db, args.shop);
       note = "All shop data deleted.";
       break;
+    }
     case "CUSTOMERS_DATA_REQUEST":
       note = hooks.exportCustomer
         ? await hooks.exportCustomer(db, args.shop, args.payload)

@@ -80,6 +80,8 @@ describe("shops and webhooks", () => {
     await recordInstall(db, "b.myshopify.com");
     await seedSession("a.myshopify.com");
     await seedSession("b.myshopify.com");
+    await recordUninstall(db, "a.myshopify.com");
+    await seedSession("a.myshopify.com");
     let purged = false;
     const result = await handleComplianceWebhook(
       db,
@@ -94,6 +96,18 @@ describe("shops and webhooks", () => {
     expect(shops.map((s) => s.shop)).toEqual(["b.myshopify.com"]);
     const [log] = await db.select().from(complianceLogTable);
     expect(log.completedAt).not.toBeNull();
+  });
+
+  it("shop/redact keeps data when the shop has reinstalled since", async () => {
+    await recordInstall(db, "a.myshopify.com");
+    await recordUninstall(db, "a.myshopify.com");
+    await recordInstall(db, "a.myshopify.com"); // reinstalled within 48h
+    await seedSession("a.myshopify.com");
+    const result = await handleComplianceWebhook(db, {
+      topic: "shop/redact", shop: "a.myshopify.com", payload: {},
+    });
+    expect(result.note).toMatch(/reinstalled/);
+    expect(await db.select().from(sessionTable)).toHaveLength(1);
   });
 
   it("customer topics succeed when the app holds no customer data", async () => {
