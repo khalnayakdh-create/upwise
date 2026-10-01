@@ -410,7 +410,7 @@ Net revenue = gross × (1 − 0.029 − share% − regulatory fee%).
 
 | Phase | Weeks | Deliverables | Exit criteria |
 |---|---|---|---|
-| **0. Foundations** (spike ✅ 2026-09-30; access request, staging env, legal docs, domain check still open) | 1–3 | **Workers spike** (React Router template on Workers + D1 sessions + token exchange + billing + webhooks on a dev store); monorepo; platform packages; CI/CD; staging + prod; privacy policy/terms; upwise domain + trademark check; **post-purchase access request filed** | Embedded hello-world on Workers passes install, billing test charge, compliance webhooks with HMAC, uninstall/redact |
+| **0. Foundations** (spike ✅ 2026-09-30; access request, staging env, legal docs, trademark check still open) | 1–3 | **Workers spike** (React Router template on Workers + D1 sessions + token exchange + billing + webhooks on a dev store); monorepo; platform packages; CI/CD; staging + prod; privacy policy/terms; upwise trademark check (domain ✅); **post-purchase access request filed** | Embedded hello-world on Workers passes install, billing test charge, compliance webhooks with HMAC, uninstall/redact |
 | **1. Cart Upsell MVP** | 4–9 | Free plan + Growth plan, app embed cart drawer widget, manual rules, attribution, onboarding, listing | Submitted; Lighthouse impact ≤5 on Dawn + 3 popular themes |
 | **2. Launch & learn** | 10–14 | First 50 installs, neutral review requests, support playbook, analytics | 50 net installs, ≥5 reviews → apply for BFS |
 | **3. Cart Upsell Pro** | 12–16 | Post-purchase offers + Thank-you offers + discount Function, Pro plan | Access granted; update approved |
@@ -458,11 +458,12 @@ Installs, net installs, activation rate (first value within 24 h), free→paid c
 | 2026-09-30 | Use existing pre-2021 partner account | $19 registration fee waived |
 | 2026-09-30 | Brand name: **Upwise** | Short (6 chars), suggests upsell + smart recommendations, fits all four app names; no Shopify app conflict found. Pending: domain, USPTO (classes 9, 42), App Store and social-handle checks |
 | 2026-09-30 | Cart Upsell set to **public (App Store) distribution** | Required for the Billing API; permanent; nothing is listed until the app is submitted for review |
-| 2026-09-30 | **Phase 0 spike passed** on Cloudflare Workers | Live at upwise-cart-upsell.akjr004.workers.dev; D1 auto-provisioned + in-Worker migrations; install/token exchange, Admin GraphQL, session storage and Billing API test charge verified on upwisedev; HMAC-verified compliance webhooks pass end-to-end tests in workerd; config released to Shopify from GitHub Actions |
+| 2026-09-30 | Domain **upwise.dev** (Cloudflare Registrar). Apps live on subdomains: `cart.upwise.dev` (Cart Upsell, live), later `reviews.`, `popups.`, `bundles.`; apex reserved for the brand site + help docs | One brand, one zone; Cloudflare issues DNS + certificates on deploy |
+| 2026-09-30 | **Phase 0 spike passed** on Cloudflare Workers | Live at cart.upwise.dev (fallback upwise-cart-upsell.akjr004.workers.dev); D1 auto-provisioned + in-Worker migrations; install/token exchange, Admin GraphQL, session storage and Billing API test charge verified on upwisedev; HMAC-verified compliance webhooks pass end-to-end tests in workerd; config released to Shopify from GitHub Actions |
 
 ### 14.2 Still open
 
-1. **Upwise domain + trademark check** (domain on Cloudflare Registrar; USPTO classes 9 and 42; social handles).
+1. **Upwise trademark + social handles** (domain done: upwise.dev). USPTO search classes 9 and 42.
 2. **Pricing** for each plan (draft after competitor review in Phase 1).
 3. **Email provider** for review requests and value emails; **SMS provider** for Pop-ups (later).
 4. **Legal entity and country** (affects tax forms and regulatory fees).
