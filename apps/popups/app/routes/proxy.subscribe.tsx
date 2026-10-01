@@ -36,7 +36,9 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
   try {
     await subscribeCustomer(admin.graphql as never, email);
   } catch (error) {
-    console.error("subscribeCustomer failed", error);
+    // Log Shopify's reason (e.g. protected customer data not approved), not just the stack.
+    const e = error as { message?: string; response?: { status?: number }; body?: unknown };
+    console.error("subscribeCustomer failed", e?.message, e?.response?.status, JSON.stringify(e?.body ?? null));
     return json({ error: "We couldn't sign you up right now. Please try again." }, 502);
   }
   await bump(db, session.shop, "signups");
