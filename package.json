@@ -4,7 +4,9 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "apps/cart-upsell/extensions/upwise-cart-discount",
+    "apps/cart-upsell/extensions/upwise-thank-you"
   ],
   "engines": {
     "node": ">=22.12"

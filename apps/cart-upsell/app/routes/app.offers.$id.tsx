@@ -1,12 +1,12 @@
 import type { Route } from "./+types/app.offers.$id";
 import type { HeadersFunction } from "react-router";
-import { Form, redirect, useActionData, useLoaderData, useNavigation } from "react-router";
+import { Form, redirect, useActionData, useLoaderData, useNavigation, useSearchParams } from "react-router";
 import { useRef, useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
-import { fetchOfferProducts, resolvePlan, syncStorefrontConfig } from "../lib/admin.server";
+import { fetchOfferProducts, resolvePlan, syncAll } from "../lib/admin.server";
 import {
   countActiveOffers,
   deleteOffer,
@@ -25,8 +25,9 @@ interface PickedProduct {
 
 export const loader = async ({ request, context, params }: Route.LoaderArgs) => {
   const { env } = context.cloudflare;
-  const { admin, session } = await getShopify(env).authenticate.admin(request);
+  const { admin, session, billing } = await getShopify(env).authenticate.admin(request);
   const isNew = params.id === "new";
+  const { plan } = await resolvePlan(billing, env, session.shop);
   const offer = isNew ? null : await getOffer(getDb(env.DB), session.shop, params.id);
   if (!isNew && !offer) throw redirect("/app/offers");
 
@@ -37,12 +38,14 @@ export const loader = async ({ request, context, params }: Route.LoaderArgs) => 
 
   return {
     isNew,
+    canDiscount: PLAN_LIMITS[plan].discounts,
     offer: {
       name: offer?.name ?? "",
       headline: offer?.headline ?? "You may also like",
       status: offer?.status ?? "active",
       triggerType: offer?.triggerType ?? "all",
       priority: offer?.priority ?? 0,
+      discountPercent: offer?.discountPercent ?? 0,
       triggerProducts: triggers.map(toPicked),
       offerProducts: (offer?.offerProducts ?? []).map(toPicked),
     },
@@ -63,11 +66,12 @@ export const action = async ({ request, context, params }: Route.ActionArgs) => 
 
   if (form.intent === "delete" && id) {
     await deleteOffer(db, session.shop, id);
-    await syncStorefrontConfig(admin, env, session.shop, plan);
+    await syncAll(admin, env, session.shop, plan);
     return redirect("/app/offers?deleted=1");
   }
 
   const { input, errors } = validateOfferInput(form);
+  if (!PLAN_LIMITS[plan].discounts) input.discountPercent = 0;
   if (input.status === "active") {
     const others = await countActiveOffers(db, session.shop, id ?? undefined);
     if (others + 1 > PLAN_LIMITS[plan].maxActiveOffers) {
@@ -81,13 +85,16 @@ export const action = async ({ request, context, params }: Route.ActionArgs) => 
   if (missing.length || products.length === 0) {
     return { errors: { offerProductIds: "Some products couldn't be found or have no variants. Pick again." } };
   }
-  await saveOffer(db, session.shop, id, input, products);
-  await syncStorefrontConfig(admin, env, session.shop, plan);
+  const savedId = await saveOffer(db, session.shop, id, input, products);
+  const warning = await syncAll(admin, env, session.shop, plan);
+  if (warning) return redirect(`/app/offers/${savedId}?warning=${encodeURIComponent(warning)}`);
   return redirect("/app/offers?saved=1");
 };
 
 export default function OfferEditor() {
-  const { isNew, offer } = useLoaderData<typeof loader>();
+  const { isNew, offer, canDiscount } = useLoaderData<typeof loader>();
+  const [search] = useSearchParams();
+  const warning = search.get("warning");
   const actionData = useActionData<typeof action>();
   const errors: Record<string, string> = actionData?.errors ?? {};
   const navigation = useNavigation();
@@ -130,6 +137,11 @@ export default function OfferEditor() {
       <s-link slot="breadcrumb-actions" href="/app/offers">
         Offers
       </s-link>
+      {warning ? (
+        <s-banner tone="warning" heading="Offer saved, but the discount wasn't updated">
+          {warning}
+        </s-banner>
+      ) : null}
       <Form method="post" data-save-bar ref={formRef}>
         <input type="hidden" name="__dirty" value={JSON.stringify([triggerType, triggerProducts, offerProducts])} />
         <input type="hidden" name="triggerProductIds" value={JSON.stringify(triggerProducts.map((p) => p.id))} />
@@ -173,6 +185,26 @@ export default function OfferEditor() {
             <s-button onClick={() => pick(offerProducts, 3, setOfferProducts)}>
               {offerProducts.length ? "Change products" : "Select products"}
             </s-button>
+          </s-stack>
+        </s-section>
+
+        <s-section heading="Discount">
+          <s-stack gap="base">
+            <s-number-field
+              label="Discount on recommended products"
+              name="discountPercent"
+              value={String(offer.discountPercent)}
+              min={0}
+              max={90}
+              suffix="%"
+              disabled={!canDiscount}
+              details={
+                canDiscount
+                  ? "Applied automatically at checkout when the shopper adds a product from this offer. 0 = no discount."
+                  : "Available on Growth and Pro plans."
+              }
+            />
+            {!canDiscount ? <s-link href="/app/plans">Compare plans</s-link> : null}
           </s-stack>
         </s-section>
 

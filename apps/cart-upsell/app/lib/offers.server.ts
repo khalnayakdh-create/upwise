@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
 import type { Db } from "@upwise/platform";
-import { offerStatTable, offerTable } from "./schema";
+import { appSettingTable, offerStatTable, offerTable } from "./schema";
 import { PLAN_LIMITS, type PlanKey } from "./plans";
 
 export interface OfferProduct {
@@ -21,6 +21,7 @@ export interface Offer {
   offerProducts: OfferProduct[];
   headline: string;
   priority: number;
+  discountPercent: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -33,6 +34,7 @@ export interface OfferInput {
   offerProductIds: string[];
   headline: string;
   priority: number;
+  discountPercent: number;
 }
 
 type Row = typeof offerTable.$inferSelect;
@@ -97,6 +99,7 @@ export function validateOfferInput(raw: Record<string, unknown>): {
   };
   const triggerProductIds = triggerType === "products" ? toIds(raw.triggerProductIds).slice(0, 50) : [];
   const offerProductIds = toIds(raw.offerProductIds);
+  const discountPercent = Math.max(0, Math.min(90, Number.parseInt(String(raw.discountPercent ?? "0"), 10) || 0));
 
   if (!name) errors.name = "Give the offer a name (only you see it).";
   if (!headline) errors.headline = "Add a headline shoppers will see, e.g. “Complete your order”.";
@@ -107,7 +110,7 @@ export function validateOfferInput(raw: Record<string, unknown>): {
     errors.offerProductIds = `Recommend up to ${PLAN_LIMITS.growth.maxProductsPerOffer} products per offer.`;
 
   return {
-    input: { name, headline, status, triggerType, triggerProductIds, offerProductIds, priority },
+    input: { name, headline, status, triggerType, triggerProductIds, offerProductIds, priority, discountPercent },
     errors,
   };
 }
@@ -133,6 +136,7 @@ export async function saveOffer(
     offerProducts: JSON.stringify(products),
     headline: input.headline,
     priority: input.priority,
+    discountPercent: input.discountPercent,
     updatedAt: now.toISOString(),
   };
   if (id) {
@@ -153,6 +157,7 @@ export async function deleteOffer(db: Db, shop: string, id: string) {
 export async function purgeCartUpsellShop(db: Db, shop: string) {
   await db.delete(offerTable).where(eq(offerTable.shop, shop));
   await db.delete(offerStatTable).where(eq(offerStatTable.shop, shop));
+  await db.delete(appSettingTable).where(eq(appSettingTable.shop, shop));
 }
 
 export function numericId(gid: string): number {
@@ -167,6 +172,7 @@ export interface StorefrontConfig {
     headline: string;
     trigger: "all" | "products";
     triggerProductIds: number[];
+    discountPercent: number;
     products: Array<{ handle: string; productId: number; variantId: number }>;
   }>;
 }
@@ -181,6 +187,7 @@ export function buildStorefrontConfig(offers: Offer[], plan: PlanKey): Storefron
       headline: o.headline,
       trigger: o.triggerType,
       triggerProductIds: o.triggerProductIds.map(numericId),
+      discountPercent: PLAN_LIMITS[plan].discounts ? o.discountPercent : 0,
       products: o.offerProducts.slice(0, PLAN_LIMITS[plan].maxProductsPerOffer).map((p) => ({
         handle: p.handle,
         productId: numericId(p.productId),
@@ -188,6 +195,27 @@ export function buildStorefrontConfig(offers: Offer[], plan: PlanKey): Storefron
       })),
     })),
   };
+}
+
+/** Config for the upwise-cart-discount Function (discount metafield). */
+export interface DiscountFunctionConfig {
+  offers: Record<string, { percent: number; message: string; productIds: string[]; triggerProductIds: string[] }>;
+}
+
+export function buildDiscountConfig(offers: Offer[], plan: PlanKey): DiscountFunctionConfig {
+  const config: DiscountFunctionConfig = { offers: {} };
+  if (!PLAN_LIMITS[plan].discounts) return config;
+  const live = offers.filter((o) => o.status === "active").slice(0, PLAN_LIMITS[plan].maxActiveOffers);
+  for (const o of live) {
+    if (o.discountPercent <= 0) continue;
+    config.offers[o.id] = {
+      percent: o.discountPercent,
+      message: `${o.discountPercent}% off`,
+      productIds: o.offerProducts.map((p) => p.productId),
+      triggerProductIds: o.triggerType === "products" ? o.triggerProductIds : [],
+    };
+  }
+  return config;
 }
 
 export type StatType = "impression" | "click" | "add";

@@ -9,3 +9,5 @@
 .upwise-cart__btn{font:inherit;font-size:.85em;padding:6px 14px;border-radius:4px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer;white-space:nowrap}
 .upwise-cart__btn:hover{background:rgba(var(--color-foreground,0,0,0),.06)}
 .upwise-cart__btn[disabled]{opacity:.6;cursor:progress}
+.upwise-cart__was{opacity:.6;margin-right:2px}
+.upwise-cart__badge{font-size:.8em;padding:1px 6px;border-radius:10px;background:rgba(var(--color-foreground,0,0,0),.08);white-space:nowrap}

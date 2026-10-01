@@ -1,0 +1,90 @@
+import "@shopify/ui-extensions/preact";
+import { render } from "preact";
+import { useEffect, useState } from "preact/hooks";
+
+/**
+ * Thank-you page offers (Upwise Cart Upsell, Pro plan).
+ * Reads $app:thank_you_config (shop metafield written by the app):
+ *   { enabled, heading, body, discountCode, products: [{ handle }] }
+ * Shows up to 3 products with live data from the Storefront API.
+ * No timers, no auto-opening modals, nothing added to the order.
+ */
+export default async () => {
+  render(<Extension />, document.body);
+};
+
+function readConfig() {
+  const entry = shopify.appMetafields.value.find(
+    (m) => m.target.type === "shop" && m.metafield.namespace === "$app" && m.metafield.key === "thank_you_config",
+  );
+  if (!entry) return null;
+  try {
+    return JSON.parse(String(entry.metafield.value));
+  } catch {
+    return null;
+  }
+}
+
+const PRODUCT_QUERY = `query UpwiseProduct($handle: String!) {
+  product(handle: $handle) {
+    title
+    handle
+    availableForSale
+    featuredImage { url altText }
+    priceRange { minVariantPrice { amount currencyCode } }
+  }
+}`;
+
+function Extension() {
+  const config = readConfig();
+  const [products, setProducts] = useState([]);
+  const handles = (config?.products ?? []).map((p) => p.handle).filter(Boolean).slice(0, 3);
+
+  useEffect(() => {
+    if (!config?.enabled || !handles.length) return;
+    let cancelled = false;
+    Promise.all(
+      handles.map((handle) =>
+        shopify
+          .query(PRODUCT_QUERY, { variables: { handle } })
+          .then((r) => r?.data?.product ?? null)
+          .catch(() => null),
+      ),
+    ).then((list) => {
+      if (!cancelled) setProducts(list.filter((p) => p && p.availableForSale));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [handles.join(",")]);
+
+  if (!config?.enabled || !products.length) return null;
+
+  const base = shopify.shop.storefrontUrl.replace(/\/$/, "");
+  const money = (m) => shopify.i18n.formatCurrency(Number(m.amount), { currencyCode: m.currencyCode });
+
+  return (
+    <s-section heading={config.heading || shopify.i18n.translate("heading")}>
+      <s-stack gap="base">
+        {config.body ? <s-text>{config.body}</s-text> : null}
+        {config.discountCode ? (
+          <s-text type="strong">{shopify.i18n.translate("codeLabel", { code: config.discountCode })}</s-text>
+        ) : null}
+        {products.map((p) => (
+          <s-stack key={p.handle} direction="inline" gap="base" alignItems="center">
+            {p.featuredImage ? (
+              <s-product-thumbnail src={p.featuredImage.url} alt={p.featuredImage.altText || p.title} size="base" />
+            ) : null}
+            <s-stack gap="small-200">
+              <s-text type="strong">{p.title}</s-text>
+              <s-text>{money(p.priceRange.minVariantPrice)}</s-text>
+              <s-link href={`${base}/products/${p.handle}`} target="_blank">
+                {shopify.i18n.translate("view")}
+              </s-link>
+            </s-stack>
+          </s-stack>
+        ))}
+      </s-stack>
+    </s-section>
+  );
+}

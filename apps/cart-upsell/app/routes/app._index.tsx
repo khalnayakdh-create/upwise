@@ -4,7 +4,7 @@ import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
-import { resolvePlan, storeHandle, syncStorefrontConfig } from "../lib/admin.server";
+import { resolvePlan, storeHandle, syncAll } from "../lib/admin.server";
 import { listOffers, statsByOffer, totals } from "../lib/offers.server";
 import { PLAN_COPY, PLAN_LIMITS } from "../lib/plans";
 
@@ -16,7 +16,7 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const db = getDb(env.DB);
   const { plan, changed } = await resolvePlan(billing, env, session.shop);
   // Plan changes alter which offers are live; keep the storefront in sync.
-  if (changed) await syncStorefrontConfig(admin, env, session.shop, plan);
+  if (changed) await syncAll(admin, env, session.shop, plan);
 
   const [offers, stats] = await Promise.all([listOffers(db, session.shop), statsByOffer(db, session.shop)]);
   const sum = totals(stats);

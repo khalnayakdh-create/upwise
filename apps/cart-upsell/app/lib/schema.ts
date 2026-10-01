@@ -14,6 +14,8 @@ export const offerTable = sqliteTable("offer", {
   offerProducts: text("offer_products").notNull().default("[]"),
   headline: text("headline").notNull(),
   priority: integer("priority").notNull().default(0),
+  /** 0 = no discount. Applied by the upwise-cart-discount Function (paid plans). */
+  discountPercent: integer("discount_percent").notNull().default(0),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
@@ -30,6 +32,17 @@ export const offerStatTable = sqliteTable(
     adds: integer("adds").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.shop, t.offerId, t.day] })],
+);
+
+/** Per-shop key/value settings (e.g. discount id, thank-you config). */
+export const appSettingTable = sqliteTable(
+  "app_setting",
+  {
+    shop: text("shop").notNull(),
+    key: text("key").notNull(),
+    value: text("value").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.shop, t.key] })],
 );
 
 /** App-specific migrations. IDs 100+ (platform uses 1-99). Append only. */
@@ -66,6 +79,23 @@ export const cartUpsellMigrations: Migration[] = [
         clicks INTEGER NOT NULL DEFAULT 0,
         adds INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (shop, offer_id, day)
+      )`,
+    ],
+  },
+  {
+    id: 103,
+    name: "offer_discount_percent",
+    sql: [`ALTER TABLE offer ADD COLUMN discount_percent INTEGER NOT NULL DEFAULT 0`],
+  },
+  {
+    id: 104,
+    name: "create_app_setting",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS app_setting (
+        shop TEXT NOT NULL,
+        key TEXT NOT NULL,
+        value TEXT NOT NULL,
+        PRIMARY KEY (shop, key)
       )`,
     ],
   },

@@ -12,7 +12,7 @@ include_config_on_deploy = true
 
 [access_scopes]
 # Minimum scopes. Add only when a feature needs them (blueprint §6.7).
-scopes = "read_products"
+scopes = "read_products,write_discounts"
 
 [auth]
 redirect_urls = [

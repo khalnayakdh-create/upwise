@@ -3,14 +3,14 @@ import type { HeadersFunction } from "react-router";
 import { Form, useActionData, useLoaderData, useNavigation } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getShopify } from "../shopify.server";
-import { resolvePlan, storeHandle, syncStorefrontConfig } from "../lib/admin.server";
-import { GROWTH_PLAN, PLAN_COPY, type PlanKey } from "../lib/plans";
+import { resolvePlan, storeHandle, syncAll } from "../lib/admin.server";
+import { GROWTH_PLAN, PLAN_COPY, PRO_PLAN, type PlanKey } from "../lib/plans";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { env } = context.cloudflare;
   const { admin, billing, session } = await getShopify(env).authenticate.admin(request);
   const { plan, changed, subscriptionId } = await resolvePlan(billing, env, session.shop);
-  if (changed) await syncStorefrontConfig(admin, env, session.shop, plan);
+  if (changed) await syncAll(admin, env, session.shop, plan);
   return { plan, subscriptionId };
 };
 
@@ -24,13 +24,14 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
     const id = String(form.get("subscriptionId") ?? "");
     if (id) await billing.cancel({ subscriptionId: id, isTest, prorate: true });
     const { plan } = await resolvePlan(billing, env, session.shop);
-    await syncStorefrontConfig(admin, env, session.shop, plan);
+    await syncAll(admin, env, session.shop, plan);
     return { billingError: null };
   }
 
+  const target = form.get("plan") === PRO_PLAN ? PRO_PLAN : GROWTH_PLAN;
   try {
     return await billing.request({
-      plan: GROWTH_PLAN,
+      plan: target,
       isTest,
       returnUrl: `https://admin.shopify.com/store/${storeHandle(session.shop)}/apps/${env.SHOPIFY_API_KEY}/app/plans`,
     });
@@ -57,7 +58,7 @@ export default function Plans() {
           {actionData.billingError}
         </s-banner>
       ) : null}
-      <s-grid gridTemplateColumns="repeat(auto-fit, minmax(240px, 1fr))" gap="base">
+      <s-grid gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))" gap="base">
         {(Object.keys(PLAN_COPY) as PlanKey[]).map((key) => {
           const copy = PLAN_COPY[key];
           const current = key === plan;
@@ -73,15 +74,16 @@ export default function Plans() {
                     <s-list-item key={f}>{f}</s-list-item>
                   ))}
                 </s-unordered-list>
-                {key === "growth" && !current ? (
+                {copy.billingName && !current ? (
                   <Form method="post">
                     <input type="hidden" name="intent" value="subscribe" />
-                    <s-button type="submit" variant="primary" loading={busy}>
-                      Start free trial
+                    <input type="hidden" name="plan" value={copy.billingName} />
+                    <s-button type="submit" variant={key === "growth" ? "primary" : "secondary"} loading={busy}>
+                      {plan === "free" ? "Start free trial" : `Switch to ${copy.name}`}
                     </s-button>
                   </Form>
                 ) : null}
-                {key === "growth" && current && subscriptionId ? (
+                {key === "free" && plan !== "free" && subscriptionId ? (
                   <Form method="post">
                     <input type="hidden" name="intent" value="cancel" />
                     <input type="hidden" name="subscriptionId" value={subscriptionId} />

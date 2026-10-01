@@ -115,7 +115,17 @@
       var info = el("div");
       var name = it.d.title + (it.d.variants.length > 1 && it.v.title ? " – " + it.v.title : "");
       info.appendChild(el("p", "upwise-cart__name", name));
-      info.appendChild(el("p", "upwise-cart__price", money(it.v.price, currency)));
+      var pct = Number(offer.discountPercent) || 0;
+      var priceP = el("p", "upwise-cart__price");
+      if (pct > 0) {
+        var was = el("s", "upwise-cart__was", money(it.v.price, currency));
+        priceP.appendChild(was);
+        priceP.appendChild(document.createTextNode(" " + money(Math.round(it.v.price * (100 - pct) / 100), currency) + " "));
+        priceP.appendChild(el("span", "upwise-cart__badge", pct + "% off"));
+      } else {
+        priceP.textContent = money(it.v.price, currency);
+      }
+      info.appendChild(priceP);
       var btn = el("button", "upwise-cart__btn", LABEL);
       btn.type = "button";
       btn.setAttribute("aria-label", LABEL + " " + name);

@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
-import { getDb, shopTable } from "@upwise/platform";
+import { and, eq } from "drizzle-orm";
+import { getDb, shopTable, type Db } from "@upwise/platform";
 import type { Shopify } from "../shopify.server";
-import { buildStorefrontConfig, listOffers, type OfferProduct } from "./offers.server";
-import { GROWTH_PLAN, type PlanKey } from "./plans";
+import { buildDiscountConfig, buildStorefrontConfig, listOffers, type OfferProduct } from "./offers.server";
+import { PAID_PLANS, PLAN_LIMITS, planFromSubscriptionName, type PlanKey } from "./plans";
+import { appSettingTable } from "./schema";
 
 export type AdminContext = Awaited<ReturnType<Shopify["authenticate"]["admin"]>>;
 
@@ -67,6 +68,171 @@ export async function fetchOfferProducts(
   return { products, missing };
 }
 
+export async function getSetting(db: Db, shop: string, key: string): Promise<string | null> {
+  const [row] = await db
+    .select({ value: appSettingTable.value })
+    .from(appSettingTable)
+    .where(and(eq(appSettingTable.shop, shop), eq(appSettingTable.key, key)));
+  return row?.value ?? null;
+}
+
+export async function setSetting(db: Db, shop: string, key: string, value: string) {
+  await db
+    .insert(appSettingTable)
+    .values({ shop, key, value })
+    .onConflictDoUpdate({ target: [appSettingTable.shop, appSettingTable.key], set: { value } });
+}
+
+type Graphql = AdminContext["admin"]["graphql"];
+
+async function gql<T>(graphql: Graphql, query: string, variables?: Record<string, unknown>): Promise<T> {
+  const response = await graphql(query, variables ? { variables } : undefined);
+  const body = (await response.json()) as { data?: T; errors?: unknown };
+  if (!body.data) throw new Error(`GraphQL error: ${JSON.stringify(body.errors)}`);
+  return body.data;
+}
+
+export const DISCOUNT_FUNCTION_HANDLE = "upwise-cart-discount";
+export const DISCOUNT_SETTING = "discount_id";
+
+/**
+ * Keep one automatic app discount per shop pointing at the upwise-cart-discount
+ * Function, and write the per-offer config into its metafield.
+ * Returns a warning string if discounts couldn't be synced (e.g. scope missing).
+ */
+export async function syncDiscount(
+  admin: AdminContext["admin"],
+  env: Env,
+  shop: string,
+  plan: PlanKey,
+): Promise<string | null> {
+  const db = getDb(env.DB);
+  const config = buildDiscountConfig(await listOffers(db, shop), plan);
+  const hasDiscounts = Object.keys(config.offers).length > 0;
+  let discountId = await getSetting(db, shop, DISCOUNT_SETTING);
+  if (!discountId && !hasDiscounts) return null;
+
+  try {
+    if (discountId) {
+      const check = await gql<{ discountNode: { id: string } | null }>(
+        admin.graphql,
+        `#graphql
+        query UpwiseDiscountExists($id: ID!) { discountNode(id: $id) { id } }`,
+        { id: discountId },
+      );
+      if (!check.discountNode) discountId = null; // merchant deleted it
+    }
+    const value = JSON.stringify(config);
+    if (!discountId) {
+      const created = await gql<{
+        discountAutomaticAppCreate: {
+          automaticAppDiscount: { discountId: string } | null;
+          userErrors: Array<{ message: string }>;
+        };
+      }>(
+        admin.graphql,
+        `#graphql
+        mutation UpwiseCreateDiscount($discount: DiscountAutomaticAppInput!) {
+          discountAutomaticAppCreate(automaticAppDiscount: $discount) {
+            automaticAppDiscount { discountId }
+            userErrors { message }
+          }
+        }`,
+        {
+          discount: {
+            title: "Upwise cart offer discounts",
+            functionHandle: DISCOUNT_FUNCTION_HANDLE,
+            discountClasses: ["PRODUCT"],
+            startsAt: new Date().toISOString(),
+            combinesWith: { orderDiscounts: true, productDiscounts: false, shippingDiscounts: true },
+            metafields: [{ namespace: "$app", key: "function-configuration", type: "json", value }],
+          },
+        },
+      );
+      const errors = created.discountAutomaticAppCreate.userErrors;
+      const id = created.discountAutomaticAppCreate.automaticAppDiscount?.discountId;
+      if (errors.length || !id) return `Couldn't create the discount: ${errors.map((e) => e.message).join("; ")}`;
+      await setSetting(db, shop, DISCOUNT_SETTING, id);
+      return null;
+    }
+    const set = await gql<{ metafieldsSet: { userErrors: Array<{ message: string }> } }>(
+      admin.graphql,
+      `#graphql
+      mutation UpwiseDiscountConfig($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) { userErrors { message } }
+      }`,
+      { metafields: [{ ownerId: discountId, namespace: "$app", key: "function-configuration", type: "json", value }] },
+    );
+    const errors = set.metafieldsSet.userErrors;
+    return errors.length ? `Couldn't update the discount: ${errors.map((e) => e.message).join("; ")}` : null;
+  } catch (error) {
+    console.error("syncDiscount failed", error);
+    return "Discounts couldn't be updated. Reopen the app to approve the discount permission, then save again.";
+  }
+}
+
+export interface ThankYouConfig {
+  enabled: boolean;
+  heading: string;
+  body: string;
+  discountCode: string;
+  products: Array<{ handle: string; productId: string; title: string; image: string | null }>;
+}
+
+export const THANK_YOU_SETTING = "thank_you_config";
+
+export async function getThankYouConfig(db: Db, shop: string): Promise<ThankYouConfig> {
+  const raw = await getSetting(db, shop, THANK_YOU_SETTING);
+  const fallback: ThankYouConfig = { enabled: false, heading: "", body: "", discountCode: "", products: [] };
+  if (!raw) return fallback;
+  try {
+    return { ...fallback, ...JSON.parse(raw) };
+  } catch {
+    return fallback;
+  }
+}
+
+/** Write the thank-you config to a shop metafield ($app namespace) read by the checkout extension. */
+export async function syncThankYou(admin: AdminContext["admin"], env: Env, shop: string, plan: PlanKey) {
+  const config = await getThankYouConfig(getDb(env.DB), shop);
+  const live = { ...config, enabled: config.enabled && PLAN_LIMITS[plan].thankYouOffers };
+  const { shop: s } = await gql<{ shop: { id: string } }>(admin.graphql, `#graphql
+    query UpwiseShopId { shop { id } }`);
+  const set = await gql<{ metafieldsSet: { userErrors: Array<{ message: string }> } }>(
+    admin.graphql,
+    `#graphql
+    mutation UpwiseThankYouConfig($metafields: [MetafieldsSetInput!]!) {
+      metafieldsSet(metafields: $metafields) { userErrors { message } }
+    }`,
+    {
+      metafields: [
+        {
+          ownerId: s.id,
+          namespace: "$app",
+          key: "thank_you_config",
+          type: "json",
+          value: JSON.stringify({
+            enabled: live.enabled,
+            heading: live.heading,
+            body: live.body,
+            discountCode: live.discountCode,
+            products: live.products.map((p) => ({ handle: p.handle })),
+          }),
+        },
+      ],
+    },
+  );
+  const errors = set.metafieldsSet.userErrors;
+  if (errors.length) throw new Error(`thank-you metafield: ${errors.map((e) => e.message).join("; ")}`);
+}
+
+/** Sync everything that depends on offers/plan. Returns a warning for the UI, if any. */
+export async function syncAll(admin: AdminContext["admin"], env: Env, shop: string, plan: PlanKey) {
+  await syncStorefrontConfig(admin, env, shop, plan);
+  await syncThankYou(admin, env, shop, plan).catch((e) => console.error("syncThankYou failed", e));
+  return syncDiscount(admin, env, shop, plan);
+}
+
 /** Write the storefront config to an app-owned metafield (read by the theme extension). */
 export async function syncStorefrontConfig(admin: AdminContext["admin"], env: Env, shop: string, plan: PlanKey) {
   const offers = await listOffers(getDb(env.DB), shop);
@@ -109,10 +275,10 @@ export async function resolvePlan(
   shop: string,
 ): Promise<{ plan: PlanKey; changed: boolean; subscriptionId: string | null }> {
   const { hasActivePayment, appSubscriptions } = await billing.check({
-    plans: [GROWTH_PLAN],
+    plans: [...PAID_PLANS],
     isTest: env.BILLING_TEST_MODE !== "false",
   });
-  const plan: PlanKey = hasActivePayment ? "growth" : "free";
+  const plan: PlanKey = hasActivePayment ? planFromSubscriptionName(appSubscriptions[0]?.name) : "free";
   const db = getDb(env.DB);
   const [row] = await db.select({ plan: shopTable.plan }).from(shopTable).where(eq(shopTable.shop, shop));
   const changed = !row || row.plan !== plan;

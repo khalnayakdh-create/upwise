@@ -1,0 +1,19 @@
+api_version = "2026-07"
+
+[[extensions]]
+name = "Upwise thank you offers"
+handle = "upwise-thank-you"
+type = "ui_extension"
+
+[[extensions.targeting]]
+module = "./src/ThankYou.jsx"
+target = "purchase.thank-you.block.render"
+
+[extensions.capabilities]
+# Storefront API: live product title, image, price and availability.
+api_access = true
+
+# Offer config written by the Upwise admin (Pro plan).
+[[extensions.metafields]]
+namespace = "$app"
+key = "thank_you_config"

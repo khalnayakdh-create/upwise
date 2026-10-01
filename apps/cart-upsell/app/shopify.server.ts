@@ -12,7 +12,7 @@ import { getDb, sessionTable } from "@upwise/platform";
 /** Pinned Admin API version. Upgrade quarterly (blueprint §6.11). */
 export const API_VERSION = ApiVersion.July26;
 
-import { GROWTH_PLAN } from "./lib/plans";
+import { GROWTH_PLAN, PLAN_PRICES, PRO_PLAN } from "./lib/plans";
 
 function createShopify(env: Env) {
   if (!env.SHOPIFY_API_KEY || !env.SHOPIFY_API_SECRET || !env.SHOPIFY_APP_URL) {
@@ -35,13 +35,11 @@ function createShopify(env: Env) {
     billing: {
       [GROWTH_PLAN]: {
         trialDays: 7,
-        lineItems: [
-          {
-            amount: 9.99,
-            currencyCode: "USD",
-            interval: BillingInterval.Every30Days,
-          },
-        ],
+        lineItems: [{ amount: PLAN_PRICES[GROWTH_PLAN], currencyCode: "USD", interval: BillingInterval.Every30Days }],
+      },
+      [PRO_PLAN]: {
+        trialDays: 7,
+        lineItems: [{ amount: PLAN_PRICES[PRO_PLAN], currencyCode: "USD", interval: BillingInterval.Every30Days }],
       },
     },
   });
