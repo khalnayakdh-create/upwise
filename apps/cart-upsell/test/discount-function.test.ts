@@ -25,7 +25,7 @@ describe("upwise-cart-discount function", () => {
     const op = out.operations[0].productDiscountsAdd;
     expect(op.selectionStrategy).toBe("ALL");
     expect(op.candidates).toEqual([
-      { message: "10% off", targets: [{ cartLine: { id: "l2" } }], value: { percentage: { value: 10 } } },
+      { message: "10% off", targets: [{ cartLine: { id: "l2", quantity: 1 } }], value: { percentage: { value: 10 } } },
     ]);
   });
 
@@ -48,6 +48,29 @@ describe("upwise-cart-discount function", () => {
     expect(run(input([line("l1", 1), line("l2", 2, "zz")], OFFER)).operations).toEqual([]);
     const bad = { o1: { ...OFFER.o1, percent: 150 } };
     expect(run(input([line("l1", 1), line("l2", 2, "o1")], bad)).operations).toEqual([]);
+  });
+
+  it("split lines of the offer product don't qualify each other", () => {
+    expect(run(input([line("a", 2, "o1"), line("b", 2, "o1")], OFFER)).operations).toEqual([]);
+  });
+
+  it("chained offers don't qualify each other", () => {
+    const offers = {
+      A: { percent: 30, productIds: [product(2)], triggerProductIds: [product(1)] },
+      B: { percent: 30, productIds: [product(1)], triggerProductIds: [product(2)] },
+    };
+    expect(run(input([line("x", 1, "B"), line("y", 2, "A")], offers)).operations).toEqual([]);
+  });
+
+  it("discounts only one unit per offer product, even across split lines", () => {
+    const out = run(input([line("l1", 1), line("a", 2, "o1"), line("b", 2, "o1")], OFFER));
+    const c = out.operations[0].productDiscountsAdd.candidates;
+    expect(c).toHaveLength(1);
+    expect(c[0].targets).toEqual([{ cartLine: { id: "a", quantity: 1 } }]);
+  });
+
+  it("a line of the offer product without the attribute doesn't count as a trigger", () => {
+    expect(run(input([line("l1", 2), line("l2", 2, "o1")], OFFER)).operations).toEqual([]);
   });
 
   it("handles missing config safely", () => {

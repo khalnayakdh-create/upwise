@@ -32,6 +32,8 @@
     })).then(function (rows) {
       rows = rows.filter(Boolean);
       if (rows.length < 2) return;
+      // The discount needs every bundle product; if any is unavailable, don't promise it.
+      var discount = rows.length === bundle.products.length ? bundle.discountPercent : 0;
       box.appendChild(el("p", "upwise-bundle__title", bundle.title));
       var ul = el("ul", "upwise-bundle__list");
       var checks = [];
@@ -60,11 +62,11 @@
         var sel = checks.filter(function (c) { return c.cb.checked; });
         var sum = sel.reduce(function (n, c) { return n + c.r.v.price; }, 0);
         var all = sel.length === checks.length;
-        if (all && bundle.discountPercent > 0) {
-          var disc = Math.round(sum * (100 - bundle.discountPercent) / 100);
-          total.textContent = "Total " + money(disc, currency) + " (save " + bundle.discountPercent + "% with all " + checks.length + ")";
+        if (all && discount > 0) {
+          var disc = Math.round(sum * (100 - discount) / 100);
+          total.textContent = "Total " + money(disc, currency) + " (save " + discount + "% with all " + checks.length + ")";
         } else {
-          total.textContent = "Total " + money(sum, currency) + (bundle.discountPercent > 0 ? " — add all " + checks.length + " to save " + bundle.discountPercent + "%" : "");
+          total.textContent = "Total " + money(sum, currency) + (discount > 0 ? " — add all " + checks.length + " to save " + discount + "%" : "");
         }
         btn.disabled = sel.length === 0;
       }

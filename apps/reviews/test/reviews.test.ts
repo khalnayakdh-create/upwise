@@ -33,6 +33,10 @@ describe("validateSubmission", () => {
   it("accepts a valid submission and builds the product gid", () => {
     expect(validateSubmission(ok).input).toMatchObject({ productId: P1, rating: 5, author: "Ann" });
   });
+  it("treats a missing or stale timestamp as spam", () => {
+    expect(validateSubmission({ ...ok, startedAt: undefined }).error).toBe("spam");
+    expect(validateSubmission({ ...ok, startedAt: String(Date.now() - 2 * 86_400_000) }).error).toBe("spam");
+  });
   it("flags honeypot and too-fast submissions as spam", () => {
     expect(validateSubmission({ ...ok, website: "x" }).error).toBe("spam");
     expect(validateSubmission({ ...ok, startedAt: String(Date.now()) }).error).toBe("spam");
@@ -74,10 +78,20 @@ describe("reviews storage", () => {
     expect(await listReviews(db, SHOP)).toHaveLength(0);
     expect(await listReviews(db, "b.myshopify.com")).toHaveLength(1);
   });
-  it("settings default to auto-publish and persist", async () => {
-    expect(await getSettings(db, SHOP)).toEqual({ autoPublish: true });
-    await saveSettings(db, SHOP, { autoPublish: false });
+  it("settings default to hold-for-approval and persist", async () => {
     expect(await getSettings(db, SHOP)).toEqual({ autoPublish: false });
+    await saveSettings(db, SHOP, { autoPublish: true });
+    expect(await getSettings(db, SHOP)).toEqual({ autoPublish: true });
+  });
+});
+
+describe("import counter", () => {
+  it("accumulates per month and isn't reset by deleting reviews", async () => {
+    const { addImported, importedThisMonth } = await import("../app/lib/reviews.server");
+    await addImported(db, SHOP, 60);
+    await addImported(db, SHOP, 40);
+    expect(await importedThisMonth(db, SHOP)).toBe(100);
+    expect(await importedThisMonth(db, SHOP, new Date(Date.UTC(2030, 0, 15)))).toBe(0);
   });
 });
 

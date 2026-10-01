@@ -53,7 +53,10 @@ export async function subscribeCustomer(graphql: GraphqlFn, email: string, now =
   );
   const existing = found.customers.nodes[0];
   if (existing) {
-    if (existing.emailMarketingConsent?.marketingState === "SUBSCRIBED") return { status: "already" as const };
+    const state = existing.emailMarketingConsent?.marketingState;
+    if (state === "SUBSCRIBED") return { status: "already" as const };
+    // Respect an earlier unsubscribe: a pop-up form can't prove the address owner is opting back in.
+    if (state === "UNSUBSCRIBED" || state === "REDACTED") return { status: "skipped" as const };
     const r = await gql<{ customerEmailMarketingConsentUpdate: { userErrors: Array<{ message: string }> } }>(
       graphql,
       `#graphql

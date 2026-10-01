@@ -111,15 +111,26 @@ export async function runMigrations(
 
   for (const migration of [...migrations].sort((a, b) => a.id - b.id)) {
     if (done.has(migration.id)) continue;
-    // D1 batch() runs statements in a single transaction.
-    await db.batch([
-      ...migration.sql.map((statement) => db.prepare(statement)),
-      db
-        .prepare(
-          `INSERT OR IGNORE INTO _migrations (id, name, applied_at) VALUES (?, ?, ?)`,
-        )
-        .bind(migration.id, migration.name, new Date().toISOString()),
-    ]);
+    const record = db
+      .prepare(`INSERT OR IGNORE INTO _migrations (id, name, applied_at) VALUES (?, ?, ?)`)
+      .bind(migration.id, migration.name, new Date().toISOString());
+    try {
+      // D1 batch() runs statements in a single transaction.
+      await db.batch([...migration.sql.map((statement) => db.prepare(statement)), record]);
+    } catch (error) {
+      // Another isolate may have applied it concurrently (e.g. ALTER TABLE ADD COLUMN
+      // fails with "duplicate column name" for the loser). Treat that as applied.
+      const applied = await db
+        .prepare(`SELECT 1 AS ok FROM _migrations WHERE id = ?`)
+        .bind(migration.id)
+        .first<{ ok: number }>();
+      if (applied) continue;
+      if (String(error).includes("duplicate column name")) {
+        await record.run();
+        continue;
+      }
+      throw error;
+    }
     newlyApplied.push(migration.id);
   }
   return newlyApplied;

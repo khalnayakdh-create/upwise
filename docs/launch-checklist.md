@@ -1,14 +1,21 @@
-# Launch checklist — Upwise Cart Upsell
+# Launch checklist — all Upwise apps
 
-Before submitting for App Store review / switching to production billing:
+Run for **each** app (cart-upsell, reviews, popups, bundles) before submitting it for App Store review.
 
-- [ ] `DEV_PLAN_OVERRIDES` is empty in `apps/cart-upsell/wrangler.jsonc`
-- [ ] `BILLING_TEST_MODE` is `"false"`
-- [ ] Final plan prices set in `app/lib/plans.ts` (currently placeholders: Growth $9.99, Pro $24.99)
+## Configuration (apps/<app>/wrangler.jsonc)
+- [ ] `DEV_PLAN_OVERRIDES` is `""` (it unlocks paid features on upwisedev)
+- [ ] `BILLING_TEST_MODE` is `"false"` (otherwise real merchants get free test subscriptions)
+- [ ] Final plan prices set in `app/lib/plans.ts` (all current prices are placeholders)
+- [ ] App set to **public distribution** in the Dev Dashboard (required for the Billing API)
+
+## Shopify
+- [ ] Automation-token secret added to GitHub and "Shopify app config" workflow succeeded
+- [ ] App icon (1200×1200) uploaded; listing copy + screenshots ready (see docs/listing/)
+- [ ] Compliance checklist (blueprint §5) re-run; protected customer data request approved where needed (Pop-ups: email)
+- [ ] Cart Upsell only: post-purchase extension access requested (only needed for live stores)
+
+## Business
 - [ ] `privacy@upwise.dev` and `support@upwise.dev` forward to a monitored inbox (Cloudflare Email Routing)
-- [ ] Privacy policy and terms reviewed by a lawyer
-- [ ] Listing copy + screenshots from `docs/listing/cart-upsell.md`
-- [ ] App icon (1200×1200) uploaded in Dev Dashboard
-- [ ] Separate staging app + Worker created; production uses its own D1 database
-- [ ] Compliance checklist (blueprint §5) re-run
-- [ ] Post-purchase extension access requested (Phase 3, live stores only)
+- [ ] Privacy policies and terms reviewed by a lawyer
+- [ ] "Upwise" trademark search done (USPTO classes 9, 42)
+- [ ] Separate staging apps + Workers (own D1 databases) for testing after launch

@@ -4,7 +4,7 @@ import { Form, useActionData, useLoaderData, useNavigation } from "react-router"
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { storeHandle } from "@upwise/shopify-app";
 import { getShopify } from "../shopify.server";
-import { resolvePlan } from "../lib/admin.server";
+import { syncAll, resolvePlan } from "../lib/admin.server";
 import { GROWTH_PLAN, PLAN_COPY, type PlanKey } from "../lib/plans";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
@@ -15,12 +15,14 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 
 export const action = async ({ request, context }: Route.ActionArgs) => {
   const { env } = context.cloudflare;
-  const { billing, session } = await getShopify(env).authenticate.admin(request);
+  const { admin, billing, session } = await getShopify(env).authenticate.admin(request);
   const form = await request.formData();
   const isTest = env.BILLING_TEST_MODE !== "false";
   if (form.get("intent") === "cancel") {
     const id = String(form.get("subscriptionId") ?? "");
     if (id) await billing.cancel({ subscriptionId: id, isTest, prorate: true });
+    const { plan } = await resolvePlan(billing as never, env, session.shop);
+    await syncAll(admin.graphql as never, env, session.shop, plan);
     return { billingError: null };
   }
   try {

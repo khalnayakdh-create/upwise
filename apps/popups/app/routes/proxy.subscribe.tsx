@@ -3,7 +3,7 @@ import { getDb, shopTable } from "@upwise/platform";
 import { eq } from "drizzle-orm";
 import { getShopify } from "../shopify.server";
 import { subscribeCustomer } from "../lib/admin.server";
-import { bump, signupsThisMonth, validEmail } from "../lib/popup.server";
+import { bump, getConfig, signupsThisMonth, validEmail } from "../lib/popup.server";
 import { PLAN_LIMITS } from "../lib/plans";
 
 const json = (data: unknown, status = 200) =>
@@ -40,7 +40,8 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
     return json({ error: "We couldn't sign you up right now. Please try again." }, 502);
   }
   await bump(db, session.shop, "signups");
-  return json({ ok: true });
+  const { discountCode } = await getConfig(db, session.shop);
+  return json({ ok: true, discountCode: discountCode || null });
 };
 
 export const loader = () => new Response("Method not allowed", { status: 405 });

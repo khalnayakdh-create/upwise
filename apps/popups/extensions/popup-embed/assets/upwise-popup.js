@@ -99,7 +99,7 @@
         if (d && d.ok) {
           try { localStorage.setItem(KEY, String(Date.now() + 365 * 86400000)); } catch (e) {}
           form.replaceChildren(el("p", "upwise-popup__body", c.successMessage));
-          if (c.discountCode) form.appendChild(el("span", "upwise-popup__code", c.discountCode));
+          if (d.discountCode) form.appendChild(el("span", "upwise-popup__code", d.discountCode));
         } else {
           btn.disabled = false;
           msg.textContent = (d && d.error) || "Something went wrong. Please try again.";

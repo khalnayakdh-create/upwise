@@ -122,8 +122,9 @@ export async function purgePopupsShop(db: Db, shop: string) {
 
 /** Storefront payload (app-data metafield). */
 export function storefrontConfig(config: PopupConfig, branding: boolean) {
-  const { enabled, headline, body, buttonLabel, successMessage, discountCode, consentText, trigger, delaySeconds, scrollPercent, frequencyDays, pages, accentColor } = config;
-  return { v: 1, enabled, headline, body, buttonLabel, successMessage, discountCode, consentText, trigger, delaySeconds, scrollPercent, frequencyDays, pages, accentColor, branding };
+  // The discount code is deliberately NOT included: it's returned only after a successful sign-up.
+  const { enabled, headline, body, buttonLabel, successMessage, consentText, trigger, delaySeconds, scrollPercent, frequencyDays, pages, accentColor } = config;
+  return { v: 1, enabled, headline, body, buttonLabel, successMessage, consentText, trigger, delaySeconds, scrollPercent, frequencyDays, pages, accentColor, branding };
 }
 
 const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,24}$/;

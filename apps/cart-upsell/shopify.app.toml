@@ -32,6 +32,11 @@ api_version = "2026-07"
   topics = ["app/uninstalled"]
   uri = "/webhooks/app/uninstalled"
 
+  # Plan changes (upgrade, cancel, trial end): re-sync paid features immediately.
+  [[webhooks.subscriptions]]
+  topics = ["app_subscriptions/update"]
+  uri = "/webhooks/app/subscriptions_update"
+
   [[webhooks.subscriptions]]
   topics = ["app/scopes_update"]
   uri = "/webhooks/app/scopes_update"

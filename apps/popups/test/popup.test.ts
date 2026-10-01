@@ -50,6 +50,7 @@ describe("storage and stats", () => {
     const c = await getConfig(db, SHOP);
     expect(c.headline).toBe("Hi");
     expect(storefrontConfig(c, true)).toMatchObject({ v: 1, enabled: true, branding: true });
+    expect(storefrontConfig({ ...c, discountCode: "SECRET10" }, true)).not.toHaveProperty("discountCode");
   });
   it("counts impressions and sign-ups per day and month", async () => {
     await bump(db, SHOP, "impressions", 3);

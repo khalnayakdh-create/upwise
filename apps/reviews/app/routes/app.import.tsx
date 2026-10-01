@@ -5,7 +5,7 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
 import { productsByHandle, resolvePlan, syncProductRating } from "../lib/admin.server";
-import { createReview, importedThisMonth, parseReviewCsv } from "../lib/reviews.server";
+import { addImported, createReview, importedThisMonth, parseReviewCsv } from "../lib/reviews.server";
 import { PLAN_LIMITS } from "../lib/plans";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
@@ -60,6 +60,7 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
     touched.add(product.id);
     imported++;
   }
+  if (imported) await addImported(db, session.shop, imported);
   for (const productId of touched) await syncProductRating(admin.graphql as never, env, session.shop, productId);
   return { error: null, imported, skipped: skipped.slice(0, 20) };
 };

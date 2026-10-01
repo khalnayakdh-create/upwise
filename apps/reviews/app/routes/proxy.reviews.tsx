@@ -2,7 +2,7 @@ import type { Route } from "./+types/proxy.reviews";
 import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
 import { productInfo, syncProductRating } from "../lib/admin.server";
-import { createReview, getSettings, productSummary, publishedForProduct, validateSubmission } from "../lib/reviews.server";
+import { createReview, getSettings, MAX_SUBMISSIONS_PER_HOUR, productSummary, publishedForProduct, recentSubmissions, validateSubmission } from "../lib/reviews.server";
 
 /**
  * Storefront API via the Shopify app proxy:
@@ -38,6 +38,10 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
   const { input, error } = validateSubmission(form);
   if (error === "spam") return json({ ok: true, status: "pending" }); // don't tell bots
   if (!input) return json({ error }, 400);
+  const db0 = getDb(env.DB);
+  if ((await recentSubmissions(db0, session.shop)) >= MAX_SUBMISSIONS_PER_HOUR) {
+    return json({ error: "We're receiving a lot of reviews right now. Please try again later." }, 429);
+  }
   const product = await productInfo(admin.graphql as never, input.productId);
   if (!product) return json({ error: "Unknown product." }, 400);
   const db = getDb(env.DB);

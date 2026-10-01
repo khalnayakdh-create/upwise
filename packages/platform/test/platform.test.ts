@@ -47,6 +47,22 @@ describe("migrations", () => {
   });
 });
 
+describe("migration races", () => {
+  it("treats a duplicate-column failure as already applied", async () => {
+    await runMigrations(d1);
+    await d1.prepare("CREATE TABLE IF NOT EXISTS race_t (id TEXT)").run();
+    await d1.prepare("ALTER TABLE race_t ADD COLUMN extra INTEGER").run(); // "another isolate" won
+    const m = [{ id: 900, name: "race_add_column", sql: ["ALTER TABLE race_t ADD COLUMN extra INTEGER"] }];
+    await expect(runMigrations(d1, m)).resolves.toEqual([]);
+    const row = await d1.prepare("SELECT id FROM _migrations WHERE id = 900").first<{ id: number }>();
+    expect(row?.id).toBe(900);
+  });
+  it("still throws real migration errors", async () => {
+    const bad = [{ id: 901, name: "bad", sql: ["THIS IS NOT SQL"] }];
+    await expect(runMigrations(d1, bad)).rejects.toThrow();
+  });
+});
+
 describe("shops and webhooks", () => {
   beforeEach(async () => {
     await runMigrations(d1);

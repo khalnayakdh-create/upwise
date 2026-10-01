@@ -59,7 +59,7 @@ export async function syncProductRating(graphql: GraphqlFn, env: Env, shop: stri
 
 /** Resolve product handles to ids/titles (for CSV import). */
 export async function productsByHandle(graphql: GraphqlFn, handles: string[]) {
-  const unique = [...new Set(handles)].slice(0, 250);
+  const unique = [...new Set(handles)].slice(0, 1000);
   const found = new Map<string, { id: string; title: string }>();
   for (let i = 0; i < unique.length; i += 50) {
     const batch = unique.slice(i, i + 50);

@@ -9,7 +9,8 @@ export interface Settings {
   /** true: new storefront reviews go live immediately; false: they wait in the inbox. */
   autoPublish: boolean;
 }
-export const DEFAULT_SETTINGS: Settings = { autoPublish: true };
+/** New installs hold reviews for approval (safer against spam); merchants can switch to auto-publish. */
+export const DEFAULT_SETTINGS: Settings = { autoPublish: false };
 
 export async function getSettings(db: Db, shop: string): Promise<Settings> {
   const [row] = await db
@@ -50,7 +51,7 @@ export interface SubmissionInput {
 export function validateSubmission(raw: Record<string, unknown>, now = Date.now()): { input?: SubmissionInput; error?: string } {
   if (clean(raw.website, 200)) return { error: "spam" }; // honeypot
   const startedAt = Number(raw.startedAt);
-  if (Number.isFinite(startedAt) && now - startedAt < 2500) return { error: "spam" };
+  if (!Number.isFinite(startedAt) || now - startedAt < 2500 || now - startedAt > 86_400_000) return { error: "spam" };
   const productNumeric = clean(raw.productId, 30);
   if (!/^\d+$/.test(productNumeric)) return { error: "Unknown product." };
   const rating = Number.parseInt(String(raw.rating ?? ""), 10);
@@ -89,6 +90,17 @@ export async function createReview(
   });
   return id;
 }
+
+/** Storefront submissions in the last hour for a shop (simple flood protection). */
+export async function recentSubmissions(db: Db, shop: string, now = new Date()) {
+  const since = new Date(now.getTime() - 3_600_000).toISOString();
+  const [row] = await db
+    .select({ n: sql<number>`count(*)` })
+    .from(reviewTable)
+    .where(and(eq(reviewTable.shop, shop), eq(reviewTable.source, "storefront"), gte(reviewTable.createdAt, since)));
+  return Number(row?.n ?? 0);
+}
+export const MAX_SUBMISSIONS_PER_HOUR = 30;
 
 export async function listReviews(db: Db, shop: string, opts: { status?: ReviewStatus; limit?: number; offset?: number } = {}) {
   const where = opts.status
@@ -187,13 +199,26 @@ export async function shopTotals(db: Db, shop: string) {
   };
 }
 
+const importKey = (now: Date) => `imported:${now.toISOString().slice(0, 7)}`;
+
+/** Monthly import counter (kept separately so deleting imported reviews doesn't reset it). */
 export async function importedThisMonth(db: Db, shop: string, now = new Date()) {
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
   const [row] = await db
-    .select({ n: sql<number>`count(*)` })
-    .from(reviewTable)
-    .where(and(eq(reviewTable.shop, shop), eq(reviewTable.source, "import"), gte(reviewTable.updatedAt, start)));
-  return Number(row?.n ?? 0);
+    .select({ value: appSettingTable.value })
+    .from(appSettingTable)
+    .where(and(eq(appSettingTable.shop, shop), eq(appSettingTable.key, importKey(now))));
+  return Number(row?.value ?? 0);
+}
+
+export async function addImported(db: Db, shop: string, n: number, now = new Date()) {
+  const key = importKey(now);
+  await db
+    .insert(appSettingTable)
+    .values({ shop, key, value: String(n) })
+    .onConflictDoUpdate({
+      target: [appSettingTable.shop, appSettingTable.key],
+      set: { value: sql`CAST(CAST(${appSettingTable.value} AS INTEGER) + ${n} AS TEXT)` },
+    });
 }
 
 export async function purgeReviewsShop(db: Db, shop: string) {

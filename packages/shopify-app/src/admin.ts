@@ -50,3 +50,17 @@ export function devPlanOverride<P extends string>(env: { DEV_PLAN_OVERRIDES?: st
   }
   return null;
 }
+
+/**
+ * Plan from an app_subscriptions/update webhook payload.
+ * `names` maps Shopify billing plan names to app plan keys; inactive statuses mean "free".
+ */
+export function planFromSubscriptionWebhook<P extends string>(
+  payload: unknown,
+  names: Record<string, P>,
+  free: P,
+): P {
+  const sub = (payload as { app_subscription?: { name?: string; status?: string } })?.app_subscription;
+  if (!sub || String(sub.status).toUpperCase() !== "ACTIVE") return free;
+  return names[sub.name ?? ""] ?? free;
+}
