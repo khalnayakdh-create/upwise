@@ -15,7 +15,7 @@
   var MAX = Math.min(3, Math.max(1, Number(S.maxProducts) || 3));
   var LABEL = S.buttonLabel || "Add";
   var DRAWER = ["cart-drawer .drawer__footer", "#CartDrawer .drawer__footer", ".cart-drawer__footer", "#cart-drawer .cart-drawer__footer", ".drawer--cart .drawer__footer"];
-  var PAGE = ["#main-cart-footer", ".cart__footer", ".cart-footer", "form[action$='/cart'] .cart__blocks"];
+  var PAGE = [".cart__footer", ".cart-footer", "#main-cart-footer", "form[action$='/cart'] .cart__blocks"];
   var isCartPage = /\/cart\/?$/.test(location.pathname);
 
   /* ---------- analytics (aggregated counts only) ---------- */
@@ -113,7 +113,7 @@
       var src = (it.v.featured_image && it.v.featured_image.src) || it.d.featured_image;
       if (src) img.src = src + (src.indexOf("?") > -1 ? "&" : "?") + "width=96";
       var info = el("div");
-      var name = it.d.title + (it.v.title && it.v.title !== "Default Title" ? " – " + it.v.title : "");
+      var name = it.d.title + (it.d.variants.length > 1 && it.v.title ? " – " + it.v.title : "");
       info.appendChild(el("p", "upwise-cart__name", name));
       info.appendChild(el("p", "upwise-cart__price", money(it.v.price, currency)));
       var btn = el("button", "upwise-cart__btn", LABEL);
