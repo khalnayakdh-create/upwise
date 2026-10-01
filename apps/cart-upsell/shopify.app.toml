@@ -19,6 +19,12 @@ redirect_urls = [
   "https://cart.upwise.dev/auth/callback",
 ]
 
+# Storefront analytics: https://{shop}/apps/upwise-cart/* -> {application_url}/proxy/*
+[app_proxy]
+url = "/proxy"
+subpath = "upwise-cart"
+prefix = "apps"
+
 [webhooks]
 api_version = "2026-07"
 

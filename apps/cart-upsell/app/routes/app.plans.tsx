@@ -1,96 +1,102 @@
 import type { Route } from "./+types/app.plans";
 import type { HeadersFunction } from "react-router";
-import { Form, useActionData, useLoaderData } from "react-router";
+import { Form, useActionData, useLoaderData, useNavigation } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { getShopify, GROWTH_PLAN } from "../shopify.server";
+import { getShopify } from "../shopify.server";
+import { resolvePlan, storeHandle, syncStorefrontConfig } from "../lib/admin.server";
+import { GROWTH_PLAN, PLAN_COPY, type PlanKey } from "../lib/plans";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
-  const { billing } = await getShopify(context.cloudflare.env).authenticate.admin(request);
-  const { hasActivePayment, appSubscriptions } = await billing.check({
-    plans: [GROWTH_PLAN],
-    isTest: true,
-  });
-  return {
-    hasActivePayment,
-    subscriptionId: appSubscriptions[0]?.id ?? null,
-  };
+  const { env } = context.cloudflare;
+  const { admin, billing, session } = await getShopify(env).authenticate.admin(request);
+  const { plan, changed, subscriptionId } = await resolvePlan(billing, env, session.shop);
+  if (changed) await syncStorefrontConfig(admin, env, session.shop, plan);
+  return { plan, subscriptionId };
 };
 
 export const action = async ({ request, context }: Route.ActionArgs) => {
-  const { billing, session } = await getShopify(context.cloudflare.env).authenticate.admin(request);
+  const { env } = context.cloudflare;
+  const { admin, billing, session } = await getShopify(env).authenticate.admin(request);
   const form = await request.formData();
-  const intent = form.get("intent");
+  const isTest = env.BILLING_TEST_MODE !== "false";
 
-  if (intent === "cancel") {
+  if (form.get("intent") === "cancel") {
     const id = String(form.get("subscriptionId") ?? "");
-    if (id) await billing.cancel({ subscriptionId: id, isTest: true, prorate: true });
-    return null;
+    if (id) await billing.cancel({ subscriptionId: id, isTest, prorate: true });
+    const { plan } = await resolvePlan(billing, env, session.shop);
+    await syncStorefrontConfig(admin, env, session.shop, plan);
+    return { billingError: null };
   }
 
-  // Redirects the merchant to Shopify's approval page. isTest: no real charge.
-  const storeHandle = session.shop.replace(".myshopify.com", "");
   try {
     return await billing.request({
       plan: GROWTH_PLAN,
-      isTest: true,
-      returnUrl: `https://admin.shopify.com/store/${storeHandle}/apps/${context.cloudflare.env.SHOPIFY_API_KEY}/app/plans`,
+      isTest,
+      returnUrl: `https://admin.shopify.com/store/${storeHandle(session.shop)}/apps/${env.SHOPIFY_API_KEY}/app/plans`,
     });
   } catch (error) {
-    // billing.request throws a redirect Response on success; let it through.
-    if (error instanceof Response) throw error;
+    if (error instanceof Response) throw error; // success = redirect to Shopify approval
     const details = (error as { errorData?: unknown }).errorData;
     console.error("Billing request failed", error, JSON.stringify(details));
-    return { billingError: describeBillingError(details) ?? String(error) };
+    const message = Array.isArray(details)
+      ? details.map((d) => (d && typeof d === "object" && "message" in d ? String(d.message) : "")).join(" ")
+      : String(error);
+    return { billingError: message || "Billing request failed." };
   }
 };
 
-function describeBillingError(details: unknown): string | null {
-  if (!Array.isArray(details)) return null;
-  const messages = details
-    .map((d) => (d && typeof d === "object" && "message" in d ? String(d.message) : null))
-    .filter(Boolean);
-  return messages.length ? messages.join(" ") : null;
-}
-
 export default function Plans() {
-  const { hasActivePayment, subscriptionId } = useLoaderData<typeof loader>();
+  const { plan, subscriptionId } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const billingError =
-    actionData && "billingError" in actionData ? actionData.billingError : null;
+  const busy = useNavigation().state !== "idle";
 
   return (
     <s-page heading="Plans">
-      {billingError ? (
-        <s-banner tone="critical" heading="Billing request failed">
-          {billingError}
+      {actionData?.billingError ? (
+        <s-banner tone="critical" heading="Couldn't start the subscription">
+          {actionData.billingError}
         </s-banner>
       ) : null}
-      <s-section heading={hasActivePayment ? "Growth (test)" : "Free"}>
-        <s-paragraph>
-          Placeholder plan used to verify billing. Real plans and pricing come
-          in Phase 1.
-        </s-paragraph>
-        <Form method="post">
-          {hasActivePayment ? (
-            <>
-              <input type="hidden" name="intent" value="cancel" />
-              <input type="hidden" name="subscriptionId" value={subscriptionId ?? ""} />
-              <s-button type="submit">Cancel test subscription</s-button>
-            </>
-          ) : (
-            <>
-              <input type="hidden" name="intent" value="subscribe" />
-              <s-button type="submit" variant="primary">
-                Start Growth test subscription
-              </s-button>
-            </>
-          )}
-        </Form>
-      </s-section>
+      <s-grid gridTemplateColumns="repeat(auto-fit, minmax(240px, 1fr))" gap="base">
+        {(Object.keys(PLAN_COPY) as PlanKey[]).map((key) => {
+          const copy = PLAN_COPY[key];
+          const current = key === plan;
+          return (
+            <s-section key={key} heading={copy.name}>
+              <s-stack gap="base">
+                <s-stack direction="inline" gap="small-200" alignItems="center">
+                  <s-heading>{copy.price}</s-heading>
+                  {current ? <s-badge tone="success">Current plan</s-badge> : null}
+                </s-stack>
+                <s-unordered-list>
+                  {copy.features.map((f) => (
+                    <s-list-item key={f}>{f}</s-list-item>
+                  ))}
+                </s-unordered-list>
+                {key === "growth" && !current ? (
+                  <Form method="post">
+                    <input type="hidden" name="intent" value="subscribe" />
+                    <s-button type="submit" variant="primary" loading={busy}>
+                      Start free trial
+                    </s-button>
+                  </Form>
+                ) : null}
+                {key === "growth" && current && subscriptionId ? (
+                  <Form method="post">
+                    <input type="hidden" name="intent" value="cancel" />
+                    <input type="hidden" name="subscriptionId" value={subscriptionId} />
+                    <s-button type="submit" loading={busy}>
+                      Switch to Free
+                    </s-button>
+                  </Form>
+                ) : null}
+              </s-stack>
+            </s-section>
+          );
+        })}
+      </s-grid>
     </s-page>
   );
 }
 
-export const headers: HeadersFunction = (headersArgs) => {
-  return boundary.headers(headersArgs);
-};
+export const headers: HeadersFunction = (headersArgs) => boundary.headers(headersArgs);

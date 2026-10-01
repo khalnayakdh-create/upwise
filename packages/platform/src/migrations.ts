@@ -1,3 +1,4 @@
+import type { D1Database } from "@cloudflare/workers-types";
 /**
  * Minimal, idempotent migration runner for Cloudflare D1.
  *

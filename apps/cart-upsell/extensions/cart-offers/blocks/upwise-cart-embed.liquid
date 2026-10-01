@@ -1,0 +1,33 @@
+{%- comment -%}
+  App embed: loads the Upwise cart widget on every page so it can render
+  inside the cart drawer and on the cart page. Offer data comes from an
+  app-owned metafield written by the Upwise admin (no backend call needed).
+{%- endcomment -%}
+{%- assign upwise_config = app.metafields.upwise_cart.config -%}
+{%- if upwise_config != blank -%}
+  <script type="application/json" id="upwise-cart-config">{{ upwise_config.value | json }}</script>
+  <script>
+    window.UpwiseCart = window.UpwiseCart || {};
+    window.UpwiseCart.settings = {
+      drawer: {{ block.settings.show_in_drawer | json }},
+      cartPage: {{ block.settings.show_on_cart_page | json }},
+      buttonLabel: {{ block.settings.button_label | json }},
+      maxProducts: {{ block.settings.max_products | json }}
+    };
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Upwise cart offers",
+  "target": "body",
+  "javascript": "upwise-cart.js",
+  "stylesheet": "upwise-cart.css",
+  "settings": [
+    { "type": "checkbox", "id": "show_in_drawer", "label": "Show in cart drawer", "default": true },
+    { "type": "checkbox", "id": "show_on_cart_page", "label": "Show on cart page", "default": true },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Add" },
+    { "type": "range", "id": "max_products", "label": "Products to show", "min": 1, "max": 3, "step": 1, "default": 3 }
+  ]
+}
+{% endschema %}

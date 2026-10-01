@@ -87,6 +87,30 @@ describe("webhooks", () => {
     expect(res.status).toBe(401);
   });
 
+  it("app proxy events: rejects unsigned, accepts signed", async () => {
+    const unsigned = await worker.fetch(`https://example.com/proxy/events?shop=${SHOP}`, {
+      method: "POST",
+      body: JSON.stringify({ events: [] }),
+    });
+    expect(unsigned.status).toBe(400);
+
+    const params: Record<string, string> = {
+      shop: SHOP,
+      path_prefix: "/apps/upwise-cart",
+      timestamp: String(Math.floor(Date.now() / 1000)),
+      logged_in_customer_id: "",
+    };
+    const message = Object.keys(params).sort().map((k) => `${k}=${params[k]}`).join("");
+    const signature = createHmac("sha256", SECRET).update(message).digest("hex");
+    const qs = new URLSearchParams({ ...params, signature }).toString();
+    const signed = await worker.fetch(`https://example.com/proxy/events?${qs}`, {
+      method: "POST",
+      body: JSON.stringify({ events: [{ offerId: "unknown", type: "impression" }] }),
+    });
+    // No session for this shop in the test DB -> handled quietly with 204.
+    expect(signed.status).toBe(204);
+  });
+
   it("login without a shop never asks for a shop domain", async () => {
     const res = await worker.fetch("https://example.com/auth/login");
     const html = await res.text();

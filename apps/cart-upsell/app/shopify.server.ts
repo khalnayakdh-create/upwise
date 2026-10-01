@@ -12,11 +12,7 @@ import { getDb, sessionTable } from "@upwise/platform";
 /** Pinned Admin API version. Upgrade quarterly (blueprint §6.11). */
 export const API_VERSION = ApiVersion.July26;
 
-/**
- * Placeholder paid plan used to prove the Billing API works on Workers.
- * Real plans and prices are decided in Phase 1 (blueprint §14.2).
- */
-export const GROWTH_PLAN = "Growth";
+import { GROWTH_PLAN } from "./lib/plans";
 
 function createShopify(env: Env) {
   if (!env.SHOPIFY_API_KEY || !env.SHOPIFY_API_SECRET || !env.SHOPIFY_APP_URL) {

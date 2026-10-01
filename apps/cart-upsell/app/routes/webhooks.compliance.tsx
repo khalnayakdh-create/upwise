@@ -1,6 +1,7 @@
 import type { Route } from "./+types/webhooks.compliance";
 import { getDb, handleComplianceWebhook } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
+import { purgeCartUpsellShop } from "../lib/offers.server";
 
 /**
  * Mandatory privacy webhooks: customers/data_request, customers/redact,
@@ -12,6 +13,10 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
   const { env } = context.cloudflare;
   const { shop, topic, webhookId, payload } =
     await getShopify(env).authenticate.webhook(request);
-  await handleComplianceWebhook(getDb(env.DB), { topic, shop, webhookId, payload });
+  await handleComplianceWebhook(
+    getDb(env.DB),
+    { topic, shop, webhookId, payload },
+    { purgeShop: purgeCartUpsellShop },
+  );
   return new Response();
 };

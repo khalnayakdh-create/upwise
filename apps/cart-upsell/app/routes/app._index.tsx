@@ -2,64 +2,109 @@ import type { Route } from "./+types/app._index";
 import type { HeadersFunction } from "react-router";
 import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { getShopify, GROWTH_PLAN } from "../shopify.server";
+import { getDb } from "@upwise/platform";
+import { getShopify } from "../shopify.server";
+import { resolvePlan, storeHandle, syncStorefrontConfig } from "../lib/admin.server";
+import { listOffers, statsByOffer, totals } from "../lib/offers.server";
+import { PLAN_COPY, PLAN_LIMITS } from "../lib/plans";
+
+export const EMBED_HANDLE = "upwise-cart-embed";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
-  const shopify = getShopify(context.cloudflare.env);
-  const { admin, session, billing } = await shopify.authenticate.admin(request);
+  const { env } = context.cloudflare;
+  const { admin, session, billing } = await getShopify(env).authenticate.admin(request);
+  const db = getDb(env.DB);
+  const { plan, changed } = await resolvePlan(billing, env, session.shop);
+  // Plan changes alter which offers are live; keep the storefront in sync.
+  if (changed) await syncStorefrontConfig(admin, env, session.shop, plan);
 
-  // Spike check 1: an Admin GraphQL call works from the Worker.
-  const response = await admin.graphql(
-    `#graphql
-    query ShopInfo {
-      shop { name plan { publicDisplayName partnerDevelopment } }
-      productsCount { count }
-    }`,
-  );
-  const { data } = await response.json();
-
-  // Spike check 2: billing status can be read.
-  const { hasActivePayment } = await billing.check({
-    plans: [GROWTH_PLAN],
-    isTest: true,
-  });
-
+  const [offers, stats] = await Promise.all([listOffers(db, session.shop), statsByOffer(db, session.shop)]);
+  const sum = totals(stats);
+  const active = offers.filter((o) => o.status === "active").length;
   return {
-    shop: session.shop,
-    shopName: data?.shop?.name as string,
-    planName: data?.shop?.plan?.publicDisplayName as string,
-    productCount: data?.productsCount?.count as number,
-    hasActivePayment,
+    plan,
+    planName: PLAN_COPY[plan].name,
+    overLimit: active > PLAN_LIMITS[plan].maxActiveOffers,
+    offerCount: offers.length,
+    activeCount: active,
+    stats: sum,
+    embedUrl: `https://admin.shopify.com/store/${storeHandle(session.shop)}/themes/current/editor?context=apps&template=cart&activateAppId=${env.SHOPIFY_API_KEY}/${EMBED_HANDLE}`,
   };
 };
 
-export default function Index() {
-  const { shopName, planName, productCount, hasActivePayment } =
-    useLoaderData<typeof loader>();
+function pct(n: number, d: number) {
+  return d ? `${((n / d) * 100).toFixed(1)}%` : "–";
+}
+
+export default function Dashboard() {
+  const { planName, overLimit, offerCount, activeCount, stats, embedUrl } = useLoaderData<typeof loader>();
+  const seenOnStore = stats.impressions > 0;
 
   return (
     <s-page heading="Upwise Cart Upsell">
-      <s-section heading="Setup check">
-        <s-paragraph>
-          Connected to <s-text type="strong">{shopName}</s-text> ({planName}).
-        </s-paragraph>
-        <s-unordered-list>
-          <s-list-item>Shopify login and session storage: working</s-list-item>
-          <s-list-item>Admin API: {productCount} products found</s-list-item>
+      <s-button slot="primary-action" variant="primary" href="/app/offers/new">
+        Create offer
+      </s-button>
+
+      {overLimit ? (
+        <s-banner tone="warning" heading="Some offers are paused on your storefront">
+          Your {planName} plan shows 1 active offer on your store. Upgrade to Growth to show all {activeCount}.
+          <s-button slot="secondary-actions" href="/app/plans">View plans</s-button>
+        </s-banner>
+      ) : null}
+
+      <s-section heading="Get set up">
+        <s-ordered-list>
           <s-list-item>
-            Billing: {hasActivePayment ? "Growth plan active (test)" : "Free plan"}
+            <s-stack direction="inline" gap="small-200" alignItems="center">
+              <s-text type="strong">Turn on Upwise in your theme</s-text>
+              {seenOnStore ? <s-badge tone="success">Done</s-badge> : null}
+            </s-stack>
+            <s-paragraph>
+              Adds the offer widget to your cart drawer and cart page. Opens the theme editor with the Upwise
+              switch ready, then click Save.
+            </s-paragraph>
+            <s-button href={embedUrl} target="_blank">Open theme editor</s-button>
           </s-list-item>
-        </s-unordered-list>
+          <s-list-item>
+            <s-stack direction="inline" gap="small-200" alignItems="center">
+              <s-text type="strong">Create your first offer</s-text>
+              {offerCount > 0 ? <s-badge tone="success">Done</s-badge> : null}
+            </s-stack>
+            <s-paragraph>Choose which products to recommend in the cart.</s-paragraph>
+            <s-button href={offerCount > 0 ? "/app/offers" : "/app/offers/new"}>
+              {offerCount > 0 ? "Manage offers" : "Create offer"}
+            </s-button>
+          </s-list-item>
+        </s-ordered-list>
       </s-section>
-      <s-section slot="aside" heading="Next">
+
+      <s-section heading="Last 30 days">
+        <s-grid gridTemplateColumns="repeat(3, 1fr)" gap="base">
+          <s-box>
+            <s-text color="subdued">Offer views</s-text>
+            <s-heading>{stats.impressions.toLocaleString()}</s-heading>
+          </s-box>
+          <s-box>
+            <s-text color="subdued">Added to cart</s-text>
+            <s-heading>{stats.adds.toLocaleString()}</s-heading>
+          </s-box>
+          <s-box>
+            <s-text color="subdued">Add rate</s-text>
+            <s-heading>{pct(stats.adds, stats.impressions)}</s-heading>
+          </s-box>
+        </s-grid>
+      </s-section>
+
+      <s-section slot="aside" heading="Plan">
         <s-paragraph>
-          Cart offers arrive in Phase 1. This page confirms the platform works.
+          You're on the <s-text type="strong">{planName}</s-text> plan with {activeCount} active{" "}
+          {activeCount === 1 ? "offer" : "offers"}.
         </s-paragraph>
+        <s-link href="/app/plans">Compare plans</s-link>
       </s-section>
     </s-page>
   );
 }
 
-export const headers: HeadersFunction = (headersArgs) => {
-  return boundary.headers(headersArgs);
-};
+export const headers: HeadersFunction = (headersArgs) => boundary.headers(headersArgs);

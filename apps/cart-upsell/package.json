@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.62.3",
+    "@cloudflare/workers-types": "^5.20261001.1",
     "@react-router/dev": "7.18.2",
     "@react-router/fs-routes": "7.18.2",
     "@shopify/app-bridge-types": "^0.7.2",
