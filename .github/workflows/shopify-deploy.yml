@@ -44,18 +44,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Decide whether to deploy
         id: gate
         run: |
           dir="apps/${{ matrix.app }}"
+          # Compare the whole push, not just its last commit.
+          BASE="${{ github.event.before }}"
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then BASE="HEAD^"; fi
           if ! grep -Eq '^client_id = "[0-9a-f]{32}"' "$dir/shopify.app.toml"; then
             echo "::notice::${{ matrix.app }}: no client_id yet, skipping"; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
           if [ -z "$SHOPIFY_APP_AUTOMATION_TOKEN" ]; then
             echo "::warning::${{ matrix.app }}: add repo secret ${{ matrix.secret }} to enable deploys"; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || git diff --name-only HEAD^ HEAD | grep -Eq "^($dir/shopify.app.toml|$dir/extensions/|package-lock.json)"; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || git diff --name-only "$BASE" HEAD | grep -Eq "^($dir/shopify.app.toml|$dir/extensions/|package-lock.json)"; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "::notice::${{ matrix.app }}: unchanged, skipping"; echo "run=false" >> "$GITHUB_OUTPUT"
