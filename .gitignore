@@ -1,0 +1,16 @@
+node_modules
+.DS_Store
+.cache
+build
+dist
+.wrangler
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+.react-router/
+.shopify/*
+.shopify.lock
+extensions/*/dist
+coverage
+*.tsbuildinfo

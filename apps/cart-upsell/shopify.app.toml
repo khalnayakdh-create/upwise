@@ -1,0 +1,40 @@
+# Shopify app configuration for Upwise Cart Upsell.
+# Values marked FILL are set once the app exists in the Dev Dashboard and the
+# Worker URL is known. Docs: https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration
+
+client_id = "" # FILL: Dev Dashboard > app > Settings > Client ID
+name = "Upwise Cart Upsell"
+application_url = "https://upwise-cart-upsell.FILL.workers.dev"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
+
+[access_scopes]
+# Minimum scopes. Add only when a feature needs them (blueprint §6.7).
+scopes = "read_products"
+
+[auth]
+redirect_urls = [
+  "https://upwise-cart-upsell.FILL.workers.dev/auth/callback",
+]
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri = "/webhooks/app/scopes_update"
+
+  # Mandatory privacy webhooks (App Store requirement). One handler for all three.
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/webhooks/compliance"
+
+[pos]
+embedded = false
