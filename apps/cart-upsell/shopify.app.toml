@@ -3,7 +3,7 @@
 
 client_id = "3e6e2d418655b16b1d9132a533b68a00"
 name = "Upwise Cart Upsell"
-application_url = "https://upwise-cart-upsell.akjr004.workers.dev"
+application_url = "https://cart.upwise.dev"
 embedded = true
 
 [build]
@@ -16,7 +16,7 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://upwise-cart-upsell.akjr004.workers.dev/auth/callback",
+  "https://cart.upwise.dev/auth/callback",
 ]
 
 [webhooks]

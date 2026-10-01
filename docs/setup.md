@@ -35,6 +35,6 @@ The **Shopify app config** GitHub Action releases them whenever that file change
 3. GitHub → Actions → "Shopify app config" → Run workflow.
 
 ## Current values
-- Worker URL: https://upwise-cart-upsell.akjr004.workers.dev
+- App URL: https://cart.upwise.dev (fallback: https://upwise-cart-upsell.akjr004.workers.dev)
 - Shopify Client ID: 3e6e2d418655b16b1d9132a533b68a00 (public; the secret lives only in Cloudflare)
 - Dev store: upwisedev
