@@ -1,22 +1,68 @@
 {%- comment -%} Storevine Reviews: summary, review list and review form for the current product. {%- endcomment -%}
+{%- assign rating = product.metafields.reviews.rating.value -%}
+{%- assign count = product.metafields.reviews.rating_count.value | default: 0 -%}
 <div
   class="storevine-reviews"
   data-storevine-reviews
   data-product-id="{{ product.id }}"
-  data-heading="{{ block.settings.heading | escape }}"
   data-allow-form="{{ block.settings.allow_form }}"
   {{ block.shopify_attributes }}
 >
   <h2 class="storevine-reviews__heading">{{ block.settings.heading | escape }}</h2>
-  {%- assign rating = product.metafields.reviews.rating.value -%}
-  {%- assign count = product.metafields.reviews.rating_count.value | default: 0 -%}
   {%- if count > 0 -%}
     <p class="storevine-reviews__summary">
       <span class="storevine-stars" style="--rating: {{ rating.rating }}" aria-hidden="true"></span>
-      <span>{{ rating.rating | round: 1 }} out of 5 · {{ count }} {% if count == 1 %}review{% else %}reviews{% endif %}</span>
+      <span>
+        {%- assign rounded = rating.rating | round: 1 -%}
+        {%- if count == 1 -%}{{ 'reviews.summary_one' | t: rating: rounded }}{%- else -%}{{ 'reviews.summary_other' | t: rating: rounded, total: count }}{%- endif -%}
+      </span>
     </p>
   {%- endif -%}
-  <div class="storevine-reviews__list" data-storevine-list><noscript>Enable JavaScript to see reviews.</noscript></div>
+  <div class="storevine-reviews__list" data-storevine-list><noscript>{{ 'reviews.noscript' | t }}</noscript></div>
+  <script type="application/json" data-storevine-strings>
+    {
+      "empty": {{ 'reviews.empty' | t | json }},
+      "more": {{ 'reviews.more' | t | json }},
+      "write": {{ 'reviews.write' | t | json }},
+      "rating": {{ 'reviews.rating' | t | json }},
+      "starOne": {{ 'reviews.star_one' | t | json }},
+      "starOther": {{ 'reviews.star_other' | t: n: '%n' | json }},
+      "starsAria": {{ 'reviews.stars_aria' | t: rating: '%n' | json }},
+      "name": {{ 'reviews.name' | t | json }},
+      "title": {{ 'reviews.title' | t | json }},
+      "body": {{ 'reviews.body' | t | json }},
+      "photos": {{ 'reviews.photos' | t | json }},
+      "submit": {{ 'reviews.submit' | t | json }},
+      "sending": {{ 'reviews.sending' | t | json }},
+      "chooseRating": {{ 'reviews.choose_rating' | t | json }},
+      "thanksLive": {{ 'reviews.thanks_live' | t | json }},
+      "thanksPending": {{ 'reviews.thanks_pending' | t | json }},
+      "error": {{ 'reviews.error' | t | json }},
+      "storeReply": {{ 'reviews.store_reply' | t | json }},
+      "verified": {{ 'reviews.verified' | t | json }},
+      "photoAlt": {{ 'reviews.photo_alt' | t: author: '%a' | json }}
+    }
+  </script>
+  {%- if block.settings.rich_results and count > 0 -%}
+    {%- comment -%} Google rich results: star rating from Shopify's standard review metafields. {%- endcomment -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "@id": {{ shop.url | append: product.url | append: '#product' | json }},
+        "name": {{ product.title | json }},
+        "url": {{ shop.url | append: product.url | json }},
+        {%- if product.featured_image -%}"image": {{ product.featured_image | image_url: width: 1200 | prepend: 'https:' | json }},{%- endif -%}
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": {{ rating.rating | json }},
+          "reviewCount": {{ count | json }},
+          "bestRating": 5,
+          "worstRating": 1
+        }
+      }
+    </script>
+  {%- endif -%}
 </div>
 
 {% schema %}
@@ -28,7 +74,8 @@
   "enabled_on": { "templates": ["product"] },
   "settings": [
     { "type": "text", "id": "heading", "label": "Heading", "default": "Customer reviews" },
-    { "type": "checkbox", "id": "allow_form", "label": "Let customers write reviews", "default": true }
+    { "type": "checkbox", "id": "allow_form", "label": "Let customers write reviews", "default": true },
+    { "type": "checkbox", "id": "rich_results", "label": "Add star-rating data for Google", "default": true, "info": "Turn off if your theme already adds review data, to avoid duplicates." }
   ]
 }
 {% endschema %}

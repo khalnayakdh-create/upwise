@@ -72,16 +72,16 @@ describe("reviews storage", () => {
     const a = await createReview(db, SHOP, { ...base, rating: 3, status: "hidden" });
     await createReview(db, "b.myshopify.com", { ...base, rating: 3, status: "published" });
     expect((await listReviews(db, SHOP, { status: "hidden" })).map((r) => r.id)).toEqual([a]);
-    expect(await deleteReview(db, SHOP, a)).toBe(P1);
+    expect(await deleteReview(db, SHOP, a)).toMatchObject({ productId: P1 });
     await createReview(db, SHOP, { ...base, rating: 3, status: "published" });
     await purgeReviewsShop(db, SHOP);
     expect(await listReviews(db, SHOP)).toHaveLength(0);
     expect(await listReviews(db, "b.myshopify.com")).toHaveLength(1);
   });
   it("settings default to hold-for-approval and persist", async () => {
-    expect(await getSettings(db, SHOP)).toEqual({ autoPublish: false });
-    await saveSettings(db, SHOP, { autoPublish: true });
-    expect(await getSettings(db, SHOP)).toEqual({ autoPublish: true });
+    expect(await getSettings(db, SHOP)).toEqual({ autoPublish: false, requestsEnabled: false, requestDelayDays: 7 });
+    await saveSettings(db, SHOP, { autoPublish: true, requestsEnabled: true, requestDelayDays: 3 });
+    expect(await getSettings(db, SHOP)).toEqual({ autoPublish: true, requestsEnabled: true, requestDelayDays: 3 });
   });
 });
 

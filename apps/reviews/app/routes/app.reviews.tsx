@@ -7,6 +7,7 @@ import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
 import { syncProductRating } from "../lib/admin.server";
 import { deleteReview, listReviews, setReply, setStatus, type ReviewStatus } from "../lib/reviews.server";
+import { deletePhotos, parsePhotos, signedPhotoUrl } from "../lib/photos.server";
 
 const STATUSES: ReviewStatus[] = ["published", "pending", "hidden"];
 
@@ -15,7 +16,14 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { session } = await getShopify(env).authenticate.admin(request);
   const url = new URL(request.url);
   const status = STATUSES.find((s) => s === url.searchParams.get("status"));
-  const reviews = await listReviews(getDb(env.DB), session.shop, { status, limit: 100 });
+  const rows = await listReviews(getDb(env.DB), session.shop, { status, limit: 100 });
+  // Photos of unpublished reviews aren't public, so the admin gets short-lived signed links.
+  const reviews = await Promise.all(
+    rows.map(async (r) => ({
+      ...r,
+      photoUrls: await Promise.all(parsePhotos(r.photos).map((k) => signedPhotoUrl(env.SHOPIFY_APP_URL, env.SHOPIFY_API_SECRET, k))),
+    })),
+  );
   return { status: status ?? "all", reviews };
 };
 
@@ -31,7 +39,11 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
     await setReply(db, session.shop, id, String(form.get("reply") ?? ""));
     return { ok: true };
   }
-  if (intent === "delete") productId = await deleteReview(db, session.shop, id);
+  if (intent === "delete") {
+    const removed = await deleteReview(db, session.shop, id);
+    if (removed) await deletePhotos(env, parsePhotos(removed.photos));
+    productId = removed?.productId ?? null;
+  }
   else if (STATUSES.includes(intent as ReviewStatus)) productId = await setStatus(db, session.shop, id, intent as ReviewStatus);
   if (productId) await syncProductRating(admin.graphql as never, env, session.shop, productId);
   return { ok: true };
@@ -41,7 +53,9 @@ function Stars({ n }: { n: number }) {
   return <s-text>{"★".repeat(n) + "☆".repeat(5 - n)}<s-text accessibilityVisibility="exclusive">{` ${n} out of 5 stars`}</s-text></s-text>;
 }
 
-function ReviewRow({ review }: { review: Awaited<ReturnType<typeof listReviews>>[number] }) {
+type Row = Awaited<ReturnType<typeof listReviews>>[number] & { photoUrls: string[] };
+
+function ReviewRow({ review }: { review: Row }) {
   const fetcher = useFetcher();
   const busy = fetcher.state !== "idle";
   const [replying, setReplying] = useState(false);
@@ -62,9 +76,19 @@ function ReviewRow({ review }: { review: Awaited<ReturnType<typeof listReviews>>
         </s-stack>
         <s-text color="subdued">
           {review.author} on {review.productTitle || review.productHandle} · {new Date(review.createdAt).toLocaleDateString()}
-          {review.source === "import" ? " · Imported" : ""}
+          {review.source === "import" ? " · Imported" : review.source === "request" ? " · From review request" : ""}
+          {review.verified ? " · Verified buyer" : ""}
         </s-text>
         <s-paragraph>{review.body}</s-paragraph>
+        {review.photoUrls.length ? (
+          <s-stack direction="inline" gap="small">
+            {review.photoUrls.map((src, i) => (
+              <s-link key={src} href={src} target="_blank">
+                <s-thumbnail src={src} alt={`Photo ${i + 1} from ${review.author}`} size="large" />
+              </s-link>
+            ))}
+          </s-stack>
+        ) : null}
         {review.reply ? (
           <s-box padding="small" background="subdued" borderRadius="base">
             <s-text type="strong">Your reply: </s-text>

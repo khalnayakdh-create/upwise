@@ -21,3 +21,7 @@
 .storevine-form__msg{font-size:.9em}
 .storevine-rating__link{display:inline-flex;gap:.4rem;align-items:center;text-decoration:none;color:inherit}
 .storevine-rating__text{font-size:.9em}
+.storevine-review__photos{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}
+.storevine-review__photos img{width:96px;height:96px;object-fit:cover;border-radius:6px;display:block}
+.storevine-review__verified{font-weight:600}
+.storevine-form input[type=file]{border:0;padding:0}

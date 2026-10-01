@@ -10,7 +10,8 @@ include_config_on_deploy = true
 
 [access_scopes]
 # write_products: write Shopify's standard reviews.rating / reviews.rating_count product metafields.
-scopes = "read_products,write_products"
+# read_orders: fulfilled orders trigger review-request emails (needs protected customer data: email).
+scopes = "read_products,write_products,read_orders"
 
 [auth]
 redirect_urls = ["https://reviews.storevine.app/auth/callback"]
@@ -36,6 +37,11 @@ api_version = "2026-07"
   [[webhooks.subscriptions]]
   topics = ["app/scopes_update"]
   uri = "/webhooks/app/scopes_update"
+
+  # Review requests: schedule an email when an order is fulfilled.
+  [[webhooks.subscriptions]]
+  topics = ["orders/fulfilled"]
+  uri = "/webhooks/orders/fulfilled"
 
   [[webhooks.subscriptions]]
   compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]

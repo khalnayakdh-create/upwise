@@ -3,6 +3,7 @@ import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
 import { productInfo, syncProductRating } from "../lib/admin.server";
 import { createReview, getSettings, MAX_SUBMISSIONS_PER_HOUR, productSummary, publishedForProduct, recentSubmissions, validateSubmission } from "../lib/reviews.server";
+import { parsePhotos, publicPhotoUrl, signUploadToken } from "../lib/photos.server";
 
 /**
  * Storefront API via the Shopify app proxy:
@@ -27,7 +28,19 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
     productSummary(db, session.shop, productId),
     publishedForProduct(db, session.shop, productId, 10, (page - 1) * 10),
   ]);
-  return json({ summary, reviews, page, hasMore: page * 10 < summary.count });
+  const appUrl = env.SHOPIFY_APP_URL;
+  return json({
+    summary,
+    reviews: reviews.map(({ photos, verified, ...r }) => ({
+      ...r,
+      verified: Boolean(verified),
+      photos: parsePhotos(photos).map((k) => publicPhotoUrl(appUrl, k)),
+    })),
+    page,
+    hasMore: page * 10 < summary.count,
+    // Lets the widget post a review with photos straight to the app (the proxy isn't for uploads).
+    submit: { url: `${appUrl.replace(/\/$/, "")}/submit`, shop: session.shop, token: await signUploadToken(env.SHOPIFY_API_SECRET, session.shop, numeric) },
+  });
 };
 
 export const action = async ({ request, context }: Route.ActionArgs) => {

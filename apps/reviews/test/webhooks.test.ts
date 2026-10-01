@@ -94,4 +94,29 @@ describe("webhooks", () => {
     expect(res.status).toBe(200);
     expect(html).not.toMatch(/name="shop"/);
   });
+
+  it("review photos are never served for unknown or malformed keys", async () => {
+    expect((await worker.fetch("https://example.com/media/../secret")).status).toBe(404);
+    expect((await worker.fetch(`https://example.com/media/${SHOP}/00000000-0000-0000-0000-000000000000.jpg`)).status).toBe(404);
+  });
+
+  it("direct review submit rejects a missing or forged token", async () => {
+    const form = new URLSearchParams({ shop: SHOP, productId: "11", token: "123.forged" });
+    const res = await worker.fetch("https://example.com/submit", { method: "POST", body: form });
+    expect(res.status).toBe(403);
+    expect(res.headers.get("access-control-allow-origin")).toBe("*");
+  });
+
+  it("unsubscribe and write links reject invalid tokens", async () => {
+    expect((await worker.fetch("https://example.com/unsubscribe?t=bad")).status).toBe(400);
+    expect((await worker.fetch("https://example.com/unsubscribe?t=bad", { method: "POST" })).status).toBe(400);
+    const form = new URLSearchParams({ t: "bad.token" });
+    expect((await worker.fetch("https://example.com/write", { method: "POST", body: form })).status).toBe(400);
+  });
+
+  it("orders/fulfilled with a valid HMAC is accepted (requests off: nothing stored)", async () => {
+    const res = await webhook("/webhooks/orders/fulfilled", "orders/fulfilled", { id: 5, email: "a@b.co", line_items: [{ product_id: 1 }] }, { id: "of-1" });
+    expect(res.status).toBe(200);
+  });
 });
+

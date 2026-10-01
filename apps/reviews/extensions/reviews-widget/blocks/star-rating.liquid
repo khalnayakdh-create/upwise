@@ -3,13 +3,14 @@
 {%- assign count = product.metafields.reviews.rating_count.value | default: 0 -%}
 <div class="storevine-rating" {{ block.shopify_attributes }}>
   {%- if count > 0 -%}
+    {%- assign rounded = rating.rating | round: 1 -%}
     <a href="#storevine-reviews" class="storevine-rating__link">
       <span class="storevine-stars" style="--rating: {{ rating.rating }}" aria-hidden="true"></span>
       <span class="storevine-rating__text">{{ rating.rating | round: 1 }} ({{ count }})</span>
-      <span class="visually-hidden">{{ rating.rating | round: 1 }} out of 5 stars, {{ count }} reviews</span>
+      <span class="visually-hidden">{{ 'reviews.rating_aria' | t: rating: rounded, total: count }}</span>
     </a>
   {%- elsif block.settings.show_empty -%}
-    <span class="storevine-rating__text">No reviews yet</span>
+    <span class="storevine-rating__text">{{ 'reviews.no_reviews' | t }}</span>
   {%- endif -%}
 </div>
 

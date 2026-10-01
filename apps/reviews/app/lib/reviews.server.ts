@@ -8,9 +8,13 @@ export type Review = typeof reviewTable.$inferSelect;
 export interface Settings {
   /** true: new storefront reviews go live immediately; false: they wait in the inbox. */
   autoPublish: boolean;
+  /** Email customers a review request after their order is fulfilled. Off until the merchant turns it on. */
+  requestsEnabled: boolean;
+  /** Days after fulfillment before the request is sent. */
+  requestDelayDays: number;
 }
 /** New installs hold reviews for approval (safer against spam); merchants can switch to auto-publish. */
-export const DEFAULT_SETTINGS: Settings = { autoPublish: false };
+export const DEFAULT_SETTINGS: Settings = { autoPublish: false, requestsEnabled: false, requestDelayDays: 7 };
 
 export async function getSettings(db: Db, shop: string): Promise<Settings> {
   const [row] = await db
@@ -65,10 +69,39 @@ export function validateSubmission(raw: Record<string, unknown>, now = Date.now(
   };
 }
 
+/** Validate a review written from a request link. The signed link replaces the bot checks. */
+export function validateRequestReview(raw: Record<string, unknown>): { input?: Omit<SubmissionInput, "productId">; error?: string } {
+  const rating = Number.parseInt(String(raw.rating ?? ""), 10);
+  if (!(rating >= 1 && rating <= 5)) return { error: "Choose a star rating." };
+  const author = clean(raw.author, 60);
+  const body = clean(raw.body, 2000);
+  if (!author) return { error: "Add your name." };
+  if (body.length < 3) return { error: "Write a few words about the product." };
+  return { input: { rating, title: clean(raw.title, 120), body, author } };
+}
+
+/** Product ids already reviewed from a given request. */
+export async function reviewedFromRequest(db: Db, shop: string, requestId: string) {
+  const rows = await db
+    .select({ productId: reviewTable.productId })
+    .from(reviewTable)
+    .where(and(eq(reviewTable.shop, shop), eq(reviewTable.requestId, requestId)));
+  return new Set(rows.map((r) => r.productId));
+}
+
 export async function createReview(
   db: Db,
   shop: string,
-  input: SubmissionInput & { productHandle?: string; productTitle?: string; status: ReviewStatus; source?: "storefront" | "import"; createdAt?: string },
+  input: SubmissionInput & {
+    productHandle?: string;
+    productTitle?: string;
+    status: ReviewStatus;
+    source?: "storefront" | "import" | "request";
+    createdAt?: string;
+    verified?: boolean;
+    requestId?: string | null;
+    photos?: string[];
+  },
   now = new Date(),
 ) {
   const id = crypto.randomUUID();
@@ -85,6 +118,9 @@ export async function createReview(
     author: input.author,
     status: input.status,
     source: input.source ?? "storefront",
+    verified: input.verified ? 1 : 0,
+    requestId: input.requestId ?? null,
+    photos: JSON.stringify(input.photos ?? []),
     createdAt: ts,
     updatedAt: now.toISOString(),
   });
@@ -124,6 +160,8 @@ export async function publishedForProduct(db: Db, shop: string, productId: strin
       body: reviewTable.body,
       author: reviewTable.author,
       reply: reviewTable.reply,
+      verified: reviewTable.verified,
+      photos: reviewTable.photos,
       createdAt: reviewTable.createdAt,
     })
     .from(reviewTable)
@@ -177,8 +215,24 @@ export async function deleteReview(db: Db, shop: string, id: string) {
   const [row] = await db
     .delete(reviewTable)
     .where(and(eq(reviewTable.shop, shop), eq(reviewTable.id, id)))
-    .returning({ productId: reviewTable.productId });
-  return row?.productId ?? null;
+    .returning({ productId: reviewTable.productId, photos: reviewTable.photos });
+  return row ? { productId: row.productId, photos: row.photos } : null;
+}
+
+/** All reviews for a shop as CSV, in the same column order our importer reads (plus extras). */
+export async function exportCsv(db: Db, shop: string) {
+  const rows = await db.select().from(reviewTable).where(eq(reviewTable.shop, shop)).orderBy(desc(reviewTable.createdAt));
+  const cell = (v: unknown) => {
+    const s = String(v ?? "");
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const header = ["product_handle", "rating", "title", "body", "author", "created_at", "status", "verified", "source", "reply", "product_id", "photo_count"];
+  const lines = rows.map((r) =>
+    [r.productHandle, r.rating, r.title, r.body, r.author, r.createdAt, r.status, r.verified ? "yes" : "no", r.source, r.reply ?? "", r.productId, (JSON.parse(r.photos || "[]") as unknown[]).length]
+      .map(cell)
+      .join(","),
+  );
+  return [header.join(","), ...lines].join("\r\n") + "\r\n";
 }
 
 export async function shopTotals(db: Db, shop: string) {

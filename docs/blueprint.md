@@ -436,6 +436,30 @@ If the Workers spike fails a hard requirement, fall back to a single low-cost co
 
 Installs, net installs, activation rate (first value within 24 h), free→paid conversion, MRR, NRR, paid churn, review count and rating, BFS status, admin web vitals, storefront Lighthouse impact, support first-response time, Cloudflare cost per active shop, ad CAC per paid merchant.
 
+### 12.2 Pre-launch plan (from the feature gap analysis, 2026-10-01)
+
+Source: owner's "Shopify app feature gap analysis" (Oct 2026). Its core finding: incumbents already have broad feature lists; merchants switch over **billing on the wrong metric, silent failures, money-losing cart/discount bugs, bot-only support, page weight, accessibility and language**. Positioning: *sell trust where incumbents sell overages.*
+
+**Already aligned (keep and market):** flat Shopify-billed plans with no usage fees and clean cancellation; discounts only via Functions with abuse guards; theme app extensions only (safe past the Mar 1 2027 script-tag shutdown, nothing left on uninstall); 6–10 KB storefront scripts (vs 100–500 KB reported for competitors); Cart Upsell works inside the theme's own drawer; Thank-you extension as post-purchase fallback; no third-party ads; no cart transform yet (safe under the reported one-transform-per-store limit — if one is added, only Bundles owns it).
+
+**Must do before launch (in this order):**
+
+| # | App | Item | Notes |
+|---|---|---|---|
+| 1 | Reviews | Review-request emails after fulfillment, with send log + unsubscribe | Core collection mechanism; needs `read_orders`, order email (protected data Level 2) and an email sender |
+| 2 | Reviews | Photo reviews (R2), Google rich results (AggregateRating JSON-LD), CSV export, unlimited free imports, storefront translations | Free-tier parity with Judge.me; migration is the main acquisition path |
+| 3 | Reviews | BFS: admin block + Flow trigger | BFS category requirement |
+| 4 | Bundles | Quantity breaks, per-item variant pickers, mix-and-match, bundle sales report | Current app is fixed FBT only |
+| 5 | All | WCAG 2.2 AA pass on every widget; locale files for all storefront strings | EAA enforceable; lawsuits cited |
+| 6 | All | Health alerts: daily check, in-app banner + email when views/sign-ups/requests/adds drop abnormally | "Silent failure" is unclaimed white space |
+| 7 | Cart Upsell | Order attribution (influenced orders + revenue net of refunds) then always-on holdout lift report | Needs `read_orders`; holdout found at no competitor |
+| 8 | Pop-ups | Hide/vary for signed-in customers; bot shield (rate limit, disposable domains, "bots blocked" counter); unique single-use codes; consent record; free plan gated on features not sign-up count | Unique codes need `write_discounts` |
+| 9 | All | Final prices; human support promise on paid plans | §14.2 |
+
+**After launch (v1.1+):** verified-buyer import matched to orders + Shopify standard review metaobject + full export with media; FTC/Omnibus compliance kit; pop-up A/B tests and revenue attribution ($29–49); bundle component SKU breakdown (cart transform, Bundles only) and subscription-safe bundles; product-page and swap/upgrade upsells; post-purchase page with skip-rate reporting; suite-wide message budget and shared identity layer.
+
+**Unverified claims to confirm before relying on them:** one cart transform per store; Shopify native predictive cross-sell; whether new Shop-app review partners are admitted. BFS needs 50 net paid installs + 5 reviews per app, so the badge follows launch.
+
 ---
 
 ## 13. Risk register
@@ -477,6 +501,8 @@ Installs, net installs, activation rate (first value within 24 h), free→paid c
 | 2026-09-30 | **Phase 0 spike passed** on Cloudflare Workers | Live at cart.upwise.dev (fallback upwise-cart-upsell.akjr004.workers.dev); D1 auto-provisioned + in-Worker migrations; install/token exchange, Admin GraphQL, session storage and Billing API test charge verified on upwisedev; HMAC-verified compliance webhooks pass end-to-end tests in workerd; config released to Shopify from GitHub Actions |
 | 2026-10-01 | **Rebrand: Upwise → Storevine** (Upwise is trademark-protected). Domain **storevine.app**; apps on `cart.`, `reviews.`, `popups.`, `bundles.storevine.app` | Name checked against the App Store, app stores and web (no conflicts; storevine.com is parked for sale). "Upcartley" rejected: too close to three existing "Upcart" cart-upsell apps. USPTO search still to do before launch |
 | 2026-10-01 | Rebrand covers everything merchants or shoppers can see (app names, URLs, legal pages, emails, storefront CSS/JS, line properties, proxy subpaths, metafield namespaces, extension handles, customer tag, branding). Internal names stay `upwise` (Worker and D1 names, npm scope `@upwise/*`, repo, dev store upwisedev) | Renaming Workers or D1 would mean new Cloudflare projects and empty databases for no user-visible gain |
+
+| 2026-10-01 | Adopt the gap-analysis pre-launch plan (§12.2); build order Reviews → Bundles → cross-app (a11y, translations, health alerts) → Cart Upsell attribution/holdout → Pop-ups list quality | Leads with the largest category (Reviews) and the thinnest app (Bundles); differentiates on reliability and measurement rather than widget count |
 
 ### 14.2 Still open
 

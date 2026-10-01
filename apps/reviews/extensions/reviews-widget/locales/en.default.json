@@ -1,0 +1,29 @@
+{
+  "reviews": {
+    "empty": "No reviews yet. Be the first to share your thoughts.",
+    "more": "Show more reviews",
+    "write": "Write a review",
+    "rating": "Your rating",
+    "star_one": "1 star",
+    "star_other": "{{ n }} stars",
+    "stars_aria": "{{ rating }} out of 5 stars",
+    "name": "Name shown with your review",
+    "title": "Title (optional)",
+    "body": "Your review",
+    "photos": "Photos (optional, up to 3)",
+    "submit": "Submit review",
+    "sending": "Sending…",
+    "choose_rating": "Choose a star rating.",
+    "thanks_live": "Thanks! Your review is live.",
+    "thanks_pending": "Thanks! Your review will appear after a quick check.",
+    "error": "Something went wrong. Please try again.",
+    "store_reply": "Store reply:",
+    "verified": "Verified buyer",
+    "photo_alt": "Photo from {{ author }}",
+    "summary_one": "{{ rating }} out of 5 · 1 review",
+    "summary_other": "{{ rating }} out of 5 · {{ total }} reviews",
+    "noscript": "Enable JavaScript to see reviews.",
+    "no_reviews": "No reviews yet",
+    "rating_aria": "{{ rating }} out of 5 stars, {{ total }} reviews"
+  }
+}

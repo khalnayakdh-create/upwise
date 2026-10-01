@@ -12,10 +12,17 @@
     // Public values. SHOPIFY_API_SECRET is an encrypted secret set in Cloudflare.
     "SHOPIFY_API_KEY": "32a320dfc76c417d383e39d124f8405c",
     "SHOPIFY_APP_URL": "https://reviews.storevine.app",
-    "SCOPES": "read_products,write_products",
+    "SCOPES": "read_products,write_products,read_orders",
     "BILLING_TEST_MODE": "true",
     // DEV ONLY: empty before launch.
     "DEV_PLAN_OVERRIDES": "upwisedev.myshopify.com:growth"
   },
-  "d1_databases": [{ "binding": "DB", "database_name": "upwise-reviews" }]
+  "d1_databases": [{ "binding": "DB", "database_name": "upwise-reviews" }],
+  // Review-request emails: every 15 minutes, send what's due.
+  "triggers": { "crons": ["*/15 * * * *"] },
+  // Cloudflare Email Service. The sending domain (storevine.app) must be onboarded under
+  // Compute > Email Service > Email Sending; until then requests stay scheduled.
+  "send_email": [{ "name": "EMAIL" }],
+  // Review photos (created automatically on first deploy).
+  "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "storevine-review-photos" }]
 }
