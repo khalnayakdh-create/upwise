@@ -17,7 +17,9 @@
     "SHOPIFY_APP_URL": "https://cart.upwise.dev",
     "SCOPES": "read_products,write_discounts",
     // "true" = Shopify test charges (dev store). Set "false" for production.
-    "BILLING_TEST_MODE": "true"
+    "BILLING_TEST_MODE": "true",
+    // DEV ONLY: lets the dev store test paid features. Empty this before launch.
+    "DEV_PLAN_OVERRIDES": "upwisedev.myshopify.com:pro"
   },
   "d1_databases": [
     {

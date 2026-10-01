@@ -278,7 +278,9 @@ export async function resolvePlan(
     plans: [...PAID_PLANS],
     isTest: env.BILLING_TEST_MODE !== "false",
   });
-  const plan: PlanKey = hasActivePayment ? planFromSubscriptionName(appSubscriptions[0]?.name) : "free";
+  let plan: PlanKey = hasActivePayment ? planFromSubscriptionName(appSubscriptions[0]?.name) : "free";
+  const override = devPlanOverride(env, shop);
+  if (override) plan = override;
   const db = getDb(env.DB);
   const [row] = await db.select({ plan: shopTable.plan }).from(shopTable).where(eq(shopTable.shop, shop));
   const changed = !row || row.plan !== plan;
@@ -289,6 +291,20 @@ export async function resolvePlan(
       .onConflictDoUpdate({ target: shopTable.shop, set: { plan } });
   }
   return { plan, changed, subscriptionId: appSubscriptions[0]?.id ?? null };
+}
+
+/**
+ * Development only: DEV_PLAN_OVERRIDES="shop.myshopify.com:pro,other.myshopify.com:growth"
+ * lets named dev stores test paid features without a subscription.
+ * MUST be empty in production (checked in docs/launch-checklist.md).
+ */
+export function devPlanOverride(env: Env, shop: string): PlanKey | null {
+  const raw = (env as unknown as { DEV_PLAN_OVERRIDES?: string }).DEV_PLAN_OVERRIDES ?? "";
+  for (const entry of raw.split(",")) {
+    const [s, p] = entry.trim().split(":");
+    if (s === shop && (p === "free" || p === "growth" || p === "pro")) return p;
+  }
+  return null;
 }
 
 export function storeHandle(shop: string) {
