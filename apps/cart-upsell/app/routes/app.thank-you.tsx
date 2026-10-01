@@ -3,7 +3,7 @@ import type { HeadersFunction } from "react-router";
 import { Form, useLoaderData, useNavigation, useSearchParams } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
-import { useSaveBarCleanup } from "../lib/use-save-bar-cleanup";
+import { FormSaveBar, useSaveBar } from "../lib/save-bar";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getDb } from "@upwise/platform";
 import { redirect } from "react-router";
@@ -71,7 +71,7 @@ export default function ThankYouSettings() {
   const [params] = useSearchParams();
   const saving = useNavigation().state === "submitting";
   const formRef = useRef<HTMLFormElement>(null);
-  useSaveBarCleanup(formRef);
+  const checkDirty = useSaveBar(formRef, "thank-you-save-bar", config);
   const [products, setProducts] = useState<Picked[]>(
     config.products.map((p) => ({ id: p.productId, title: p.title, image: p.image })),
   );
@@ -79,7 +79,6 @@ export default function ThankYouSettings() {
   useEffect(() => {
     if (params.get("saved")) {
       shopify.toast.show("Thank-you page offer saved");
-      formRef.current?.reset(); // same route after save: clear the save bar
     }
   }, [params, shopify]);
 
@@ -97,9 +96,7 @@ export default function ThankYouSettings() {
         return { id: product.id, title: product.title, image: product.images?.[0]?.originalSrc ?? null };
       }),
     );
-    requestAnimationFrame(() =>
-      formRef.current?.querySelector("input[name=productIds]")?.dispatchEvent(new Event("change", { bubbles: true })),
-    );
+    checkDirty();
   }
 
   if (!allowed) {
@@ -122,7 +119,8 @@ export default function ThankYouSettings() {
 
   return (
     <s-page heading="Thank-you page offers">
-      <Form method="post" data-save-bar ref={formRef}>
+      <FormSaveBar id="thank-you-save-bar" formRef={formRef} saving={saving} />
+      <Form method="post" ref={formRef}>
         <input type="hidden" name="productIds" value={JSON.stringify(products.map((p) => p.id))} />
         <s-section heading="Offer">
           <s-stack gap="base">

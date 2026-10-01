@@ -1,9 +1,9 @@
 import type { Route } from "./+types/app.offers.$id";
 import type { HeadersFunction } from "react-router";
 import { Form, redirect, useActionData, useLoaderData, useNavigation, useSearchParams } from "react-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
-import { useSaveBarCleanup } from "../lib/use-save-bar-cleanup";
+import { FormSaveBar, useSaveBar } from "../lib/save-bar";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
@@ -96,28 +96,19 @@ export default function OfferEditor() {
   const { isNew, offer, canDiscount } = useLoaderData<typeof loader>();
   const [search] = useSearchParams();
   const warning = search.get("warning");
-  useEffect(() => {
-    if (warning) formRef.current?.reset(); // saved; stay on page to show the warning
-  }, [warning]);
   const actionData = useActionData<typeof action>();
   const errors: Record<string, string> = actionData?.errors ?? {};
   const navigation = useNavigation();
   const saving = navigation.state === "submitting";
   const shopify = useAppBridge();
   const formRef = useRef<HTMLFormElement>(null);
-  useSaveBarCleanup(formRef);
+  const checkDirty = useSaveBar(formRef, "offer-save-bar", offer);
 
   const [triggerType, setTriggerType] = useState<string>(offer.triggerType);
   const [triggerProducts, setTriggerProducts] = useState<PickedProduct[]>(offer.triggerProducts);
   const [offerProducts, setOfferProducts] = useState<PickedProduct[]>(offer.offerProducts);
 
-  // Let App Bridge's contextual save bar notice programmatic changes.
-  const markDirty = () =>
-    requestAnimationFrame(() =>
-      formRef.current
-        ?.querySelector<HTMLInputElement>("input[name=__dirty]")
-        ?.dispatchEvent(new Event("change", { bubbles: true })),
-    );
+  const markDirty = checkDirty;
 
   async function pick(current: PickedProduct[], max: number, set: (p: PickedProduct[]) => void) {
     const selected = await shopify.resourcePicker({
@@ -147,8 +138,8 @@ export default function OfferEditor() {
           {warning}
         </s-banner>
       ) : null}
-      <Form method="post" data-save-bar ref={formRef}>
-        <input type="hidden" name="__dirty" value={JSON.stringify([triggerType, triggerProducts, offerProducts])} />
+      <FormSaveBar id="offer-save-bar" formRef={formRef} saving={saving} />
+      <Form method="post" ref={formRef}>
         <input type="hidden" name="triggerProductIds" value={JSON.stringify(triggerProducts.map((p) => p.id))} />
         <input type="hidden" name="offerProductIds" value={JSON.stringify(offerProducts.map((p) => p.id))} />
 
