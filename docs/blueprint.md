@@ -410,7 +410,7 @@ Net revenue = gross × (1 − 0.029 − share% − regulatory fee%).
 
 | Phase | Weeks | Deliverables | Exit criteria |
 |---|---|---|---|
-| **0. Foundations** ✅ done 2026-09-30 | 1–3 | **Workers spike** (React Router template on Workers + D1 sessions + token exchange + billing + webhooks on a dev store); monorepo; platform packages; CI/CD; staging + prod; privacy policy/terms; upwise domain + trademark check; **post-purchase access request filed** | Embedded hello-world on Workers passes install, billing test charge, compliance webhooks with HMAC, uninstall/redact |
+| **0. Foundations** (spike ✅ 2026-09-30; access request, staging env, legal docs, domain check still open) | 1–3 | **Workers spike** (React Router template on Workers + D1 sessions + token exchange + billing + webhooks on a dev store); monorepo; platform packages; CI/CD; staging + prod; privacy policy/terms; upwise domain + trademark check; **post-purchase access request filed** | Embedded hello-world on Workers passes install, billing test charge, compliance webhooks with HMAC, uninstall/redact |
 | **1. Cart Upsell MVP** | 4–9 | Free plan + Growth plan, app embed cart drawer widget, manual rules, attribution, onboarding, listing | Submitted; Lighthouse impact ≤5 on Dawn + 3 popular themes |
 | **2. Launch & learn** | 10–14 | First 50 installs, neutral review requests, support playbook, analytics | 50 net installs, ≥5 reviews → apply for BFS |
 | **3. Cart Upsell Pro** | 12–16 | Post-purchase offers + Thank-you offers + discount Function, Pro plan | Access granted; update approved |
