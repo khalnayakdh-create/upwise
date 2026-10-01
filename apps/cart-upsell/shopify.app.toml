@@ -1,5 +1,5 @@
 # Shopify app configuration for Upwise Cart Upsell.
-# Release config changes with the "Shopify app config" GitHub Action (or `shopify app deploy`).
+# Release config changes with the "Shopify app config" GitHub Action (runs on push to main when this file changes).
 
 client_id = "3e6e2d418655b16b1d9132a533b68a00"
 name = "Upwise Cart Upsell"
