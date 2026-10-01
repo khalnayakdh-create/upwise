@@ -20,9 +20,10 @@
   "d1_databases": [{ "binding": "DB", "database_name": "upwise-reviews" }],
   // Review-request emails: every 15 minutes, send what's due.
   "triggers": { "crons": ["*/15 * * * *"] },
-  // Cloudflare Email Service. The sending domain (storevine.app) must be onboarded under
-  // Compute > Email Service > Email Sending; until then requests stay scheduled.
-  "send_email": [{ "name": "EMAIL" }],
+  // Cloudflare Email Service binding — add back once storevine.app is onboarded under
+  // Compute > Email Service > Email Sending (deploys fail before that). Until then
+  // review requests stay scheduled and nothing is lost:
+  //   "send_email": [{ "name": "EMAIL" }],
   // Review photos (created automatically on first deploy).
   "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "storevine-review-photos" }]
 }
