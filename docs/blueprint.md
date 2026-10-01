@@ -1,4 +1,4 @@
-# Shopify App Ecosystem Blueprint — v2.1
+# Shopify App Ecosystem Blueprint — v2.2
 
 **Status:** Working blueprint · **Revised:** 2026-09-30 · **Supersedes:** "7-App Shopify Ecosystem & Cross-Sell Portfolio Blueprint.md" (v1)
 
@@ -7,6 +7,17 @@ This is the operating plan for building, launching and scaling a portfolio of Sh
 ---
 
 ## 0. What changed
+
+### v2.2 (2026-10-01) — build status
+
+All four apps are built, deployed on Cloudflare and connected to their own Shopify apps. See §12 for per-phase status and `docs/launch-checklist.md` for what's left before App Store submission.
+
+| App | URL | State |
+|---|---|---|
+| Cart Upsell | cart.upwise.dev | Installed on upwisedev; cart offers, offer discounts (Function) and thank-you offers verified end to end |
+| Reviews | reviews.upwise.dev | Built, tested, deployed; awaiting API secret + install |
+| Pop-ups | popups.upwise.dev | Built, tested, deployed; awaiting API secret, protected-data approval + install |
+| Bundles | bundles.upwise.dev | Built, tested, deployed; awaiting API secret + install |
 
 ### v2.1 (2026-09-30) — owner decisions applied
 
@@ -410,14 +421,14 @@ Net revenue = gross × (1 − 0.029 − share% − regulatory fee%).
 
 | Phase | Weeks | Deliverables | Exit criteria |
 |---|---|---|---|
-| **0. Foundations** (spike ✅ 2026-09-30; access request, staging env, legal docs, trademark check still open) | 1–3 | **Workers spike** (React Router template on Workers + D1 sessions + token exchange + billing + webhooks on a dev store); monorepo; platform packages; CI/CD; staging + prod; privacy policy/terms; upwise trademark check (domain ✅); **post-purchase access request filed** | Embedded hello-world on Workers passes install, billing test charge, compliance webhooks with HMAC, uninstall/redact |
-| **1. Cart Upsell MVP** | 4–9 | Free plan + Growth plan, app embed cart drawer widget, manual rules, attribution, onboarding, listing | Submitted; Lighthouse impact ≤5 on Dawn + 3 popular themes |
-| **2. Launch & learn** | 10–14 | First 50 installs, neutral review requests, support playbook, analytics | 50 net installs, ≥5 reviews → apply for BFS |
-| **3. Cart Upsell Pro** | 12–16 | Post-purchase offers + Thank-you offers + discount Function, Pro plan | Access granted; update approved |
-| **4. Reviews** | 15–22 | Reviews app with import, R2 media, Level 2 controls, Cart Upsell integration | Approved; Level 2 granted |
-| **5. Pop-ups** | 22–30 | Pop-ups app, Customer Privacy API, segments, Web Pixels | Approved; BFS-ready |
-| **6. Bundles** | 28–38 | Cart Transform + Discount Function, bulk catalog sync, recommendations | Approved; Function benchmarks pass |
-| **Ongoing** | — | Quarterly API upgrades, BFCM load tests (Oct), listing experiments, ads after reviews threshold | KPIs §12.1 |
+| **0. Foundations** ✅ | 1–3 | Workers spike, monorepo, shared packages, CI/CD, legal pages, domain | Done 2026-09-30. Open: staging apps, trademark check |
+| **1. Cart Upsell MVP** ✅ | 4–9 | Offers (D1), resource picker, app embed + cart block, drawer refresh, app-proxy analytics, dashboard, plans, listing draft | Verified on upwisedev 2026-10-01 |
+| **2. Launch & learn** | 10–14 | First 50 installs, reviews, support playbook | Not started (needs App Store submission) |
+| **3. Cart Upsell Pro** ✅ (partial) | 12–16 | Offer discounts via Discount Function, Pro plan, thank-you page offers | Verified. Post-purchase extension waits for Shopify access approval |
+| **4. Reviews** ✅ (built) | 15–22 | Review + star blocks, moderation, CSV import, standard rating metafields | Deployed; install after API secret |
+| **5. Pop-ups** ✅ (built) | 22–30 | Accessible pop-up embed, sign-ups → Shopify customers, stats | Deployed; needs protected customer data approval |
+| **6. Bundles** ✅ (built) | 28–38 | FBT block, bundle discount Function | Deployed; install after API secret |
+| **Ongoing** | — | Quarterly API upgrades, BFCM load tests, listing experiments | — |
 
 If the Workers spike fails a hard requirement, fall back to a single low-cost container host with SQLite/Postgres (Shopify's documented path) and keep R2/KV for storage and caching.
 
@@ -459,6 +470,10 @@ Installs, net installs, activation rate (first value within 24 h), free→paid c
 | 2026-09-30 | Brand name: **Upwise** | Short (6 chars), suggests upsell + smart recommendations, fits all four app names; no Shopify app conflict found. Pending: domain, USPTO (classes 9, 42), App Store and social-handle checks |
 | 2026-09-30 | Cart Upsell set to **public (App Store) distribution** | Required for the Billing API; permanent; nothing is listed until the app is submitted for review |
 | 2026-09-30 | Domain **upwise.dev** (Cloudflare Registrar). Apps live on subdomains: `cart.upwise.dev` (Cart Upsell, live), later `reviews.`, `popups.`, `bundles.`; apex reserved for the brand site + help docs | One brand, one zone; Cloudflare issues DNS + certificates on deploy |
+| 2026-10-01 | Post-purchase access request moved to Phase 3 | Only needed for live stores; dev-store testing works without it |
+| 2026-10-01 | Dev-only `DEV_PLAN_OVERRIDES` to test paid features on upwisedev | Avoids accepting test-charge terms on the owner's behalf; must be empty before launch |
+| 2026-10-01 | Shared `packages/shopify-app` for Reviews, Pop-ups, Bundles | Each new app is mostly feature code; one place for auth, webhooks, billing |
+| 2026-10-01 | Reviews default to hold-for-approval; Pop-ups never re-subscribe unsubscribed customers | Spam and consent safety (independent review findings) |
 | 2026-09-30 | **Phase 0 spike passed** on Cloudflare Workers | Live at cart.upwise.dev (fallback upwise-cart-upsell.akjr004.workers.dev); D1 auto-provisioned + in-Worker migrations; install/token exchange, Admin GraphQL, session storage and Billing API test charge verified on upwisedev; HMAC-verified compliance webhooks pass end-to-end tests in workerd; config released to Shopify from GitHub Actions |
 
 ### 14.2 Still open
