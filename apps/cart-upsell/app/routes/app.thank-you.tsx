@@ -3,6 +3,7 @@ import type { HeadersFunction } from "react-router";
 import { Form, useLoaderData, useNavigation, useSearchParams } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { useSaveBarCleanup } from "../lib/use-save-bar-cleanup";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getDb } from "@upwise/platform";
 import { redirect } from "react-router";
@@ -70,12 +71,16 @@ export default function ThankYouSettings() {
   const [params] = useSearchParams();
   const saving = useNavigation().state === "submitting";
   const formRef = useRef<HTMLFormElement>(null);
+  useSaveBarCleanup(formRef);
   const [products, setProducts] = useState<Picked[]>(
     config.products.map((p) => ({ id: p.productId, title: p.title, image: p.image })),
   );
 
   useEffect(() => {
-    if (params.get("saved")) shopify.toast.show("Thank-you page offer saved");
+    if (params.get("saved")) {
+      shopify.toast.show("Thank-you page offer saved");
+      formRef.current?.reset(); // same route after save: clear the save bar
+    }
   }, [params, shopify]);
 
   async function pick() {

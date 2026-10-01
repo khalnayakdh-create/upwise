@@ -1,8 +1,9 @@
 import type { Route } from "./+types/app.offers.$id";
 import type { HeadersFunction } from "react-router";
 import { Form, redirect, useActionData, useLoaderData, useNavigation, useSearchParams } from "react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { useSaveBarCleanup } from "../lib/use-save-bar-cleanup";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
@@ -95,12 +96,16 @@ export default function OfferEditor() {
   const { isNew, offer, canDiscount } = useLoaderData<typeof loader>();
   const [search] = useSearchParams();
   const warning = search.get("warning");
+  useEffect(() => {
+    if (warning) formRef.current?.reset(); // saved; stay on page to show the warning
+  }, [warning]);
   const actionData = useActionData<typeof action>();
   const errors: Record<string, string> = actionData?.errors ?? {};
   const navigation = useNavigation();
   const saving = navigation.state === "submitting";
   const shopify = useAppBridge();
   const formRef = useRef<HTMLFormElement>(null);
+  useSaveBarCleanup(formRef);
 
   const [triggerType, setTriggerType] = useState<string>(offer.triggerType);
   const [triggerProducts, setTriggerProducts] = useState<PickedProduct[]>(offer.triggerProducts);
