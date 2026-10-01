@@ -165,7 +165,7 @@ Treat this as a release gate for every app.
 
 ### 5.2 Built for Shopify (target at launch + 50 installs)
 
-**Eligibility:** ≥50 net installs from active paid-plan shops; ≥5 reviews; minimum recent rating (threshold not published).
+**Eligibility:** ≥50 net installs from active paid-plan shops; ≥5 reviews since launch; 4+ star rating (per the Partner Dashboard BFS checklist, Sep 2026).
 
 **Admin performance** (p75, rolling 28 days, ≥100 calls, measured via App Bridge): LCP ≤2.5 s · CLS ≤0.1 · INP ≤200 ms.
 
@@ -410,7 +410,7 @@ Net revenue = gross × (1 − 0.029 − share% − regulatory fee%).
 
 | Phase | Weeks | Deliverables | Exit criteria |
 |---|---|---|---|
-| **0. Foundations** | 1–3 | **Workers spike** (React Router template on Workers + D1 sessions + token exchange + billing + webhooks on a dev store); monorepo; platform packages; CI/CD; staging + prod; privacy policy/terms; upwise domain + trademark check; **post-purchase access request filed** | Embedded hello-world on Workers passes install, billing test charge, compliance webhooks with HMAC, uninstall/redact |
+| **0. Foundations** ✅ done 2026-09-30 | 1–3 | **Workers spike** (React Router template on Workers + D1 sessions + token exchange + billing + webhooks on a dev store); monorepo; platform packages; CI/CD; staging + prod; privacy policy/terms; upwise domain + trademark check; **post-purchase access request filed** | Embedded hello-world on Workers passes install, billing test charge, compliance webhooks with HMAC, uninstall/redact |
 | **1. Cart Upsell MVP** | 4–9 | Free plan + Growth plan, app embed cart drawer widget, manual rules, attribution, onboarding, listing | Submitted; Lighthouse impact ≤5 on Dawn + 3 popular themes |
 | **2. Launch & learn** | 10–14 | First 50 installs, neutral review requests, support playbook, analytics | 50 net installs, ≥5 reviews → apply for BFS |
 | **3. Cart Upsell Pro** | 12–16 | Post-purchase offers + Thank-you offers + discount Function, Pro plan | Access granted; update approved |
@@ -457,6 +457,8 @@ Installs, net installs, activation rate (first value within 24 h), free→paid c
 | 2026-09-30 | Low budget; host on Cloudflare (Workers, D1, KV, Queues, R2) | ~$5/month base, edge performance for storefront widgets, no egress fees |
 | 2026-09-30 | Use existing pre-2021 partner account | $19 registration fee waived |
 | 2026-09-30 | Brand name: **Upwise** | Short (6 chars), suggests upsell + smart recommendations, fits all four app names; no Shopify app conflict found. Pending: domain, USPTO (classes 9, 42), App Store and social-handle checks |
+| 2026-09-30 | Cart Upsell set to **public (App Store) distribution** | Required for the Billing API; permanent; nothing is listed until the app is submitted for review |
+| 2026-09-30 | **Phase 0 spike passed** on Cloudflare Workers | Live at upwise-cart-upsell.akjr004.workers.dev; D1 auto-provisioned + in-Worker migrations; install/token exchange, Admin GraphQL, session storage and Billing API test charge verified on upwisedev; HMAC-verified compliance webhooks pass end-to-end tests in workerd; config released to Shopify from GitHub Actions |
 
 ### 14.2 Still open
 
