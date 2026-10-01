@@ -6,7 +6,6 @@ embedded = true
 
 [build]
 automatically_update_urls_on_dev = false
-include_config_on_deploy = true
 
 [access_scopes]
 # Customers: save pop-up sign-ups as Shopify customers with email marketing consent (protected customer data, Level 2: email).

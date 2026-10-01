@@ -6,7 +6,6 @@ embedded = true
 
 [build]
 automatically_update_urls_on_dev = false
-include_config_on_deploy = true
 
 [access_scopes]
 # write_products: write Shopify's standard reviews.rating / reviews.rating_count product metafields.
@@ -39,9 +38,11 @@ api_version = "2026-07"
   uri = "/webhooks/app/scopes_update"
 
   # Review requests: schedule an email when an order is fulfilled.
-  [[webhooks.subscriptions]]
-  topics = ["orders/fulfilled"]
-  uri = "/webhooks/orders/fulfilled"
+  # Re-enable once protected customer data (Level 1 + email) is approved for this app;
+  # until then Shopify refuses to release a config that subscribes to order topics.
+  # [[webhooks.subscriptions]]
+  # topics = ["orders/fulfilled"]
+  # uri = "/webhooks/orders/fulfilled"
 
   [[webhooks.subscriptions]]
   compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]

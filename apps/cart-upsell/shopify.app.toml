@@ -8,7 +8,6 @@ embedded = true
 
 [build]
 automatically_update_urls_on_dev = false
-include_config_on_deploy = true
 
 [access_scopes]
 # Minimum scopes. Add only when a feature needs them (blueprint §6.7).
