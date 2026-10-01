@@ -1,5 +1,5 @@
 # Shopify app configuration for Upwise Bundles.
-client_id = "" # set after creating the app in the Dev Dashboard
+client_id = "d1c8b13293b07718447b5f039c8e455a"
 name = "Upwise Bundles"
 application_url = "https://bundles.upwise.dev"
 embedded = true

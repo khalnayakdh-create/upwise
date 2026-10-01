@@ -34,7 +34,19 @@ The **Shopify app config** GitHub Action releases them whenever that file change
    `SHOPIFY_APP_AUTOMATION_TOKEN_CART_UPSELL` = the token.
 3. GitHub → Actions → "Shopify app config" → Run workflow.
 
-## Current values
+## All apps
+
+| App | URL | Client ID | Worker | Automation-token secret |
+|---|---|---|---|---|
+| Cart Upsell | https://cart.upwise.dev | 3e6e2d418655b16b1d9132a533b68a00 | upwise-cart-upsell | SHOPIFY_APP_AUTOMATION_TOKEN_CART_UPSELL |
+| Reviews | https://reviews.upwise.dev | 32a320dfc76c417d383e39d124f8405c | upwise-reviews | SHOPIFY_APP_AUTOMATION_TOKEN_REVIEWS |
+| Pop-ups | https://popups.upwise.dev | 6b1ae04f6ae8a893a38a2fe7b8d4da8b | upwise-popups | SHOPIFY_APP_AUTOMATION_TOKEN_POPUPS |
+| Bundles | https://bundles.upwise.dev | d1c8b13293b07718447b5f039c8e455a | upwise-bundles | SHOPIFY_APP_AUTOMATION_TOKEN_BUNDLES |
+
+For each new app: (1) Cloudflare → Worker → Settings → Variables and Secrets → add secret `SHOPIFY_API_SECRET` (Client secret from the Dev Dashboard); (2) Dev Dashboard → app → Settings → App automation token → add it as the GitHub repo secret above; (3) GitHub → Actions → "Shopify app config" → Run workflow; (4) install on upwisedev via `https://<app-url>/auth/login?shop=upwisedev.myshopify.com`.
+Pop-ups also needs **protected customer data** access (Dev Dashboard → API access → Protected customer data: Level 1 + Level 2 email) before sign-ups can be saved.
+
+## Current values (Cart Upsell)
 - App URL: https://cart.upwise.dev (fallback: https://upwise-cart-upsell.akjr004.workers.dev)
 - Shopify Client ID: 3e6e2d418655b16b1d9132a533b68a00 (public; the secret lives only in Cloudflare)
 - Dev store: upwisedev

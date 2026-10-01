@@ -10,7 +10,7 @@
   "workers_dev": true,
   "vars": {
     // Public values. SHOPIFY_API_SECRET is an encrypted secret set in Cloudflare.
-    "SHOPIFY_API_KEY": "",
+    "SHOPIFY_API_KEY": "32a320dfc76c417d383e39d124f8405c",
     "SHOPIFY_APP_URL": "https://reviews.upwise.dev",
     "SCOPES": "read_products,write_products",
     "BILLING_TEST_MODE": "true",

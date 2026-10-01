@@ -1,5 +1,5 @@
 # Shopify app configuration for Upwise Pop-ups.
-client_id = "" # set after creating the app in the Dev Dashboard
+client_id = "6b1ae04f6ae8a893a38a2fe7b8d4da8b"
 name = "Upwise Pop-ups"
 application_url = "https://popups.upwise.dev"
 embedded = true

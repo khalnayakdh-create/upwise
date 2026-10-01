@@ -1,5 +1,5 @@
 # Shopify app configuration for Upwise Reviews.
-client_id = "" # set after creating the app in the Dev Dashboard
+client_id = "32a320dfc76c417d383e39d124f8405c"
 name = "Upwise Reviews"
 application_url = "https://reviews.upwise.dev"
 embedded = true
