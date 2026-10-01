@@ -1,22 +1,22 @@
-export const meta = () => [{ title: "Privacy policy · Upwise Reviews" }];
+export const meta = () => [{ title: "Privacy policy · Storevine Reviews" }];
 
 const UPDATED = "October 1, 2026";
-const CONTACT = "privacy@upwise.dev";
+const CONTACT = "privacy@storevine.app";
 
 export default function Privacy() {
   return (
     <article>
-      <h1>Privacy policy — Upwise Reviews</h1>
+      <h1>Privacy policy — Storevine Reviews</h1>
       <p><em>Last updated {UPDATED}</em></p>
       <p>
-        Upwise Reviews ("the App") is a Shopify app operated by Karj Trading LLC ("Upwise", "we"). This
+        Storevine Reviews ("the App") is a Shopify app operated by Karj Trading LLC ("Storevine", "we"). This
         policy explains what the App collects when a merchant installs it on their Shopify store, and how we use
         and protect that information.
       </p>
 
       <h2>Information we collect</h2>
       <ul>
-        <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Upwise plan.</li>
+        <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Storevine plan.</li>
         <li><strong>Access credentials</strong>: the access token Shopify issues when you install the App.</li>
         <li><strong>Reviews</strong>: the star rating, title, text and display name a reviewer types into the review form on your store, the product it's about, and any public reply you write.</li>
         <li><strong>Settings</strong>: your moderation preferences.</li>

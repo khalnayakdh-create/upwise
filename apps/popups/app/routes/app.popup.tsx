@@ -68,7 +68,7 @@ export default function PopupEditor() {
       <FormSaveBar id="popup-save-bar" formRef={formRef} saving={saving} />
       <Form method="post" ref={formRef} onInput={onInput} onChange={onInput}>
         <s-section heading="Status">
-          <s-switch label="Show the pop-up on my store" name="enabled" checked={config.enabled} details="Also turn on the Upwise Pop-ups app embed in your theme." />
+          <s-switch label="Show the pop-up on my store" name="enabled" checked={config.enabled} details="Also turn on the Storevine Pop-ups app embed in your theme." />
         </s-section>
         <s-section heading="Content">
           <s-stack gap="base">

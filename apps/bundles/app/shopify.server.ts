@@ -7,6 +7,6 @@ export const getShopify = createShopifyFactory(PAID_PLANS) as unknown as (
 ) => ReturnType<ReturnType<typeof createShopifyFactory>>;
 
 export const shared = sharedRoutes(getShopify as (env: BaseEnv) => never, {
-  app: "upwise-bundles",
+  app: "storevine-bundles",
   privacy: { purgeShop: purgeBundlesShop },
 });

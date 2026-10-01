@@ -12,8 +12,8 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 export default function Login() {
   return (
     <main style={{ fontFamily: "Inter, sans-serif", padding: 48, maxWidth: 560 }}>
-      <h1>Open Upwise Reviews from Shopify</h1>
-      <p>Go to your Shopify admin, open <strong>Apps</strong>, and select Upwise Reviews.</p>
+      <h1>Open Storevine Reviews from Shopify</h1>
+      <p>Go to your Shopify admin, open <strong>Apps</strong>, and select Storevine Reviews.</p>
     </main>
   );
 }

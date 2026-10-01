@@ -14,7 +14,7 @@ export const offerTable = sqliteTable("offer", {
   offerProducts: text("offer_products").notNull().default("[]"),
   headline: text("headline").notNull(),
   priority: integer("priority").notNull().default(0),
-  /** 0 = no discount. Applied by the upwise-cart-discount Function (paid plans). */
+  /** 0 = no discount. Applied by the storevine-cart-discount Function (paid plans). */
   discountPercent: integer("discount_percent").notNull().default(0),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),

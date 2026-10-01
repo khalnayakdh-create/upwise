@@ -1,22 +1,22 @@
-export const meta = () => [{ title: "Privacy policy · Upwise Bundles" }];
+export const meta = () => [{ title: "Privacy policy · Storevine Bundles" }];
 
 const UPDATED = "October 1, 2026";
-const CONTACT = "privacy@upwise.dev";
+const CONTACT = "privacy@storevine.app";
 
 export default function Privacy() {
   return (
     <article>
-      <h1>Privacy policy — Upwise Bundles</h1>
+      <h1>Privacy policy — Storevine Bundles</h1>
       <p><em>Last updated {UPDATED}</em></p>
       <p>
-        Upwise Bundles ("the App") is a Shopify app operated by Karj Trading LLC ("Upwise", "we"). This
+        Storevine Bundles ("the App") is a Shopify app operated by Karj Trading LLC ("Storevine", "we"). This
         policy explains what the App collects when a merchant installs it on their Shopify store, and how we use
         and protect that information.
       </p>
 
       <h2>Information we collect</h2>
       <ul>
-        <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Upwise plan.</li>
+        <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Storevine plan.</li>
         <li><strong>Access credentials</strong>: the access token Shopify issues when you install the App, used only to call Shopify on your behalf.</li>
         <li><strong>Bundle settings</strong>: the bundles you create, their discounts, and the product IDs, titles, handles and image links you choose.</li>
         <li><strong>Aggregated usage counts</strong>: daily totals of how often each bundle was shown and added to cart on your storefront.</li>

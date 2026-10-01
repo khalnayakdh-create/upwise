@@ -1,7 +1,7 @@
-# Shopify app configuration for Upwise Reviews.
+# Shopify app configuration for Storevine Reviews.
 client_id = "32a320dfc76c417d383e39d124f8405c"
-name = "Upwise Reviews"
-application_url = "https://reviews.upwise.dev"
+name = "Storevine Reviews"
+application_url = "https://reviews.storevine.app"
 embedded = true
 
 [build]
@@ -13,12 +13,12 @@ include_config_on_deploy = true
 scopes = "read_products,write_products"
 
 [auth]
-redirect_urls = ["https://reviews.upwise.dev/auth/callback"]
+redirect_urls = ["https://reviews.storevine.app/auth/callback"]
 
-# Storefront API: https://{shop}/apps/upwise-reviews/* -> {application_url}/proxy/*
+# Storefront API: https://{shop}/apps/storevine-reviews/* -> {application_url}/proxy/*
 [app_proxy]
 url = "/proxy"
-subpath = "upwise-reviews"
+subpath = "storevine-reviews"
 prefix = "apps"
 
 [webhooks]

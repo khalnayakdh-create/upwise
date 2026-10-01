@@ -1,0 +1,17 @@
+{%- comment -%} Storevine Pop-ups: email sign-up pop-up. Settings come from the Storevine admin (app metafield). {%- endcomment -%}
+{%- assign storevine_popup = app.metafields.storevine_popups.config.value -%}
+{%- if storevine_popup and storevine_popup.enabled -%}
+  {%- unless storevine_popup.pages == 'home' and request.page_type != 'index' -%}
+    <script type="application/json" id="storevine-popup-config">{{ storevine_popup | json }}</script>
+    <script src="{{ 'storevine-popup.js' | asset_url }}" defer></script>
+    <link rel="stylesheet" href="{{ 'storevine-popup.css' | asset_url }}" media="print" onload="this.media='all'">
+  {%- endunless -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Storevine pop-up",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

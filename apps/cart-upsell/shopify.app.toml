@@ -1,9 +1,9 @@
-# Shopify app configuration for Upwise Cart Upsell.
+# Shopify app configuration for Storevine Cart Upsell.
 # Release config changes with the "Shopify app config" GitHub Action (runs on push to main when this file changes).
 
 client_id = "3e6e2d418655b16b1d9132a533b68a00"
-name = "Upwise Cart Upsell"
-application_url = "https://cart.upwise.dev"
+name = "Storevine Cart Upsell"
+application_url = "https://cart.storevine.app"
 embedded = true
 
 [build]
@@ -16,13 +16,13 @@ scopes = "read_products,write_discounts"
 
 [auth]
 redirect_urls = [
-  "https://cart.upwise.dev/auth/callback",
+  "https://cart.storevine.app/auth/callback",
 ]
 
-# Storefront analytics: https://{shop}/apps/upwise-cart/* -> {application_url}/proxy/*
+# Storefront analytics: https://{shop}/apps/storevine-cart/* -> {application_url}/proxy/*
 [app_proxy]
 url = "/proxy"
-subpath = "upwise-cart"
+subpath = "storevine-cart"
 prefix = "apps"
 
 [webhooks]

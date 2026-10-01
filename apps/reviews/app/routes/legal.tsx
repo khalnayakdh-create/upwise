@@ -16,7 +16,7 @@ export default function LegalLayout() {
       <Outlet />
       <hr style={{ margin: "40px 0 16px", border: 0, borderTop: "1px solid #ddd" }} />
       <p style={{ fontSize: 14, color: "#555" }}>
-        Upwise is operated by Karj Trading LLC. <a href="/legal/privacy">Privacy policy</a> ·{" "}
+        Storevine is operated by Karj Trading LLC. <a href="/legal/privacy">Privacy policy</a> ·{" "}
         <a href="/legal/terms">Terms of service</a>
       </p>
     </main>

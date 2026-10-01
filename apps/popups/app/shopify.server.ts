@@ -7,10 +7,10 @@ export const getShopify = createShopifyFactory(PAID_PLANS) as unknown as (
 ) => ReturnType<ReturnType<typeof createShopifyFactory>>;
 
 export const shared = sharedRoutes(getShopify as (env: BaseEnv) => never, {
-  app: "upwise-popups",
+  app: "storevine-popups",
   privacy: {
     purgeShop: purgePopupsShop,
-    // Sign-ups are stored as Shopify customers, not in Upwise. Shopify handles
-    // customer data requests/erasure for its own records; Upwise holds nothing to return.
+    // Sign-ups are stored as Shopify customers, not in Storevine. Shopify handles
+    // customer data requests/erasure for its own records; Storevine holds nothing to return.
   },
 });

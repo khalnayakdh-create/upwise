@@ -1,14 +1,14 @@
 /**
- * Upwise cart offer discount.
+ * Storevine cart offer discount.
  *
  * Config (discount metafield $app:function-configuration), written by the app:
  *   { "offers": { "<offerId>": { "percent": 10, "message": "...",
  *       "productIds": ["gid://shopify/Product/1"], "triggerProductIds": [] } } }
  *
  * A line is discounted only if:
- *  - it carries the _upwise_offer attribute naming a configured offer,
+ *  - it carries the _storevine_offer attribute naming a configured offer,
  *  - its product is one of that offer's recommended products, and
- *  - the offer's trigger is met by a QUALIFYING line: one with no _upwise_offer
+ *  - the offer's trigger is met by a QUALIFYING line: one with no _storevine_offer
  *    attribute whose product isn't one of the offer's own products
  *    (empty trigger list = any qualifying line).
  * At most one unit per offer product is discounted (the widget adds one).

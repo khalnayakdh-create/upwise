@@ -35,7 +35,7 @@ export async function fetchProducts(graphql: GraphqlFn, ids: string[]): Promise<
   }>(
     graphql,
     `#graphql
-    query UpwiseBundleProducts($ids: [ID!]!) {
+    query StorevineBundleProducts($ids: [ID!]!) {
       nodes(ids: $ids) {
         ... on Product {
           id handle title
@@ -57,13 +57,13 @@ export async function fetchProducts(graphql: GraphqlFn, ids: string[]): Promise<
   return { products, missing };
 }
 
-const FUNCTION_HANDLE = "upwise-bundle-discount";
+const FUNCTION_HANDLE = "storevine-bundle-discount";
 
 /** Publish storefront config and keep the automatic discount's config in sync. Returns a warning, if any. */
 export async function syncAll(graphql: GraphqlFn, env: Env, shop: string, plan: PlanKey): Promise<string | null> {
   const db = getDb(env.DB);
   const bundles = await listBundles(db, shop);
-  await setAppDataJson(graphql, "upwise_bundles", "config", storefrontConfig(bundles, plan));
+  await setAppDataJson(graphql, "storevine_bundles", "config", storefrontConfig(bundles, plan));
   const config = discountConfig(bundles, plan);
   let discountId: string | null = await getSetting(db, shop, "discount_id");
   if (!discountId && !config.bundles.length) return null;
@@ -71,7 +71,7 @@ export async function syncAll(graphql: GraphqlFn, env: Env, shop: string, plan: 
   try {
     if (discountId) {
       const check = await gql<{ discountNode: { id: string } | null }>(graphql, `#graphql
-        query UpwiseBundleDiscount($id: ID!) { discountNode(id: $id) { id } }`, { id: discountId });
+        query StorevineBundleDiscount($id: ID!) { discountNode(id: $id) { id } }`, { id: discountId });
       if (!check.discountNode) discountId = null;
     }
     if (!discountId) {
@@ -80,7 +80,7 @@ export async function syncAll(graphql: GraphqlFn, env: Env, shop: string, plan: 
       }>(
         graphql,
         `#graphql
-        mutation UpwiseCreateBundleDiscount($discount: DiscountAutomaticAppInput!) {
+        mutation StorevineCreateBundleDiscount($discount: DiscountAutomaticAppInput!) {
           discountAutomaticAppCreate(automaticAppDiscount: $discount) {
             automaticAppDiscount { discountId }
             userErrors { message }
@@ -88,7 +88,7 @@ export async function syncAll(graphql: GraphqlFn, env: Env, shop: string, plan: 
         }`,
         {
           discount: {
-            title: "Upwise bundle discounts",
+            title: "Storevine bundle discounts",
             functionHandle: FUNCTION_HANDLE,
             discountClasses: ["PRODUCT"],
             startsAt: new Date().toISOString(),
@@ -106,7 +106,7 @@ export async function syncAll(graphql: GraphqlFn, env: Env, shop: string, plan: 
     const set = await gql<{ metafieldsSet: { userErrors: Array<{ message: string }> } }>(
       graphql,
       `#graphql
-      mutation UpwiseBundleDiscountConfig($metafields: [MetafieldsSetInput!]!) {
+      mutation StorevineBundleDiscountConfig($metafields: [MetafieldsSetInput!]!) {
         metafieldsSet(metafields: $metafields) { userErrors { message } }
       }`,
       { metafields: [{ ownerId: discountId, namespace: "$app", key: "function-configuration", type: "json", value }] },

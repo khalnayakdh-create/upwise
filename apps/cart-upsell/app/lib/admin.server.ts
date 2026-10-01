@@ -7,7 +7,7 @@ import { appSettingTable } from "./schema";
 
 export type AdminContext = Awaited<ReturnType<Shopify["authenticate"]["admin"]>>;
 
-export const CONFIG_NAMESPACE = "upwise_cart";
+export const CONFIG_NAMESPACE = "storevine_cart";
 export const CONFIG_KEY = "config";
 
 /** Snapshot product details needed by the storefront widget. */
@@ -92,11 +92,13 @@ async function gql<T>(graphql: Graphql, query: string, variables?: Record<string
   return body.data;
 }
 
-export const DISCOUNT_FUNCTION_HANDLE = "upwise-cart-discount";
-export const DISCOUNT_SETTING = "discount_id";
+export const DISCOUNT_FUNCTION_HANDLE = "storevine-cart-discount";
+// v2: the Function was renamed (Upwise → Storevine). Discounts tied to the old
+// Function stop working, so each shop gets a fresh discount on its next save.
+export const DISCOUNT_SETTING = "discount_id_v2";
 
 /**
- * Keep one automatic app discount per shop pointing at the upwise-cart-discount
+ * Keep one automatic app discount per shop pointing at the storevine-cart-discount
  * Function, and write the per-offer config into its metafield.
  * Returns a warning string if discounts couldn't be synced (e.g. scope missing).
  */
@@ -117,7 +119,7 @@ export async function syncDiscount(
       const check = await gql<{ discountNode: { id: string } | null }>(
         admin.graphql,
         `#graphql
-        query UpwiseDiscountExists($id: ID!) { discountNode(id: $id) { id } }`,
+        query StorevineDiscountExists($id: ID!) { discountNode(id: $id) { id } }`,
         { id: discountId },
       );
       if (!check.discountNode) discountId = null; // merchant deleted it
@@ -132,7 +134,7 @@ export async function syncDiscount(
       }>(
         admin.graphql,
         `#graphql
-        mutation UpwiseCreateDiscount($discount: DiscountAutomaticAppInput!) {
+        mutation StorevineCreateDiscount($discount: DiscountAutomaticAppInput!) {
           discountAutomaticAppCreate(automaticAppDiscount: $discount) {
             automaticAppDiscount { discountId }
             userErrors { message }
@@ -140,7 +142,7 @@ export async function syncDiscount(
         }`,
         {
           discount: {
-            title: "Upwise cart offer discounts",
+            title: "Storevine cart offer discounts",
             functionHandle: DISCOUNT_FUNCTION_HANDLE,
             discountClasses: ["PRODUCT"],
             startsAt: new Date().toISOString(),
@@ -158,7 +160,7 @@ export async function syncDiscount(
     const set = await gql<{ metafieldsSet: { userErrors: Array<{ message: string }> } }>(
       admin.graphql,
       `#graphql
-      mutation UpwiseDiscountConfig($metafields: [MetafieldsSetInput!]!) {
+      mutation StorevineDiscountConfig($metafields: [MetafieldsSetInput!]!) {
         metafieldsSet(metafields: $metafields) { userErrors { message } }
       }`,
       { metafields: [{ ownerId: discountId, namespace: "$app", key: "function-configuration", type: "json", value }] },
@@ -197,11 +199,11 @@ export async function syncThankYou(admin: AdminContext["admin"], env: Env, shop:
   const config = await getThankYouConfig(getDb(env.DB), shop);
   const live = { ...config, enabled: config.enabled && PLAN_LIMITS[plan].thankYouOffers };
   const { shop: s } = await gql<{ shop: { id: string } }>(admin.graphql, `#graphql
-    query UpwiseShopId { shop { id } }`);
+    query StorevineShopId { shop { id } }`);
   const set = await gql<{ metafieldsSet: { userErrors: Array<{ message: string }> } }>(
     admin.graphql,
     `#graphql
-    mutation UpwiseThankYouConfig($metafields: [MetafieldsSetInput!]!) {
+    mutation StorevineThankYouConfig($metafields: [MetafieldsSetInput!]!) {
       metafieldsSet(metafields: $metafields) { userErrors { message } }
     }`,
     {

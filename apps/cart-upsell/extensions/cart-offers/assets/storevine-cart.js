@@ -1,17 +1,17 @@
-/* Upwise Cart Upsell storefront widget. No dependencies; loaded deferred by Shopify. */
+/* Storevine Cart Upsell storefront widget. No dependencies; loaded deferred by Shopify. */
 (function () {
-  if (window.__upwiseCartLoaded) return;
-  window.__upwiseCartLoaded = true;
+  if (window.__storevineCartLoaded) return;
+  window.__storevineCartLoaded = true;
 
-  var cfgEl = document.getElementById("upwise-cart-config") || document.querySelector("[data-upwise-cart-config]");
+  var cfgEl = document.getElementById("storevine-cart-config") || document.querySelector("[data-storevine-cart-config]");
   if (!cfgEl) return;
   var cfg;
   try { cfg = JSON.parse(cfgEl.textContent); } catch (e) { return; }
   if (!cfg || !cfg.offers || !cfg.offers.length) return;
 
-  var S = (window.UpwiseCart && window.UpwiseCart.settings) || {};
+  var S = (window.StorevineCart && window.StorevineCart.settings) || {};
   var root = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || "/";
-  var EVENTS_URL = root + "apps/upwise-cart/events";
+  var EVENTS_URL = root + "apps/storevine-cart/events";
   var MAX = Math.min(3, Math.max(1, Number(S.maxProducts) || 3));
   var LABEL = S.buttonLabel || "Add";
   var DRAWER = ["cart-drawer .drawer__footer", "#CartDrawer .drawer__footer", ".cart-drawer__footer", "#cart-drawer .cart-drawer__footer", ".drawer--cart .drawer__footer"];
@@ -62,11 +62,11 @@
   function slotBefore(target, kind) {
     var parent = target.parentElement;
     if (!parent) return null;
-    var existing = parent.querySelector(":scope > .upwise-cart[data-upwise-cart-offers='" + kind + "']");
+    var existing = parent.querySelector(":scope > .storevine-cart[data-storevine-cart-offers='" + kind + "']");
     if (existing) return existing;
     var c = document.createElement("div");
-    c.className = "upwise-cart";
-    c.setAttribute("data-upwise-cart-offers", kind);
+    c.className = "storevine-cart";
+    c.setAttribute("data-storevine-cart-offers", kind);
     parent.insertBefore(c, target);
     return c;
   }
@@ -78,10 +78,10 @@
     return null;
   }
   function containers() {
-    var hasBlock = !!document.querySelector("[data-upwise-cart-offers='block']");
+    var hasBlock = !!document.querySelector("[data-storevine-cart-offers='block']");
     if (S.drawer !== false) { var d = first(DRAWER); if (d) slotBefore(d, "drawer"); }
     if (S.cartPage !== false && isCartPage && !hasBlock) { var p = first(PAGE); if (p) slotBefore(p, "page"); }
-    return Array.prototype.slice.call(document.querySelectorAll("[data-upwise-cart-offers]"));
+    return Array.prototype.slice.call(document.querySelectorAll("[data-storevine-cart-offers]"));
   }
 
   /* ---------- rendering ---------- */
@@ -101,11 +101,11 @@
     if (c.getAttribute("data-key") === key) return;
     c.setAttribute("data-key", key);
     c.replaceChildren();
-    c.appendChild(el("p", "upwise-cart__title", offer.headline));
-    var ul = el("ul", "upwise-cart__list");
+    c.appendChild(el("p", "storevine-cart__title", offer.headline));
+    var ul = el("ul", "storevine-cart__list");
     items.forEach(function (it) {
-      var li = el("li", "upwise-cart__item");
-      var img = el("img", "upwise-cart__img");
+      var li = el("li", "storevine-cart__item");
+      var img = el("img", "storevine-cart__img");
       img.alt = "";
       img.loading = "lazy";
       img.width = 48;
@@ -114,19 +114,19 @@
       if (src) img.src = src + (src.indexOf("?") > -1 ? "&" : "?") + "width=96";
       var info = el("div");
       var name = it.d.title + (it.d.variants.length > 1 && it.v.title ? " – " + it.v.title : "");
-      info.appendChild(el("p", "upwise-cart__name", name));
+      info.appendChild(el("p", "storevine-cart__name", name));
       var pct = Number(offer.discountPercent) || 0;
-      var priceP = el("p", "upwise-cart__price");
+      var priceP = el("p", "storevine-cart__price");
       if (pct > 0) {
-        var was = el("s", "upwise-cart__was", money(it.v.price, currency));
+        var was = el("s", "storevine-cart__was", money(it.v.price, currency));
         priceP.appendChild(was);
         priceP.appendChild(document.createTextNode(" " + money(Math.round(it.v.price * (100 - pct) / 100), currency) + " "));
-        priceP.appendChild(el("span", "upwise-cart__badge", pct + "% off"));
+        priceP.appendChild(el("span", "storevine-cart__badge", pct + "% off"));
       } else {
         priceP.textContent = money(it.v.price, currency);
       }
       info.appendChild(priceP);
-      var btn = el("button", "upwise-cart__btn", LABEL);
+      var btn = el("button", "storevine-cart__btn", LABEL);
       btn.type = "button";
       btn.setAttribute("aria-label", LABEL + " " + name);
       btn.addEventListener("click", function () { add(it.v.id, offer.id, btn); });
@@ -173,7 +173,7 @@
     fetch(root + "cart/add.js", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ id: variantId, quantity: 1, properties: { _upwise_offer: offerId }, sections: sections, sections_url: location.pathname })
+      body: JSON.stringify({ id: variantId, quantity: 1, properties: { _storevine_offer: offerId }, sections: sections, sections_url: location.pathname })
     }).then(function (r) {
       if (!r.ok) throw new Error("add failed");
       return r.json();
@@ -185,7 +185,7 @@
         drawer.classList.remove("is-empty");
         drawer.renderContents(data);
       }
-      document.dispatchEvent(new CustomEvent("upwise:cart:added", { detail: data }));
+      document.dispatchEvent(new CustomEvent("storevine:cart:added", { detail: data }));
       document.documentElement.dispatchEvent(new CustomEvent("cart:refresh", { bubbles: true }));
       setTimeout(render, 300);
     }).catch(function () {
@@ -201,7 +201,7 @@
     var p = nativeFetch.apply(this, arguments);
     try {
       var url = String((input && input.url) || input);
-      if (/\/cart\/(add|change|update|clear)/.test(url) && url.indexOf("apps/upwise") === -1) {
+      if (/\/cart\/(add|change|update|clear)/.test(url) && url.indexOf("apps/storevine") === -1) {
         p.then(function () { setTimeout(render, 250); }, function () {});
       }
     } catch (e) {}
@@ -212,7 +212,7 @@
     clearTimeout(moTimer);
     moTimer = setTimeout(function () {
       var d = S.drawer !== false && first(DRAWER);
-      if (d && !(d.previousElementSibling && d.previousElementSibling.matches(".upwise-cart[data-upwise-cart-offers='drawer']"))) render();
+      if (d && !(d.previousElementSibling && d.previousElementSibling.matches(".storevine-cart[data-storevine-cart-offers='drawer']"))) render();
     }, 200);
   }).observe(document.body, { childList: true, subtree: true });
 

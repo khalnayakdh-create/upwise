@@ -6,8 +6,8 @@ import { createReview, getSettings, MAX_SUBMISSIONS_PER_HOUR, productSummary, pu
 
 /**
  * Storefront API via the Shopify app proxy:
- *   GET  /apps/upwise-reviews/reviews?product_id=123&page=1 -> summary + published reviews
- *   POST /apps/upwise-reviews/reviews (form data)           -> submit a review
+ *   GET  /apps/storevine-reviews/reviews?product_id=123&page=1 -> summary + published reviews
+ *   POST /apps/storevine-reviews/reviews (form data)           -> submit a review
  * Requests are signed by Shopify (verified by authenticate.public.appProxy).
  */
 const json = (data: unknown, status = 200) =>

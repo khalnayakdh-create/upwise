@@ -8,7 +8,7 @@ import { resolvePlan, storeHandle, syncAll } from "../lib/admin.server";
 import { listOffers, statsByOffer, totals } from "../lib/offers.server";
 import { PLAN_COPY, PLAN_LIMITS } from "../lib/plans";
 
-export const EMBED_HANDLE = "upwise-cart-embed";
+export const EMBED_HANDLE = "storevine-cart-embed";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { env } = context.cloudflare;
@@ -41,7 +41,7 @@ export default function Dashboard() {
   const seenOnStore = stats.impressions > 0;
 
   return (
-    <s-page heading="Upwise Cart Upsell">
+    <s-page heading="Storevine Cart Upsell">
       <s-button slot="primary-action" variant="primary" href="/app/offers/new">
         Create offer
       </s-button>
@@ -57,11 +57,11 @@ export default function Dashboard() {
         <s-ordered-list>
           <s-list-item>
             <s-stack direction="inline" gap="small-200" alignItems="center">
-              <s-text type="strong">Turn on Upwise in your theme</s-text>
+              <s-text type="strong">Turn on Storevine in your theme</s-text>
               {seenOnStore ? <s-badge tone="success">Done</s-badge> : null}
             </s-stack>
             <s-paragraph>
-              Adds the offer widget to your cart drawer and cart page. Opens the theme editor with the Upwise
+              Adds the offer widget to your cart drawer and cart page. Opens the theme editor with the Storevine
               switch ready, then click Save.
             </s-paragraph>
             <s-button href={embedUrl} target="_blank">Open theme editor</s-button>

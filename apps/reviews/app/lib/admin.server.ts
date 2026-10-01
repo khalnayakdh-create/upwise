@@ -48,7 +48,7 @@ export async function syncProductRating(graphql: GraphqlFn, env: Env, shop: stri
   const result = await gql<{ metafieldsSet: { userErrors: Array<{ message: string }> } }>(
     graphql,
     `#graphql
-    mutation UpwiseRating($metafields: [MetafieldsSetInput!]!) {
+    mutation StorevineRating($metafields: [MetafieldsSetInput!]!) {
       metafieldsSet(metafields: $metafields) { userErrors { message } }
     }`,
     { metafields: payload },
@@ -67,7 +67,7 @@ export async function productsByHandle(graphql: GraphqlFn, handles: string[]) {
     const data = await gql<{ products: { nodes: Array<{ id: string; handle: string; title: string }> } }>(
       graphql,
       `#graphql
-      query UpwiseProductsByHandle($query: String!) {
+      query StorevineProductsByHandle($query: String!) {
         products(first: 50, query: $query) { nodes { id handle title } }
       }`,
       { query },
@@ -81,7 +81,7 @@ export async function productInfo(graphql: GraphqlFn, productId: string) {
   const data = await gql<{ product: { handle: string; title: string } | null }>(
     graphql,
     `#graphql
-    query UpwiseProduct($id: ID!) { product(id: $id) { handle title } }`,
+    query StorevineProduct($id: ID!) { product(id: $id) { handle title } }`,
     { id: productId },
   );
   return data.product;

@@ -197,7 +197,7 @@ export function buildStorefrontConfig(offers: Offer[], plan: PlanKey): Storefron
   };
 }
 
-/** Config for the upwise-cart-discount Function (discount metafield). */
+/** Config for the storevine-cart-discount Function (discount metafield). */
 export interface DiscountFunctionConfig {
   offers: Record<string, { percent: number; message: string; productIds: string[]; triggerProductIds: string[] }>;
 }

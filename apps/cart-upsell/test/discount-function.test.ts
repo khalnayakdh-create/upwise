@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 // Plain JS module (compiled to Wasm by Shopify CLI at deploy); test the logic directly.
-const modulePath = "../extensions/upwise-cart-discount/src/cart_lines_discounts_generate_run.js";
+const modulePath = "../extensions/storevine-cart-discount/src/cart_lines_discounts_generate_run.js";
 const { cartLinesDiscountsGenerateRun: run } = (await import(modulePath)) as {
   cartLinesDiscountsGenerateRun: (input: unknown) => { operations: Array<Record<string, any>> };
 };
@@ -18,7 +18,7 @@ const input = (lines: unknown[], offers: Record<string, unknown>, classes = ["PR
 });
 const OFFER = { o1: { percent: 10, message: "10% off", productIds: [product(2)], triggerProductIds: [] } };
 
-describe("upwise-cart-discount function", () => {
+describe("storevine-cart-discount function", () => {
   it("discounts an offer product added from the widget", () => {
     const out = run(input([line("l1", 1), line("l2", 2, "o1")], OFFER));
     expect(out.operations).toHaveLength(1);

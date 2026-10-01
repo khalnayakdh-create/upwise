@@ -1,0 +1,16 @@
+.storevine-popup{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45)}
+.storevine-popup[hidden]{display:none}
+.storevine-popup__card{position:relative;background:#fff;color:#111;border-radius:12px;max-width:400px;width:100%;padding:28px 24px 20px;box-shadow:0 20px 60px rgba(0,0,0,.25);font:inherit}
+.storevine-popup__close{position:absolute;top:8px;right:8px;width:36px;height:36px;border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:inherit;border-radius:50%}
+.storevine-popup__close:focus-visible,.storevine-popup__btn:focus-visible,.storevine-popup__input:focus-visible{outline:2px solid #111;outline-offset:2px}
+.storevine-popup__title{font-size:1.4em;font-weight:700;margin:0 0 8px;line-height:1.2}
+.storevine-popup__body{margin:0 0 16px}
+.storevine-popup__form{display:grid;gap:8px}
+.storevine-popup__input{font:inherit;padding:12px;border:1px solid #bbb;border-radius:6px;width:100%;box-sizing:border-box;color:#111;background:#fff}
+.storevine-popup__btn{font:inherit;font-weight:600;padding:12px;border:0;border-radius:6px;color:#fff;cursor:pointer}
+.storevine-popup__btn[disabled]{opacity:.6;cursor:progress}
+.storevine-popup__consent{font-size:.75em;color:#555;margin:6px 0 0;display:flex;gap:6px;align-items:flex-start}
+.storevine-popup__msg{font-size:.85em;margin:4px 0 0;min-height:1em}
+.storevine-popup__code{display:inline-block;margin-top:8px;padding:8px 12px;border:1px dashed #111;border-radius:6px;font-weight:700;letter-spacing:1px}
+.storevine-popup__brand{display:block;margin-top:12px;font-size:.7em;color:#888;text-align:center}
+.storevine-popup__hp{position:absolute;left:-9999px}

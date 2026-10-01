@@ -1,21 +1,21 @@
-/* Upwise Pop-ups storefront script. */
+/* Storevine Pop-ups storefront script. */
 (function () {
-  if (window.__upwisePopup) return;
-  window.__upwisePopup = true;
-  var cfgEl = document.getElementById("upwise-popup-config");
+  if (window.__storevinePopup) return;
+  window.__storevinePopup = true;
+  var cfgEl = document.getElementById("storevine-popup-config");
   if (!cfgEl) return;
   var c;
   try { c = JSON.parse(cfgEl.textContent); } catch (e) { return; }
   if (!c || !c.enabled) return;
   if (window.Shopify && window.Shopify.designMode) return; // not in theme editor
 
-  var KEY = "upwise_popup_until";
+  var KEY = "storevine_popup_until";
   try {
     var until = Number(localStorage.getItem(KEY) || 0);
     if (until && Date.now() < until) return;
   } catch (e) {}
   var root = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || "/";
-  var API = root + "apps/upwise-popups/";
+  var API = root + "apps/storevine-popups/";
 
   function snooze() {
     try {
@@ -51,38 +51,38 @@
     if (shown) return;
     shown = true;
     lastFocus = document.activeElement;
-    overlay = el("div", "upwise-popup");
+    overlay = el("div", "storevine-popup");
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
-    overlay.setAttribute("aria-labelledby", "upwise-popup-title");
+    overlay.setAttribute("aria-labelledby", "storevine-popup-title");
     overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
-    var card = el("div", "upwise-popup__card");
-    var x = el("button", "upwise-popup__close", "×");
+    var card = el("div", "storevine-popup__card");
+    var x = el("button", "storevine-popup__close", "×");
     x.type = "button";
     x.setAttribute("aria-label", "Close");
     x.addEventListener("click", close);
-    var title = el("p", "upwise-popup__title", c.headline);
-    title.id = "upwise-popup-title";
+    var title = el("p", "storevine-popup__title", c.headline);
+    title.id = "storevine-popup-title";
     card.appendChild(x);
     card.appendChild(title);
-    if (c.body) card.appendChild(el("p", "upwise-popup__body", c.body));
+    if (c.body) card.appendChild(el("p", "storevine-popup__body", c.body));
 
-    var form = el("form", "upwise-popup__form");
+    var form = el("form", "storevine-popup__form");
     form.noValidate = true;
-    var input = el("input", "upwise-popup__input");
+    var input = el("input", "storevine-popup__input");
     input.type = "email"; input.name = "email"; input.required = true; input.autocomplete = "email";
     input.placeholder = "Email address"; input.setAttribute("aria-label", "Email address");
-    var hp = el("input", "upwise-popup__hp");
+    var hp = el("input", "storevine-popup__hp");
     hp.name = "website"; hp.tabIndex = -1; hp.autocomplete = "off"; hp.setAttribute("aria-hidden", "true");
-    var btn = el("button", "upwise-popup__btn", c.buttonLabel);
+    var btn = el("button", "storevine-popup__btn", c.buttonLabel);
     btn.type = "submit";
     btn.style.background = c.accentColor || "#111";
-    var consent = el("label", "upwise-popup__consent");
+    var consent = el("label", "storevine-popup__consent");
     var box = el("input");
     box.type = "checkbox"; box.name = "consent"; box.required = true;
     consent.appendChild(box);
     consent.appendChild(el("span", null, c.consentText));
-    var msg = el("p", "upwise-popup__msg");
+    var msg = el("p", "storevine-popup__msg");
     msg.setAttribute("role", "status");
     form.appendChild(input); form.appendChild(hp); form.appendChild(btn); form.appendChild(consent); form.appendChild(msg);
     form.addEventListener("submit", function (e) {
@@ -98,8 +98,8 @@
       }).then(function (r) { return r.json(); }).then(function (d) {
         if (d && d.ok) {
           try { localStorage.setItem(KEY, String(Date.now() + 365 * 86400000)); } catch (e) {}
-          form.replaceChildren(el("p", "upwise-popup__body", c.successMessage));
-          if (d.discountCode) form.appendChild(el("span", "upwise-popup__code", d.discountCode));
+          form.replaceChildren(el("p", "storevine-popup__body", c.successMessage));
+          if (d.discountCode) form.appendChild(el("span", "storevine-popup__code", d.discountCode));
         } else {
           btn.disabled = false;
           msg.textContent = (d && d.error) || "Something went wrong. Please try again.";
@@ -107,7 +107,7 @@
       }).catch(function () { btn.disabled = false; msg.textContent = "Something went wrong. Please try again."; });
     });
     card.appendChild(form);
-    if (c.branding) card.appendChild(el("span", "upwise-popup__brand", "Powered by Upwise"));
+    if (c.branding) card.appendChild(el("span", "storevine-popup__brand", "Powered by Storevine"));
     overlay.appendChild(card);
     document.body.appendChild(overlay);
     document.addEventListener("keydown", onKey);

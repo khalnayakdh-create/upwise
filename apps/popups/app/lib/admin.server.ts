@@ -27,7 +27,7 @@ export async function resolvePlan(billing: Billing, env: Env, shop: string) {
 
 export async function publishConfig(graphql: GraphqlFn, env: Env, shop: string, plan: PlanKey) {
   const config = await getConfig(getDb(env.DB), shop);
-  await setAppDataJson(graphql, "upwise_popups", "config", storefrontConfig(config, PLAN_LIMITS[plan].branding));
+  await setAppDataJson(graphql, "storevine_popups", "config", storefrontConfig(config, PLAN_LIMITS[plan].branding));
 }
 
 /**
@@ -46,7 +46,7 @@ export async function subscribeCustomer(graphql: GraphqlFn, email: string, now =
   }>(
     graphql,
     `#graphql
-    query UpwiseFindCustomer($query: String!) {
+    query StorevineFindCustomer($query: String!) {
       customers(first: 1, query: $query) { nodes { id emailMarketingConsent { marketingState } } }
     }`,
     { query: `email:${JSON.stringify(email)}` },
@@ -60,7 +60,7 @@ export async function subscribeCustomer(graphql: GraphqlFn, email: string, now =
     const r = await gql<{ customerEmailMarketingConsentUpdate: { userErrors: Array<{ message: string }> } }>(
       graphql,
       `#graphql
-      mutation UpwiseConsent($input: CustomerEmailMarketingConsentUpdateInput!) {
+      mutation StorevineConsent($input: CustomerEmailMarketingConsentUpdateInput!) {
         customerEmailMarketingConsentUpdate(input: $input) { userErrors { message } }
       }`,
       { input: { customerId: existing.id, emailMarketingConsent: consent } },
@@ -72,10 +72,10 @@ export async function subscribeCustomer(graphql: GraphqlFn, email: string, now =
   const created = await gql<{ customerCreate: { userErrors: Array<{ message: string }> } }>(
     graphql,
     `#graphql
-    mutation UpwiseCreateCustomer($input: CustomerInput!) {
+    mutation StorevineCreateCustomer($input: CustomerInput!) {
       customerCreate(input: $input) { customer { id } userErrors { message } }
     }`,
-    { input: { email, emailMarketingConsent: consent, tags: ["Upwise pop-up"] } },
+    { input: { email, emailMarketingConsent: consent, tags: ["Storevine pop-up"] } },
   );
   const errors = created.customerCreate.userErrors;
   if (errors.length) throw new Error(errors.map((e) => e.message).join("; "));

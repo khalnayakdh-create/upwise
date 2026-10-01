@@ -1,7 +1,7 @@
-/* Upwise Reviews storefront widget. */
+/* Storevine Reviews storefront widget. */
 (function () {
   var root = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || "/";
-  var API = root + "apps/upwise-reviews/reviews";
+  var API = root + "apps/storevine-reviews/reviews";
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -10,7 +10,7 @@
     return n;
   }
   function stars(n) {
-    var s = el("span", "upwise-stars");
+    var s = el("span", "storevine-stars");
     s.style.setProperty("--rating", n);
     s.setAttribute("aria-label", n + " out of 5 stars");
     s.setAttribute("role", "img");
@@ -18,34 +18,34 @@
   }
 
   function init(box) {
-    if (box.__upwise) return;
-    box.__upwise = true;
-    box.id = box.id || "upwise-reviews";
+    if (box.__storevine) return;
+    box.__storevine = true;
+    box.id = box.id || "storevine-reviews";
     var productId = box.getAttribute("data-product-id");
-    var list = box.querySelector("[data-upwise-list]");
+    var list = box.querySelector("[data-storevine-list]");
     var page = 1;
 
     function render(data, append) {
       if (!append) list.replaceChildren();
-      if (!data.reviews.length && !append) list.appendChild(el("p", "upwise-reviews__empty", "No reviews yet. Be the first to share your thoughts."));
+      if (!data.reviews.length && !append) list.appendChild(el("p", "storevine-reviews__empty", "No reviews yet. Be the first to share your thoughts."));
       data.reviews.forEach(function (r) {
-        var item = el("article", "upwise-review");
+        var item = el("article", "storevine-review");
         item.appendChild(stars(r.rating));
-        if (r.title) item.appendChild(el("p", "upwise-review__title", r.title));
-        item.appendChild(el("p", "upwise-review__body", r.body));
-        item.appendChild(el("p", "upwise-review__meta", r.author + " · " + new Date(r.createdAt).toLocaleDateString()));
+        if (r.title) item.appendChild(el("p", "storevine-review__title", r.title));
+        item.appendChild(el("p", "storevine-review__body", r.body));
+        item.appendChild(el("p", "storevine-review__meta", r.author + " · " + new Date(r.createdAt).toLocaleDateString()));
         if (r.reply) {
-          var rep = el("div", "upwise-review__reply");
+          var rep = el("div", "storevine-review__reply");
           rep.appendChild(el("strong", null, "Store reply: "));
           rep.appendChild(document.createTextNode(r.reply));
           item.appendChild(rep);
         }
         list.appendChild(item);
       });
-      var old = box.querySelector(".upwise-reviews__more");
+      var old = box.querySelector(".storevine-reviews__more");
       if (old) old.remove();
       if (data.hasMore) {
-        var more = el("button", "upwise-reviews__more", "Show more reviews");
+        var more = el("button", "storevine-reviews__more", "Show more reviews");
         more.type = "button";
         more.addEventListener("click", function () { page++; load(true); });
         list.after(more);
@@ -60,7 +60,7 @@
     load(false);
 
     if (box.getAttribute("data-allow-form") !== "false") {
-      var write = el("button", "upwise-reviews__write", "Write a review");
+      var write = el("button", "storevine-reviews__write", "Write a review");
       write.type = "button";
       write.setAttribute("aria-expanded", "false");
       box.appendChild(write);
@@ -75,11 +75,11 @@
     }
 
     function buildForm() {
-      var f = el("form", "upwise-form");
+      var f = el("form", "storevine-form");
       f.hidden = true;
       f.noValidate = true;
       var started = Date.now();
-      var fs = el("fieldset", "upwise-form__stars");
+      var fs = el("fieldset", "storevine-form__stars");
       fs.appendChild(el("legend", null, "Your rating"));
       var labels = [];
       for (var i = 1; i <= 5; i++) {
@@ -109,12 +109,12 @@
       field("Name shown with your review", "author", "input", 60).required = true;
       field("Title (optional)", "title", "input", 120);
       field("Your review", "body", "textarea", 2000).required = true;
-      var hp = el("input", "upwise-form__hp");
+      var hp = el("input", "storevine-form__hp");
       hp.name = "website"; hp.tabIndex = -1; hp.autocomplete = "off"; hp.setAttribute("aria-hidden", "true");
       f.appendChild(hp);
-      var msg = el("p", "upwise-form__msg");
+      var msg = el("p", "storevine-form__msg");
       msg.setAttribute("role", "status");
-      var submit = el("button", "upwise-reviews__write", "Submit review");
+      var submit = el("button", "storevine-reviews__write", "Submit review");
       submit.type = "submit";
       f.appendChild(submit);
       f.appendChild(msg);
@@ -130,7 +130,7 @@
           .then(function (r) { return r.json(); })
           .then(function (d) {
             if (d && d.ok) {
-              f.replaceChildren(el("p", "upwise-form__msg", d.status === "published" ? "Thanks! Your review is live." : "Thanks! Your review will appear after a quick check."));
+              f.replaceChildren(el("p", "storevine-form__msg", d.status === "published" ? "Thanks! Your review is live." : "Thanks! Your review will appear after a quick check."));
               if (d.status === "published") { page = 1; load(false); }
             } else {
               submit.disabled = false;
@@ -143,7 +143,7 @@
     }
   }
 
-  function scan() { document.querySelectorAll("[data-upwise-reviews]").forEach(init); }
+  function scan() { document.querySelectorAll("[data-storevine-reviews]").forEach(init); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", scan); else scan();
   document.addEventListener("shopify:section:load", scan);
 })();
