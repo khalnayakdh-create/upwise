@@ -59,3 +59,9 @@ The apps were renamed from Upwise to Storevine. Worker and D1 names did not chan
    _Done on upwisedev 2026-10-01: proxy switched, embed re-enabled, offer re-saved (new discount active, 15% verified in cart), thank-you block re-added._
 4. **Email:** set up Cloudflare Email Routing on storevine.app for `privacy@` and `support@`.
 5. **Retire upwise.dev:** once everything works on storevine.app, nothing points at it. Let it lapse or keep it parked; don't use it for anything public.
+
+## Reviews: turning on photos and review-request emails (one time)
+The code is live; these two account features are off until the owner enables them.
+1. **Photos (R2):** Cloudflare → Storage & databases → R2 → *Add R2 subscription* (free up to 10 GB/month; card on file is charged only above that). Then create bucket `storevine-review-photos` and uncomment the `r2_buckets` line in `apps/reviews/wrangler.jsonc`. Deploys fail with code 10085 if the binding exists before the bucket.
+2. **Email (Cloudflare Email Service, beta):** Compute → Email Service → Email Sending → *Onboard Domain* → `storevine.app` (adds SPF/DKIM/DMARC/bounce records on `cf-bounce`). Then uncomment `send_email` in `apps/reviews/wrangler.jsonc`. Workers Paid includes 3,000 emails/month, then $0.35 per 1,000. Sender: `reviews@storevine.app`, reply-to: the store's contact email.
+3. **Order webhook:** after Shopify approves protected customer data for Reviews (Level 1 + email), uncomment the `orders/fulfilled` subscription in `apps/reviews/shopify.app.toml`.
