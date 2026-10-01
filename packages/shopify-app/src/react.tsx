@@ -20,9 +20,15 @@ export function useSaveBar(formRef: RefObject<HTMLFormElement | null>, id: strin
   const baseline = useRef("");
   const key = JSON.stringify(savedKey);
 
+  // False once the form unmounts (e.g. redirect after save), so a check queued
+  // just before navigation can't re-show the bar on the next page.
+  const mounted = useRef(true);
+
   const check = useCallback(() => {
     requestAnimationFrame(() => {
-      if (serialize(formRef.current) !== baseline.current) shopify.saveBar.show(id);
+      const form = formRef.current;
+      if (!mounted.current || !form) return;
+      if (serialize(form) !== baseline.current) shopify.saveBar.show(id);
       else shopify.saveBar.hide(id);
     });
   }, [formRef, id, shopify]);
@@ -30,12 +36,14 @@ export function useSaveBar(formRef: RefObject<HTMLFormElement | null>, id: strin
   // New saved data (first load or after save): this is the clean state.
   useEffect(() => {
     requestAnimationFrame(() => {
+      if (!mounted.current) return;
       baseline.current = serialize(formRef.current);
       shopify.saveBar.hide(id);
     });
   }, [key, formRef, id, shopify]);
 
   useEffect(() => {
+    mounted.current = true;
     const form = formRef.current;
     if (!form) return;
     form.addEventListener("input", check);
@@ -43,6 +51,7 @@ export function useSaveBar(formRef: RefObject<HTMLFormElement | null>, id: strin
     return () => {
       form.removeEventListener("input", check);
       form.removeEventListener("change", check);
+      mounted.current = false;
       shopify.saveBar.hide(id);
     };
   }, [formRef, check, id, shopify]);
