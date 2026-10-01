@@ -17,9 +17,9 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 export default function Login() {
   return (
     <main style={{ fontFamily: "Inter, sans-serif", padding: 48, maxWidth: 560 }}>
-      <h1>Open Upwise Cart Upsell from Shopify</h1>
+      <h1>Open Storevine Cart Upsell from Shopify</h1>
       <p>
-        Go to your Shopify admin, open <strong>Apps</strong>, and select Upwise
+        Go to your Shopify admin, open <strong>Apps</strong>, and select Storevine
         Cart Upsell. If you haven't installed it yet, find it on the Shopify App
         Store.
       </p>

@@ -7,14 +7,14 @@
   "observability": { "enabled": true },
   // Production URL. Cloudflare creates the DNS record and certificate on deploy.
   // workers.dev stays on as a fallback/health-check URL.
-  "routes": [{ "pattern": "cart.upwise.dev", "custom_domain": true }],
+  "routes": [{ "pattern": "cart.storevine.app", "custom_domain": true }],
   "workers_dev": true,
   "upload_source_maps": true,
   "vars": {
     // Public values. The API secret is NOT here: set it as an encrypted
     // secret named SHOPIFY_API_SECRET in the Cloudflare dashboard.
     "SHOPIFY_API_KEY": "3e6e2d418655b16b1d9132a533b68a00",
-    "SHOPIFY_APP_URL": "https://cart.upwise.dev",
+    "SHOPIFY_APP_URL": "https://cart.storevine.app",
     "SCOPES": "read_products,write_discounts",
     // "true" = Shopify test charges (dev store). Set "false" for production.
     "BILLING_TEST_MODE": "true",

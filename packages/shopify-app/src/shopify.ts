@@ -10,10 +10,10 @@ import { DrizzleSessionStorageSQLite } from "@shopify/shopify-app-session-storag
 import type { D1Database } from "@cloudflare/workers-types";
 import { getDb, sessionTable } from "@upwise/platform";
 
-/** Pinned Admin API version for all Upwise apps. Upgrade quarterly (blueprint §6.11). */
+/** Pinned Admin API version for all Storevine apps. Upgrade quarterly (blueprint §6.11). */
 export const API_VERSION = ApiVersion.July26;
 
-/** Bindings every Upwise app Worker has. */
+/** Bindings every Storevine app Worker has. */
 export interface BaseEnv {
   DB: D1Database;
   SHOPIFY_API_KEY: string;
@@ -57,12 +57,12 @@ function create(env: BaseEnv, plans: PaidPlan[]) {
   });
 }
 
-export type UpwiseShopify = ReturnType<typeof create>;
+export type StorevineShopify = ReturnType<typeof create>;
 
 /** One Shopify app instance per isolate (env is stable for an isolate). */
 export function createShopifyFactory(plans: PaidPlan[] = []) {
-  let cached: { env: BaseEnv; shopify: UpwiseShopify } | undefined;
-  return function getShopify(env: BaseEnv): UpwiseShopify {
+  let cached: { env: BaseEnv; shopify: StorevineShopify } | undefined;
+  return function getShopify(env: BaseEnv): StorevineShopify {
     if (!cached || cached.env !== env) cached = { env, shopify: create(env, plans) };
     return cached.shopify;
   };

@@ -1,30 +1,30 @@
-{%- comment -%} Upwise Reviews: summary, review list and review form for the current product. {%- endcomment -%}
+{%- comment -%} Storevine Reviews: summary, review list and review form for the current product. {%- endcomment -%}
 <div
-  class="upwise-reviews"
-  data-upwise-reviews
+  class="storevine-reviews"
+  data-storevine-reviews
   data-product-id="{{ product.id }}"
   data-heading="{{ block.settings.heading | escape }}"
   data-allow-form="{{ block.settings.allow_form }}"
   {{ block.shopify_attributes }}
 >
-  <h2 class="upwise-reviews__heading">{{ block.settings.heading | escape }}</h2>
+  <h2 class="storevine-reviews__heading">{{ block.settings.heading | escape }}</h2>
   {%- assign rating = product.metafields.reviews.rating.value -%}
   {%- assign count = product.metafields.reviews.rating_count.value | default: 0 -%}
   {%- if count > 0 -%}
-    <p class="upwise-reviews__summary">
-      <span class="upwise-stars" style="--rating: {{ rating.rating }}" aria-hidden="true"></span>
+    <p class="storevine-reviews__summary">
+      <span class="storevine-stars" style="--rating: {{ rating.rating }}" aria-hidden="true"></span>
       <span>{{ rating.rating | round: 1 }} out of 5 · {{ count }} {% if count == 1 %}review{% else %}reviews{% endif %}</span>
     </p>
   {%- endif -%}
-  <div class="upwise-reviews__list" data-upwise-list><noscript>Enable JavaScript to see reviews.</noscript></div>
+  <div class="storevine-reviews__list" data-storevine-list><noscript>Enable JavaScript to see reviews.</noscript></div>
 </div>
 
 {% schema %}
 {
   "name": "Product reviews",
   "target": "section",
-  "javascript": "upwise-reviews.js",
-  "stylesheet": "upwise-reviews.css",
+  "javascript": "storevine-reviews.js",
+  "stylesheet": "storevine-reviews.css",
   "enabled_on": { "templates": ["product"] },
   "settings": [
     { "type": "text", "id": "heading", "label": "Heading", "default": "Customer reviews" },

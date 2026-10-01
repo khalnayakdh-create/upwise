@@ -3,7 +3,7 @@ import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
 import { bump } from "../lib/popup.server";
 
-/** POST /apps/upwise-popups/events {type: "impression"} — anonymous daily count. */
+/** POST /apps/storevine-popups/events {type: "impression"} — anonymous daily count. */
 export const action = async ({ request, context }: Route.ActionArgs) => {
   const { env } = context.cloudflare;
   const { session } = await getShopify(env).authenticate.public.appProxy(request);

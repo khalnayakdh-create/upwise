@@ -18,6 +18,6 @@ export const PLAN_COPY: Record<PlanKey, { name: string; price: string; features:
     name: "Growth",
     billingName: GROWTH_PLAN,
     price: "$9.99 / 30 days",
-    features: ["Unlimited sign-ups", "No Upwise branding", "A/B tests (coming soon)", "SMS sign-up (coming soon)"],
+    features: ["Unlimited sign-ups", "No Storevine branding", "A/B tests (coming soon)", "SMS sign-up (coming soon)"],
   },
 };

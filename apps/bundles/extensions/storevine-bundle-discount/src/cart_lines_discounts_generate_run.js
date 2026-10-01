@@ -1,5 +1,5 @@
 /**
- * Upwise bundle discount.
+ * Storevine bundle discount.
  * Config ($app:function-configuration): { bundles: [{ id, percent, message, productIds: [gid] }] }
  * When every product of a bundle is in the cart, discount `sets` units of each,
  * where sets = the smallest quantity among the bundle's products.

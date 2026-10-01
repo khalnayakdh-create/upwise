@@ -2,18 +2,18 @@
   App block: place the offers exactly where you want them in the cart page.
   When this block is present the widget renders here instead of auto-placing.
 {%- endcomment -%}
-<div class="upwise-cart" data-upwise-cart-offers="block" {{ block.shopify_attributes }}></div>
-{%- assign upwise_config = app.metafields.upwise_cart.config -%}
-{%- if upwise_config != blank -%}
-  <script type="application/json" data-upwise-cart-config>{{ upwise_config.value | json }}</script>
+<div class="storevine-cart" data-storevine-cart-offers="block" {{ block.shopify_attributes }}></div>
+{%- assign storevine_config = app.metafields.storevine_cart.config -%}
+{%- if storevine_config != blank -%}
+  <script type="application/json" data-storevine-cart-config>{{ storevine_config.value | json }}</script>
 {%- endif -%}
 
 {% schema %}
 {
-  "name": "Upwise cart offers",
+  "name": "Storevine cart offers",
   "target": "section",
-  "javascript": "upwise-cart.js",
-  "stylesheet": "upwise-cart.css",
+  "javascript": "storevine-cart.js",
+  "stylesheet": "storevine-cart.css",
   "enabled_on": { "templates": ["cart"] },
   "settings": []
 }

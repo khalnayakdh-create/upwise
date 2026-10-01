@@ -9,7 +9,7 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
   return Response.json(
     {
       ok: true,
-      app: "upwise-cart-upsell",
+      app: "storevine-cart-upsell",
       migrations: results.map((r) => `${r.id}_${r.name}`),
       configured: {
         apiKey: Boolean(env.SHOPIFY_API_KEY),

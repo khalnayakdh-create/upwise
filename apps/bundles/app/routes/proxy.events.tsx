@@ -3,7 +3,7 @@ import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
 import { listBundles, recordBundleEvents } from "../lib/bundles.server";
 
-/** POST /apps/upwise-bundles/events {events:[{bundleId,type}]} — anonymous daily counts. */
+/** POST /apps/storevine-bundles/events {events:[{bundleId,type}]} — anonymous daily counts. */
 export const action = async ({ request, context }: Route.ActionArgs) => {
   const { env } = context.cloudflare;
   const { session } = await getShopify(env).authenticate.public.appProxy(request);

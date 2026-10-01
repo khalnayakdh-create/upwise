@@ -1,4 +1,4 @@
-# Launch checklist — all Upwise apps
+# Launch checklist — all Storevine apps
 
 Run for **each** app (cart-upsell, reviews, popups, bundles) before submitting it for App Store review.
 
@@ -15,7 +15,7 @@ Run for **each** app (cart-upsell, reviews, popups, bundles) before submitting i
 - [ ] Cart Upsell only: post-purchase extension access requested (only needed for live stores)
 
 ## Business
-- [ ] `privacy@upwise.dev` and `support@upwise.dev` forward to a monitored inbox (Cloudflare Email Routing)
+- [ ] `privacy@storevine.app` and `support@storevine.app` forward to a monitored inbox (Cloudflare Email Routing)
 - [ ] Privacy policies and terms reviewed by a lawyer
-- [ ] "Upwise" trademark search done (USPTO classes 9, 42)
+- [ ] "Storevine" trademark search done (USPTO classes 9, 42)
 - [ ] Separate staging apps + Workers (own D1 databases) for testing after launch

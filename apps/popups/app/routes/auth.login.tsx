@@ -12,8 +12,8 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 export default function Login() {
   return (
     <main style={{ fontFamily: "Inter, sans-serif", padding: 48, maxWidth: 560 }}>
-      <h1>Open Upwise Pop-ups from Shopify</h1>
-      <p>Go to your Shopify admin, open <strong>Apps</strong>, and select Upwise Pop-ups.</p>
+      <h1>Open Storevine Pop-ups from Shopify</h1>
+      <p>Go to your Shopify admin, open <strong>Apps</strong>, and select Storevine Pop-ups.</p>
     </main>
   );
 }

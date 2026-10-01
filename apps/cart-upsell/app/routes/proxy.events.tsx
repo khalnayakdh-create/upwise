@@ -7,7 +7,7 @@ const TYPES = new Set<StatType>(["impression", "click", "add"]);
 
 /**
  * Storefront analytics, reached through the Shopify app proxy
- * (https://{shop}/apps/upwise-cart/events -> /proxy/events).
+ * (https://{shop}/apps/storevine-cart/events -> /proxy/events).
  * Shopify signs the request; authenticate.public.appProxy verifies it.
  * Only offer IDs and event types are stored — nothing about the shopper.
  */

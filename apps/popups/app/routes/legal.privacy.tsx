@@ -1,28 +1,28 @@
-export const meta = () => [{ title: "Privacy policy · Upwise Pop-ups" }];
+export const meta = () => [{ title: "Privacy policy · Storevine Pop-ups" }];
 
 const UPDATED = "October 1, 2026";
-const CONTACT = "privacy@upwise.dev";
+const CONTACT = "privacy@storevine.app";
 
 export default function Privacy() {
   return (
     <article>
-      <h1>Privacy policy — Upwise Pop-ups</h1>
+      <h1>Privacy policy — Storevine Pop-ups</h1>
       <p><em>Last updated {UPDATED}</em></p>
       <p>
-        Upwise Pop-ups ("the App") is a Shopify app operated by Karj Trading LLC ("Upwise", "we"). This
+        Storevine Pop-ups ("the App") is a Shopify app operated by Karj Trading LLC ("Storevine", "we"). This
         policy explains what the App collects when a merchant installs it on their Shopify store, and how we use
         and protect that information.
       </p>
 
       <h2>Information we collect</h2>
       <ul>
-        <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Upwise plan.</li>
+        <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Storevine plan.</li>
         <li><strong>Access credentials</strong>: the access token Shopify issues when you install the App.</li>
         <li><strong>Pop-up settings</strong>: the text, colors and display rules you choose.</li>
         <li><strong>Anonymous counts</strong>: daily totals of pop-up views and sign-ups.</li>
         <li>
           <strong>Sign-up emails</strong>: when a visitor enters their email and agrees to receive marketing, the App sends
-          the address directly to your Shopify store, where it's saved as a customer subscribed to email marketing. Upwise
+          the address directly to your Shopify store, where it's saved as a customer subscribed to email marketing. Storevine
           does not keep a copy.
         </li>
       </ul>
@@ -45,7 +45,7 @@ export default function Privacy() {
       <p>
         We keep your data while the App is installed. When you uninstall, we delete your access credentials
         immediately and Shopify asks us to erase your store's data 48 hours later; we then delete your pop-up settings and counts. We honor Shopify's customer data request and erasure requests;
-        Sign-up emails live in your Shopify store as customers; Shopify's own data request and erasure processes cover them, and Upwise holds no copy to return or delete.
+        Sign-up emails live in your Shopify store as customers; Shopify's own data request and erasure processes cover them, and Storevine holds no copy to return or delete.
       </p>
 
       <h2>Your rights</h2>

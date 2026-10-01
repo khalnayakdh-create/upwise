@@ -2,7 +2,7 @@ api_version = "2026-07"
 
 [[extensions]]
 name = "t:name"
-handle = "upwise-bundle-discount"
+handle = "storevine-cart-discount"
 type = "function"
 description = "t:description"
 

@@ -26,7 +26,7 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 export default function Dashboard() {
   const { planName, totals, addBlockUrl } = useLoaderData<typeof loader>();
   return (
-    <s-page heading="Upwise Reviews">
+    <s-page heading="Storevine Reviews">
       {totals.pending > 0 ? (
         <s-banner tone="info" heading={`${totals.pending} review${totals.pending === 1 ? "" : "s"} waiting for approval`}>
           <s-button slot="secondary-actions" href="/app/reviews?status=pending">Review now</s-button>
@@ -36,7 +36,7 @@ export default function Dashboard() {
         <s-ordered-list>
           <s-list-item>
             <s-text type="strong">Add reviews to your product page</s-text>
-            <s-paragraph>Opens the theme editor with the Upwise reviews block ready to place, then click Save.</s-paragraph>
+            <s-paragraph>Opens the theme editor with the Storevine reviews block ready to place, then click Save.</s-paragraph>
             <s-button href={addBlockUrl} target="_blank">Add reviews block</s-button>
           </s-list-item>
           <s-list-item>

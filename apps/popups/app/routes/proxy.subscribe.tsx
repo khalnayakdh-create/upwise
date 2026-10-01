@@ -9,7 +9,7 @@ import { PLAN_LIMITS } from "../lib/plans";
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 
-/** POST /apps/upwise-popups/subscribe {email, consent: true} — signed by Shopify's app proxy. */
+/** POST /apps/storevine-popups/subscribe {email, consent: true} — signed by Shopify's app proxy. */
 export const action = async ({ request, context }: Route.ActionArgs) => {
   const { env } = context.cloudflare;
   const { session, admin } = await getShopify(env).authenticate.public.appProxy(request);

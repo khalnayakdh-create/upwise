@@ -12,7 +12,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { unstable_startWorker } from "wrangler";
 
 const SECRET = "test-secret";
-const SHOP = "upwise-test.myshopify.com";
+const SHOP = "storevine-test.myshopify.com";
 let worker: Awaited<ReturnType<typeof unstable_startWorker>>;
 
 beforeAll(async () => {

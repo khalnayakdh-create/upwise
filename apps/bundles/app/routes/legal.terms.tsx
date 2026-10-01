@@ -1,15 +1,15 @@
-export const meta = () => [{ title: "Terms of service · Upwise Bundles" }];
+export const meta = () => [{ title: "Terms of service · Storevine Bundles" }];
 
 const UPDATED = "October 1, 2026";
-const CONTACT = "support@upwise.dev";
+const CONTACT = "support@storevine.app";
 
 export default function Terms() {
   return (
     <article>
-      <h1>Terms of service — Upwise Bundles</h1>
+      <h1>Terms of service — Storevine Bundles</h1>
       <p><em>Last updated {UPDATED}</em></p>
       <p>
-        These terms apply to your use of Upwise Bundles ("the App"), provided by Karj Trading LLC ("Upwise",
+        These terms apply to your use of Storevine Bundles ("the App"), provided by Karj Trading LLC ("Storevine",
         "we"). By installing the App you agree to these terms and to Shopify's terms for apps.
       </p>
       <h2>The service</h2>
@@ -30,7 +30,7 @@ export default function Terms() {
       </p>
       <h2>Liability</h2>
       <p>
-        To the extent permitted by law, Upwise is not liable for indirect or consequential losses, and our total
+        To the extent permitted by law, Storevine is not liable for indirect or consequential losses, and our total
         liability is limited to the fees you paid for the App in the 12 months before the claim.
       </p>
       <h2>Privacy</h2>

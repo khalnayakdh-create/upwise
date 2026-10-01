@@ -2,7 +2,7 @@
 
 **Status:** Working blueprint · **Revised:** 2026-09-30 · **Supersedes:** "7-App Shopify Ecosystem & Cross-Sell Portfolio Blueprint.md" (v1)
 
-This is the operating plan for building, launching and scaling a portfolio of Shopify apps in the Upsell/Cross-sell, Pop-up and Product Review categories under **one brand (Upwise)**, on a **low budget**, hosted on **Cloudflare**. It is written to be built from: every platform rule below was checked against Shopify's official documentation on the revision date, estimates are labelled as estimates, decisions are logged in §14.
+This is the operating plan for building, launching and scaling a portfolio of Shopify apps in the Upsell/Cross-sell, Pop-up and Product Review categories under **one brand (Storevine)**, on a **low budget**, hosted on **Cloudflare**. It is written to be built from: every platform rule below was checked against Shopify's official documentation on the revision date, estimates are labelled as estimates, decisions are logged in §14.
 
 ---
 
@@ -14,16 +14,16 @@ All four apps are built, deployed on Cloudflare and connected to their own Shopi
 
 | App | URL | State |
 |---|---|---|
-| Cart Upsell | cart.upwise.dev | Installed on upwisedev; cart offers, offer discounts (Function) and thank-you offers verified end to end |
-| Reviews | reviews.upwise.dev | Built, tested, deployed; awaiting API secret + install |
-| Pop-ups | popups.upwise.dev | Built, tested, deployed; awaiting API secret, protected-data approval + install |
-| Bundles | bundles.upwise.dev | Built, tested, deployed; awaiting API secret + install |
+| Cart Upsell | cart.storevine.app | Installed on upwisedev; cart offers, offer discounts (Function) and thank-you offers verified end to end |
+| Reviews | reviews.storevine.app | Built, tested, deployed; awaiting API secret + install |
+| Pop-ups | popups.storevine.app | Built, tested, deployed; awaiting API secret, protected-data approval + install |
+| Bundles | bundles.storevine.app | Built, tested, deployed; awaiting API secret + install |
 
 ### v2.1 (2026-09-30) — owner decisions applied
 
 | Decision | Effect |
 |---|---|
-| One brand across all apps — **Upwise** | Names: "Upwise Cart Upsell", "Upwise Reviews", "Upwise Pop-ups", "Upwise Bundles" (§8). Shared look, support site and docs. |
+| One brand across all apps — **Storevine** | Names: "Storevine Cart Upsell", "Storevine Reviews", "Storevine Pop-ups", "Storevine Bundles" (§8). Shared look, support site and docs. |
 | Post-purchase offers become a **paid plan inside Cart Upsell** | Portfolio is now **4 apps** (§3). Cart Upsell requests post-purchase extension access. |
 | Low budget, hosted on **Cloudflare** | Stack is Cloudflare Workers + D1 + KV + Queues + R2 (§6.1). Target fixed cost ≈ $5–$20/month until revenue (§11.5). Paid tools deferred. |
 | Partner account created before Aug 1 2021 | $19 App Store registration fee is waived (§11.1). |
@@ -101,10 +101,10 @@ Many new stores close early, which makes free installs from brand-new stores low
 
 | # | App | Category | Model | Free plan | Paid plans | Key Shopify surfaces |
 |---|---|---|---|---|---|---|
-| 1 | **Upwise Cart Upsell** | Upsell & cross-sell | Freemium | "You may also like" in cart drawer/page, manual rules, limited offers | **Growth:** AI/automatic recommendations, A/B tests, unlimited cart offers, analytics. **Pro:** + one-click **post-purchase offers** and **Thank-you page offers**, funnels, revenue attribution | Theme app extension (app embed + app blocks), AJAX cart / Storefront API, **post-purchase extension** (beta, access request), **checkout UI extension** Thank-you targets, Discount Function, Web Pixels |
-| 2 | **Upwise Reviews** | Product reviews | Freemium | Text reviews, star widgets, automated request emails, import | Photo/video reviews, Google Shopping feed, sentiment insights, Q&A, custom widgets | Theme app extension, Flow triggers, R2 for media |
-| 3 | **Upwise Pop-ups** | Pop-ups / email capture | Freemium | Email capture, exit intent, basic targeting, newsletter sync | SMS capture, gamified forms, segmentation, A/B tests, integrations | Theme app extension (app embed), Customer Privacy API, customer/segments APIs, Web Pixels |
-| 4 | **Upwise Bundles** | Upsell & cross-sell | Paid with free trial (possibly a small free plan) | — | Fixed and mix-and-match bundles, frequently-bought-together, volume/tiered discounts | **Cart Transform Function**, **Discount Function API**, theme app extension, bulk operations for catalog sync |
+| 1 | **Storevine Cart Upsell** | Upsell & cross-sell | Freemium | "You may also like" in cart drawer/page, manual rules, limited offers | **Growth:** AI/automatic recommendations, A/B tests, unlimited cart offers, analytics. **Pro:** + one-click **post-purchase offers** and **Thank-you page offers**, funnels, revenue attribution | Theme app extension (app embed + app blocks), AJAX cart / Storefront API, **post-purchase extension** (beta, access request), **checkout UI extension** Thank-you targets, Discount Function, Web Pixels |
+| 2 | **Storevine Reviews** | Product reviews | Freemium | Text reviews, star widgets, automated request emails, import | Photo/video reviews, Google Shopping feed, sentiment insights, Q&A, custom widgets | Theme app extension, Flow triggers, R2 for media |
+| 3 | **Storevine Pop-ups** | Pop-ups / email capture | Freemium | Email capture, exit intent, basic targeting, newsletter sync | SMS capture, gamified forms, segmentation, A/B tests, integrations | Theme app extension (app embed), Customer Privacy API, customer/segments APIs, Web Pixels |
+| 4 | **Storevine Bundles** | Upsell & cross-sell | Paid with free trial (possibly a small free plan) | — | Fixed and mix-and-match bundles, frequently-bought-together, volume/tiered discounts | **Cart Transform Function**, **Discount Function API**, theme app extension, bulk operations for catalog sync |
 
 ### 3.2 Why this shape
 
@@ -332,7 +332,7 @@ Level 2 obligations to build in from the start: encryption in transit and at res
 
 Rules from Shopify's requirements and best practices:
 
-- **App name:** ≤30 characters; brand first, optional function word after — fits the one-brand plan: "Upwise Cart Upsell", "Upwise Reviews", "Upwise Pop-ups", "Upwise Bundles". Longest name is "Upwise Cart Upsell" (18 characters). Must be unique and not confusingly similar to another app.
+- **App name:** ≤30 characters; brand first, optional function word after — fits the one-brand plan: "Storevine Cart Upsell", "Storevine Reviews", "Storevine Pop-ups", "Storevine Bundles". Longest name is "Storevine Cart Upsell" (18 characters). Must be unique and not confusingly similar to another app.
 - **Subtitle:** describe value; **no keywords added to improve search**, no "best/first/only", no statistics.
 - **Search terms:** up to 5, complete words, one idea each (e.g., "cart upsell", "post purchase upsell").
 - **Introduction** 100 characters · **Details** 500 · each **feature** 80.
@@ -475,10 +475,12 @@ Installs, net installs, activation rate (first value within 24 h), free→paid c
 | 2026-10-01 | Shared `packages/shopify-app` for Reviews, Pop-ups, Bundles | Each new app is mostly feature code; one place for auth, webhooks, billing |
 | 2026-10-01 | Reviews default to hold-for-approval; Pop-ups never re-subscribe unsubscribed customers | Spam and consent safety (independent review findings) |
 | 2026-09-30 | **Phase 0 spike passed** on Cloudflare Workers | Live at cart.upwise.dev (fallback upwise-cart-upsell.akjr004.workers.dev); D1 auto-provisioned + in-Worker migrations; install/token exchange, Admin GraphQL, session storage and Billing API test charge verified on upwisedev; HMAC-verified compliance webhooks pass end-to-end tests in workerd; config released to Shopify from GitHub Actions |
+| 2026-10-01 | **Rebrand: Upwise → Storevine** (Upwise is trademark-protected). Domain **storevine.app**; apps on `cart.`, `reviews.`, `popups.`, `bundles.storevine.app` | Name checked against the App Store, app stores and web (no conflicts; storevine.com is parked for sale). "Upcartley" rejected: too close to three existing "Upcart" cart-upsell apps. USPTO search still to do before launch |
+| 2026-10-01 | Rebrand covers everything merchants or shoppers can see (app names, URLs, legal pages, emails, storefront CSS/JS, line properties, proxy subpaths, metafield namespaces, extension handles, customer tag, branding). Internal names stay `upwise` (Worker and D1 names, npm scope `@upwise/*`, repo, dev store upwisedev) | Renaming Workers or D1 would mean new Cloudflare projects and empty databases for no user-visible gain |
 
 ### 14.2 Still open
 
-1. **Upwise trademark + social handles** (domain done: upwise.dev). USPTO search classes 9 and 42.
+1. **Storevine trademark + social handles** (domain done: storevine.app). USPTO search classes 9 and 42.
 2. **Pricing** for each plan (draft after competitor review in Phase 1).
 3. **Email provider** for review requests and value emails; **SMS provider** for Pop-ups (later).
 4. **Legal entity and country** (affects tax forms and regulatory fees).

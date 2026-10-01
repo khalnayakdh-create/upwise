@@ -131,7 +131,7 @@ export default function ThankYouSettings() {
               label="Discount code (optional)"
               name="discountCode"
               value={config.discountCode}
-              details="Create the code in Shopify Discounts first; Upwise shows it to the customer."
+              details="Create the code in Shopify Discounts first; Storevine shows it to the customer."
               maxLength={40}
             />
           </s-stack>
@@ -159,7 +159,7 @@ export default function ThankYouSettings() {
       </Form>
       <s-section slot="aside" heading="Add it to your thank-you page">
         <s-paragraph>
-          In the checkout editor, switch to the Thank you page and add the “Upwise thank you offers” block.
+          In the checkout editor, switch to the Thank you page and add the “Storevine thank you offers” block.
         </s-paragraph>
         <s-button href={checkoutEditorUrl} target="_blank">
           Open checkout settings

@@ -2,7 +2,7 @@ query CartInput {
   cart {
     lines {
       id
-      attribute(key: "_upwise_offer") {
+      attribute(key: "_storevine_offer") {
         value
       }
       merchandise {

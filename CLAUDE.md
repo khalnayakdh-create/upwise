@@ -1,16 +1,17 @@
-# Upwise — working notes for Claude
+# Storevine — working notes for Claude
 
-Monorepo for the Upwise family of Shopify apps (Cart Upsell, Reviews, Pop-ups, Bundles).
+Monorepo for the Storevine family of Shopify apps (Cart Upsell, Reviews, Pop-ups, Bundles).
 The plan of record is `docs/blueprint.md`; decisions are logged in its §14.
 
 ## Layout
-- `apps/cart-upsell` — Upwise Cart Upsell (cart.upwise.dev): cart offers, offer discounts (Function), thank-you offers (checkout UI ext).
-- `apps/reviews` — Upwise Reviews (reviews.upwise.dev): review widget + star rating blocks, moderation, CSV import, standard reviews.rating metafields.
-- `apps/popups` — Upwise Pop-ups (popups.upwise.dev): email sign-up pop-up embed; sign-ups saved as Shopify customers (protected customer data).
-- `apps/bundles` — Upwise Bundles (bundles.upwise.dev): frequently-bought-together block + bundle discount Function.
+- `apps/cart-upsell` — Storevine Cart Upsell (cart.storevine.app): cart offers, offer discounts (Function), thank-you offers (checkout UI ext).
+- `apps/reviews` — Storevine Reviews (reviews.storevine.app): review widget + star rating blocks, moderation, CSV import, standard reviews.rating metafields.
+- `apps/popups` — Storevine Pop-ups (popups.storevine.app): email sign-up pop-up embed; sign-ups saved as Shopify customers (protected customer data).
+- `apps/bundles` — Storevine Bundles (bundles.storevine.app): frequently-bought-together block + bundle discount Function.
 - `packages/platform` — D1 schema + in-Worker migrations, sessions, shop records, webhook idempotency, privacy/compliance.
 - `packages/shopify-app` — shared Shopify app factory (Workers adapter, billing), entry.server, shared webhook/health routes, Admin helpers, save bar.
 - `scripts/new-app.sh` — scaffolds a new app on the shared packages.
+- Internal names intentionally still say `upwise` (Worker + D1 names, npm scope `@upwise/*`, repo, dev store `upwisedev`). Everything merchants or shoppers see says Storevine. Don't reintroduce "Upwise" in user-visible text (trademark).
 - Each app: its own Shopify app (Dev Dashboard), Worker, D1 database, subdomain, app-proxy subpath, automation-token secret.
 
 ## Rules

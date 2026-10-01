@@ -247,7 +247,7 @@ export default function OfferEditor() {
           <input type="hidden" name="intent" value="delete" />
           <s-section heading="Delete offer">
             <s-stack gap="base">
-              <s-paragraph>Removes the offer and its stats from Upwise. This can't be undone.</s-paragraph>
+              <s-paragraph>Removes the offer and its stats from Storevine. This can't be undone.</s-paragraph>
               <s-button type="submit" tone="critical">Delete offer</s-button>
             </s-stack>
           </s-section>

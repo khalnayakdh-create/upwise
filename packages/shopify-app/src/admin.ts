@@ -21,12 +21,12 @@ export async function setAppDataJson(graphql: GraphqlFn, namespace: string, key:
   const { currentAppInstallation } = await gql<{ currentAppInstallation: { id: string } }>(
     graphql,
     `#graphql
-    query UpwiseAppInstallation { currentAppInstallation { id } }`,
+    query StorevineAppInstallation { currentAppInstallation { id } }`,
   );
   const result = await gql<{ metafieldsSet: { userErrors: Array<{ message: string }> } }>(
     graphql,
     `#graphql
-    mutation UpwiseSetAppData($metafields: [MetafieldsSetInput!]!) {
+    mutation StorevineSetAppData($metafields: [MetafieldsSetInput!]!) {
       metafieldsSet(metafields: $metafields) { userErrors { message } }
     }`,
     {

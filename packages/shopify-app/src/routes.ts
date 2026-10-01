@@ -8,9 +8,9 @@ import {
   sessionTable,
   type PrivacyHooks,
 } from "@upwise/platform";
-import type { BaseEnv, UpwiseShopify } from "./shopify";
+import type { BaseEnv, StorevineShopify } from "./shopify";
 
-type GetShopify = (env: BaseEnv) => UpwiseShopify;
+type GetShopify = (env: BaseEnv) => StorevineShopify;
 interface Ctx {
   request: Request;
   context: { cloudflare: { env: BaseEnv; ctx: { waitUntil(p: Promise<unknown>): void } } };

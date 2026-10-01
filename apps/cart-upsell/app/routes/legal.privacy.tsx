@@ -1,22 +1,22 @@
-export const meta = () => [{ title: "Privacy policy · Upwise Cart Upsell" }];
+export const meta = () => [{ title: "Privacy policy · Storevine Cart Upsell" }];
 
 const UPDATED = "October 1, 2026";
-const CONTACT = "privacy@upwise.dev";
+const CONTACT = "privacy@storevine.app";
 
 export default function Privacy() {
   return (
     <article>
-      <h1>Privacy policy — Upwise Cart Upsell</h1>
+      <h1>Privacy policy — Storevine Cart Upsell</h1>
       <p><em>Last updated {UPDATED}</em></p>
       <p>
-        Upwise Cart Upsell ("the App") is a Shopify app operated by Karj Trading LLC ("Upwise", "we"). This
+        Storevine Cart Upsell ("the App") is a Shopify app operated by Karj Trading LLC ("Storevine", "we"). This
         policy explains what the App collects when a merchant installs it on their Shopify store, and how we use
         and protect that information.
       </p>
 
       <h2>Information we collect</h2>
       <ul>
-        <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Upwise plan.</li>
+        <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Storevine plan.</li>
         <li><strong>Access credentials</strong>: the access token Shopify issues when you install the App, used only to call Shopify on your behalf.</li>
         <li><strong>Offer settings</strong>: the offers you create (names, headlines, priorities) and the product IDs, titles, handles and image links you choose.</li>
         <li><strong>Aggregated usage counts</strong>: daily totals of how often each offer was shown, clicked and added to cart on your storefront.</li>
@@ -29,7 +29,7 @@ export default function Privacy() {
 
       <h2>How we use information</h2>
       <ul>
-        <li>To provide the App: show your offers in your store's cart and display results in your Upwise dashboard.</li>
+        <li>To provide the App: show your offers in your store's cart and display results in your Storevine dashboard.</li>
         <li>To bill you through Shopify for paid plans.</li>
         <li>To keep the App secure, prevent abuse and fix problems.</li>
       </ul>

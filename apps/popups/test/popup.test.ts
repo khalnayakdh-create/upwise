@@ -13,7 +13,7 @@ import {
 
 const proxy = await getPlatformProxy<{ DB: D1Database }>({
   configPath: join(import.meta.dirname, "../../../packages/platform/test/wrangler.test.jsonc"),
-  persist: { path: mkdtempSync(join(tmpdir(), "upwise-popups-")) },
+  persist: { path: mkdtempSync(join(tmpdir(), "storevine-popups-")) },
 });
 const d1 = proxy.env.DB;
 const db = getDb(d1);

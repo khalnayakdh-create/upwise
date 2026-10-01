@@ -10,7 +10,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function Index() {
   return (
     <main style={{ fontFamily: "Inter, sans-serif", padding: 48, maxWidth: 560 }}>
-      <h1>Upwise Reviews</h1>
+      <h1>Storevine Reviews</h1>
       <p>Install from the Shopify App Store to get started.</p>
     </main>
   );

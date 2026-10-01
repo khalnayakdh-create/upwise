@@ -11,12 +11,12 @@ import {
   recordBundleEvents, saveBundle, storefrontConfig, validateBundleInput, type BundleProduct,
 } from "../app/lib/bundles.server";
 
-const fnPath = "../extensions/upwise-bundle-discount/src/cart_lines_discounts_generate_run.js";
+const fnPath = "../extensions/storevine-bundle-discount/src/cart_lines_discounts_generate_run.js";
 const { cartLinesDiscountsGenerateRun: run } = (await import(fnPath)) as { cartLinesDiscountsGenerateRun: (i: unknown) => { operations: any[] } };
 
 const proxy = await getPlatformProxy<{ DB: D1Database }>({
   configPath: join(import.meta.dirname, "../../../packages/platform/test/wrangler.test.jsonc"),
-  persist: { path: mkdtempSync(join(tmpdir(), "upwise-bundles-")) },
+  persist: { path: mkdtempSync(join(tmpdir(), "storevine-bundles-")) },
 });
 const d1 = proxy.env.DB;
 const db = getDb(d1);
@@ -62,7 +62,7 @@ describe("bundles storage and configs", () => {
   });
 });
 
-describe("upwise-bundle-discount function", () => {
+describe("storevine-bundle-discount function", () => {
   const line = (id: string, n: number, quantity = 1) => ({ id, quantity, merchandise: { __typename: "ProductVariant", product: { id: gid(n) } } });
   const input = (lines: unknown[], bundles: unknown[]) => ({ cart: { lines }, discount: { discountClasses: ["PRODUCT"], metafield: { jsonValue: { bundles } } } });
   const B = { id: "b1", percent: 10, message: "Bundle 10% off", productIds: [gid(1), gid(2)] };

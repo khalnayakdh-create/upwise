@@ -1,16 +1,16 @@
-{%- comment -%} Upwise Bundles: shows the bundle(s) that include this product. Config from the Upwise admin. {%- endcomment -%}
-{%- assign upwise_bundles = app.metafields.upwise_bundles.config.value -%}
-<div class="upwise-bundle" data-upwise-bundle data-product-id="{{ product.id }}" data-button="{{ block.settings.button_label | escape }}" {{ block.shopify_attributes }}></div>
-{%- if upwise_bundles -%}
-  <script type="application/json" data-upwise-bundles-config>{{ upwise_bundles | json }}</script>
+{%- comment -%} Storevine Bundles: shows the bundle(s) that include this product. Config from the Storevine admin. {%- endcomment -%}
+{%- assign storevine_bundles = app.metafields.storevine_bundles.config.value -%}
+<div class="storevine-bundle" data-storevine-bundle data-product-id="{{ product.id }}" data-button="{{ block.settings.button_label | escape }}" {{ block.shopify_attributes }}></div>
+{%- if storevine_bundles -%}
+  <script type="application/json" data-storevine-bundles-config>{{ storevine_bundles | json }}</script>
 {%- endif -%}
 
 {% schema %}
 {
   "name": "Frequently bought together",
   "target": "section",
-  "javascript": "upwise-bundle.js",
-  "stylesheet": "upwise-bundle.css",
+  "javascript": "storevine-bundle.js",
+  "stylesheet": "storevine-bundle.css",
   "enabled_on": { "templates": ["product"] },
   "settings": [
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Add selected to cart" }

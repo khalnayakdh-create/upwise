@@ -16,6 +16,10 @@ on:
         description: "Deploy all configured apps even if unchanged"
         type: boolean
         default: true
+      allow_deletes:
+        description: "Let Shopify delete extensions that were removed or renamed"
+        type: boolean
+        default: false
 
 jobs:
   deploy:
@@ -34,6 +38,9 @@ jobs:
             secret: SHOPIFY_APP_AUTOMATION_TOKEN_BUNDLES
     env:
       SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets[matrix.secret] }}
+      # Deleting an extension removes it from every store, so it is opt-in:
+      # a manual run with allow_deletes, or "[allow-deletes]" in the commit message.
+      ALLOW_DELETES: ${{ inputs.allow_deletes || contains(github.event.head_commit.message, '[allow-deletes]') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -63,7 +70,8 @@ jobs:
       - name: Deploy app config and extensions
         if: steps.gate.outputs.run == 'true'
         working-directory: apps/${{ matrix.app }}
-        run: >
-          npx --yes @shopify/cli@latest app deploy
-          --allow-updates
-          --source-control-url "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+        run: |
+          extra=""
+          if [ "$ALLOW_DELETES" = "true" ]; then extra="--allow-deletes"; fi
+          npx --yes @shopify/cli@latest app deploy --allow-updates $extra \
+            --source-control-url "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"

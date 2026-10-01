@@ -3,7 +3,7 @@ import { render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 
 /**
- * Thank-you page offers (Upwise Cart Upsell, Pro plan).
+ * Thank-you page offers (Storevine Cart Upsell, Pro plan).
  * Reads $app:thank_you_config (shop metafield written by the app):
  *   { enabled, heading, body, discountCode, products: [{ handle }] }
  * Shows up to 3 products with live data from the Storefront API.
@@ -25,7 +25,7 @@ function readConfig() {
   }
 }
 
-const PRODUCT_QUERY = `query UpwiseProduct($handle: String!) {
+const PRODUCT_QUERY = `query StorevineProduct($handle: String!) {
   product(handle: $handle) {
     title
     handle
@@ -39,10 +39,10 @@ function EditorNote({ reason }) {
   // Only merchants see this, in the checkout editor.
   if (!shopify.extension.editor) return null;
   const text = {
-    "no-config": "Upwise: set up thank-you offers in the Upwise Cart Upsell app (Pro plan).",
-    disabled: "Upwise: thank-you offers are turned off in the app, or your plan doesn't include them.",
-    "no-products": "Upwise: no available products to show. Pick products in the app.",
-    loading: "Upwise: loading products…",
+    "no-config": "Storevine: set up thank-you offers in the Storevine Cart Upsell app (Pro plan).",
+    disabled: "Storevine: thank-you offers are turned off in the app, or your plan doesn't include them.",
+    "no-products": "Storevine: no available products to show. Pick products in the app.",
+    loading: "Storevine: loading products…",
   }[reason];
   return <s-banner tone="info">{text}</s-banner>;
 }

@@ -1,7 +1,7 @@
-# Shopify app configuration for Upwise Bundles.
+# Shopify app configuration for Storevine Bundles.
 client_id = "d1c8b13293b07718447b5f039c8e455a"
-name = "Upwise Bundles"
-application_url = "https://bundles.upwise.dev"
+name = "Storevine Bundles"
+application_url = "https://bundles.storevine.app"
 embedded = true
 
 [build]
@@ -9,16 +9,16 @@ automatically_update_urls_on_dev = false
 include_config_on_deploy = true
 
 [access_scopes]
-# write_discounts: the automatic bundle discount (upwise-bundle-discount Function).
+# write_discounts: the automatic bundle discount (storevine-bundle-discount Function).
 scopes = "read_products,write_discounts"
 
 [auth]
-redirect_urls = ["https://bundles.upwise.dev/auth/callback"]
+redirect_urls = ["https://bundles.storevine.app/auth/callback"]
 
-# Storefront API: https://{shop}/apps/upwise-bundles/* -> {application_url}/proxy/*
+# Storefront API: https://{shop}/apps/storevine-bundles/* -> {application_url}/proxy/*
 [app_proxy]
 url = "/proxy"
-subpath = "upwise-bundles"
+subpath = "storevine-bundles"
 prefix = "apps"
 
 [webhooks]

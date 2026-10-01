@@ -5,9 +5,9 @@
   "workspaces": [
     "packages/*",
     "apps/*",
-    "apps/cart-upsell/extensions/upwise-cart-discount",
-    "apps/cart-upsell/extensions/upwise-thank-you",
-    "apps/bundles/extensions/upwise-bundle-discount"
+    "apps/cart-upsell/extensions/storevine-cart-discount",
+    "apps/cart-upsell/extensions/storevine-thank-you",
+    "apps/bundles/extensions/storevine-bundle-discount"
   ],
   "engines": {
     "node": ">=22.12"

@@ -33,7 +33,7 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 export default function Dashboard() {
   const { planName, bundleCount, impressions, adds, addBlockUrl } = useLoaderData<typeof loader>();
   return (
-    <s-page heading="Upwise Bundles">
+    <s-page heading="Storevine Bundles">
       <s-button slot="primary-action" variant="primary" href="/app/bundles/new">Create bundle</s-button>
       <s-section heading="Get set up">
         <s-ordered-list>

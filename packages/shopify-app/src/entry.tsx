@@ -2,10 +2,10 @@ import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
 import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
-import type { BaseEnv, UpwiseShopify } from "./shopify";
+import type { BaseEnv, StorevineShopify } from "./shopify";
 
-/** Build the React Router entry.server handler for an Upwise app on Workers. */
-export function createHandleRequest(getShopify: (env: BaseEnv) => UpwiseShopify) {
+/** Build the React Router entry.server handler for an Storevine app on Workers. */
+export function createHandleRequest(getShopify: (env: BaseEnv) => StorevineShopify) {
   return async function handleRequest(
     request: Request,
     responseStatusCode: number,

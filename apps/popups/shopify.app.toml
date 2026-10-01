@@ -1,7 +1,7 @@
-# Shopify app configuration for Upwise Pop-ups.
+# Shopify app configuration for Storevine Pop-ups.
 client_id = "6b1ae04f6ae8a893a38a2fe7b8d4da8b"
-name = "Upwise Pop-ups"
-application_url = "https://popups.upwise.dev"
+name = "Storevine Pop-ups"
+application_url = "https://popups.storevine.app"
 embedded = true
 
 [build]
@@ -13,12 +13,12 @@ include_config_on_deploy = true
 scopes = "read_customers,write_customers"
 
 [auth]
-redirect_urls = ["https://popups.upwise.dev/auth/callback"]
+redirect_urls = ["https://popups.storevine.app/auth/callback"]
 
-# Storefront API: https://{shop}/apps/upwise-popups/* -> {application_url}/proxy/*
+# Storefront API: https://{shop}/apps/storevine-popups/* -> {application_url}/proxy/*
 [app_proxy]
 url = "/proxy"
-subpath = "upwise-popups"
+subpath = "storevine-popups"
 prefix = "apps"
 
 [webhooks]

@@ -9,7 +9,7 @@ import { publishConfig, resolvePlan } from "../lib/admin.server";
 import { getConfig, signupsThisMonth, stats } from "../lib/popup.server";
 import { PLAN_COPY, PLAN_LIMITS } from "../lib/plans";
 
-export const EMBED_HANDLE = "upwise-popup-embed";
+export const EMBED_HANDLE = "storevine-popup-embed";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { env } = context.cloudflare;
@@ -33,7 +33,7 @@ export default function Dashboard() {
   const { planName, enabled, stats, month, limit, embedUrl } = useLoaderData<typeof loader>();
   const rate = stats.impressions ? `${((stats.signups / stats.impressions) * 100).toFixed(1)}%` : "–";
   return (
-    <s-page heading="Upwise Pop-ups">
+    <s-page heading="Storevine Pop-ups">
       {limit !== null && month >= limit ? (
         <s-banner tone="warning" heading="You've reached this month's sign-up limit">
           The pop-up is paused until next month. Upgrade for unlimited sign-ups.
@@ -51,7 +51,7 @@ export default function Dashboard() {
             <s-button href="/app/popup">Edit pop-up</s-button>
           </s-list-item>
           <s-list-item>
-            <s-text type="strong">Turn on Upwise Pop-ups in your theme</s-text>
+            <s-text type="strong">Turn on Storevine Pop-ups in your theme</s-text>
             <s-paragraph>Opens the theme editor with the switch ready; click Save.</s-paragraph>
             <s-button href={embedUrl} target="_blank">Open theme editor</s-button>
           </s-list-item>

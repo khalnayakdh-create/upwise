@@ -6,12 +6,12 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "upload_source_maps": true,
-  "routes": [{ "pattern": "popups.upwise.dev", "custom_domain": true }],
+  "routes": [{ "pattern": "popups.storevine.app", "custom_domain": true }],
   "workers_dev": true,
   "vars": {
     // Public values. SHOPIFY_API_SECRET is an encrypted secret set in Cloudflare.
     "SHOPIFY_API_KEY": "6b1ae04f6ae8a893a38a2fe7b8d4da8b",
-    "SHOPIFY_APP_URL": "https://popups.upwise.dev",
+    "SHOPIFY_APP_URL": "https://popups.storevine.app",
     "SCOPES": "read_customers,write_customers",
     "BILLING_TEST_MODE": "true",
     // DEV ONLY: empty before launch.
