@@ -26,5 +26,15 @@
 Dev Dashboard → app → **Install on dev store** → `upwisedev`. The app home should show the "Setup check" card.
 Then test: Plans → start Growth test subscription → approve → cancel. Uninstall and reinstall once.
 
-## 5. Webhook config
-Webhook subscriptions (including the three privacy topics) are defined in `shopify.app.toml`. Release them with `shopify app deploy` (Shopify CLI, from `apps/cart-upsell`), or enter them in the Dev Dashboard app version form.
+## 5. Webhook config (automated)
+Webhook subscriptions (including the three privacy topics) live in `apps/cart-upsell/shopify.app.toml`.
+The **Shopify app config** GitHub Action releases them whenever that file changes. One-time setup:
+1. Dev Dashboard → Upwise Cart Upsell → Settings → **App automation token** → Create.
+2. GitHub → `upwise` repo → Settings → Secrets and variables → Actions → New secret
+   `SHOPIFY_APP_AUTOMATION_TOKEN_CART_UPSELL` = the token.
+3. GitHub → Actions → "Shopify app config" → Run workflow.
+
+## Current values
+- Worker URL: https://upwise-cart-upsell.akjr004.workers.dev
+- Shopify Client ID: 3e6e2d418655b16b1d9132a533b68a00 (public; the secret lives only in Cloudflare)
+- Dev store: upwisedev

@@ -1,10 +1,9 @@
 # Shopify app configuration for Upwise Cart Upsell.
-# Values marked FILL are set once the app exists in the Dev Dashboard and the
-# Worker URL is known. Docs: https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration
+# Release config changes with the "Shopify app config" GitHub Action (or `shopify app deploy`).
 
-client_id = "" # FILL: Dev Dashboard > app > Settings > Client ID
+client_id = "3e6e2d418655b16b1d9132a533b68a00"
 name = "Upwise Cart Upsell"
-application_url = "https://upwise-cart-upsell.FILL.workers.dev"
+application_url = "https://upwise-cart-upsell.akjr004.workers.dev"
 embedded = true
 
 [build]
@@ -17,7 +16,7 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://upwise-cart-upsell.FILL.workers.dev/auth/callback",
+  "https://upwise-cart-upsell.akjr004.workers.dev/auth/callback",
 ]
 
 [webhooks]

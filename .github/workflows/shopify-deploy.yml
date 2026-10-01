@@ -1,0 +1,35 @@
+name: Shopify app config
+
+# Releases shopify.app.toml (URLs, scopes, webhooks incl. privacy topics) and
+# extensions to Shopify. Runs when that config or extensions change on main,
+# or manually from the Actions tab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/cart-upsell/shopify.app.toml"
+      - "apps/cart-upsell/extensions/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN_CART_UPSELL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Check token is configured
+        run: |
+          if [ -z "$SHOPIFY_APP_AUTOMATION_TOKEN" ]; then
+            echo "::error::Add repo secret SHOPIFY_APP_AUTOMATION_TOKEN_CART_UPSELL (Dev Dashboard > app > Settings > App automation token)."
+            exit 1
+          fi
+      - name: Deploy app config
+        working-directory: apps/cart-upsell
+        run: >
+          npx --yes @shopify/cli@latest app deploy
+          --allow-updates
+          --source-control-url "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
