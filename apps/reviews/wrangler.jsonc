@@ -23,7 +23,9 @@
   // Cloudflare Email Service binding — add back once storevine.app is onboarded under
   // Compute > Email Service > Email Sending (deploys fail before that). Until then
   // review requests stay scheduled and nothing is lost:
-  //   "send_email": [{ "name": "EMAIL" }],
-  // Review photos (created automatically on first deploy).
-  "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "storevine-review-photos" }]
+  //   "send_email": [{ "name": "EMAIL" }]
+  // Review photos — add back once R2 is enabled on the account and the bucket exists
+  // (R2 buckets are NOT auto-created; deploy fails with code 10085 otherwise).
+  // Until then reviews are accepted without photos:
+  //   "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "storevine-review-photos" }]
 }
