@@ -35,9 +35,21 @@ const PRODUCT_QUERY = `query UpwiseProduct($handle: String!) {
   }
 }`;
 
+function EditorNote({ reason }) {
+  // Only merchants see this, in the checkout editor.
+  if (!shopify.extension.editor) return null;
+  const text = {
+    "no-config": "Upwise: set up thank-you offers in the Upwise Cart Upsell app (Pro plan).",
+    disabled: "Upwise: thank-you offers are turned off in the app, or your plan doesn't include them.",
+    "no-products": "Upwise: no available products to show. Pick products in the app.",
+    loading: "Upwise: loading products…",
+  }[reason];
+  return <s-banner tone="info">{text}</s-banner>;
+}
+
 function Extension() {
   const config = readConfig();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(null);
   const handles = (config?.products ?? []).map((p) => p.handle).filter(Boolean).slice(0, 3);
 
   useEffect(() => {
@@ -52,15 +64,21 @@ function Extension() {
       ),
     ).then((list) => {
       if (!cancelled) setProducts(list.filter((p) => p && p.availableForSale));
+    }).catch(() => {
+      if (!cancelled) setProducts([]);
     });
     return () => {
       cancelled = true;
     };
   }, [handles.join(",")]);
 
-  if (!config?.enabled || !products.length) return null;
+  if (!config) return <EditorNote reason="no-config" />;
+  if (!config.enabled) return <EditorNote reason="disabled" />;
+  if (!handles.length) return <EditorNote reason="no-products" />;
+  if (products === null) return <EditorNote reason="loading" />;
+  if (!products.length) return <EditorNote reason="no-products" />;
 
-  const base = shopify.shop.storefrontUrl.replace(/\/$/, "");
+  const base = String(shopify.shop?.storefrontUrl ?? "").replace(/\/$/, "");
   const money = (m) => shopify.i18n.formatCurrency(Number(m.amount), { currencyCode: m.currencyCode });
 
   return (
