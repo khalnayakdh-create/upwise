@@ -46,11 +46,18 @@ export function useSaveBar(formRef: RefObject<HTMLFormElement | null>, id: strin
     mounted.current = true;
     const form = formRef.current;
     if (!form) return;
+    // Hide as soon as the form is submitted: on success the route redirects and
+    // the <SaveBar> element is removed before an unmount-time hide can reach it,
+    // which left "Unsaved changes" showing on the next page. If the save fails,
+    // the next edit re-runs the check and shows the bar again.
+    const onSubmit = () => shopify.saveBar.hide(id);
     form.addEventListener("input", check);
     form.addEventListener("change", check);
+    form.addEventListener("submit", onSubmit);
     return () => {
       form.removeEventListener("input", check);
       form.removeEventListener("change", check);
+      form.removeEventListener("submit", onSubmit);
       mounted.current = false;
       shopify.saveBar.hide(id);
     };
