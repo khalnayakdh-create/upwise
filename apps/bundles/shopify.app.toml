@@ -1,0 +1,40 @@
+# Shopify app configuration for Upwise Bundles.
+client_id = "" # set after creating the app in the Dev Dashboard
+name = "Upwise Bundles"
+application_url = "https://bundles.upwise.dev"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
+
+[access_scopes]
+# write_discounts: the automatic bundle discount (upwise-bundle-discount Function).
+scopes = "read_products,write_discounts"
+
+[auth]
+redirect_urls = ["https://bundles.upwise.dev/auth/callback"]
+
+# Storefront API: https://{shop}/apps/upwise-bundles/* -> {application_url}/proxy/*
+[app_proxy]
+url = "/proxy"
+subpath = "upwise-bundles"
+prefix = "apps"
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/webhooks/compliance"
+
+[pos]
+embedded = false

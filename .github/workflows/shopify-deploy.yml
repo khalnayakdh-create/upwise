@@ -1,37 +1,68 @@
 name: Shopify app config
 
-# Releases shopify.app.toml (URLs, scopes, webhooks incl. privacy topics) and
-# extensions to Shopify. Runs when that config or extensions change on main,
-# or manually from the Actions tab.
+# Releases each app's shopify.app.toml (URLs, scopes, webhooks incl. privacy
+# topics, app proxy) and its extensions to Shopify. A job skips when its app
+# didn't change, has no client_id yet, or its automation token secret is missing.
 on:
   push:
     branches: [main]
     paths:
-      - "apps/cart-upsell/shopify.app.toml"
-      - "apps/cart-upsell/extensions/**"
+      - "apps/*/shopify.app.toml"
+      - "apps/*/extensions/**"
       - "package-lock.json"
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Deploy all configured apps even if unchanged"
+        type: boolean
+        default: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: cart-upsell
+            secret: SHOPIFY_APP_AUTOMATION_TOKEN_CART_UPSELL
+          - app: reviews
+            secret: SHOPIFY_APP_AUTOMATION_TOKEN_REVIEWS
+          - app: popups
+            secret: SHOPIFY_APP_AUTOMATION_TOKEN_POPUPS
+          - app: bundles
+            secret: SHOPIFY_APP_AUTOMATION_TOKEN_BUNDLES
     env:
-      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN_CART_UPSELL }}
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets[matrix.secret] }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Decide whether to deploy
+        id: gate
+        run: |
+          dir="apps/${{ matrix.app }}"
+          if ! grep -Eq '^client_id = "[0-9a-f]{32}"' "$dir/shopify.app.toml"; then
+            echo "::notice::${{ matrix.app }}: no client_id yet, skipping"; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ -z "$SHOPIFY_APP_AUTOMATION_TOKEN" ]; then
+            echo "::warning::${{ matrix.app }}: add repo secret ${{ matrix.secret }} to enable deploys"; echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || git diff --name-only HEAD^ HEAD | grep -Eq "^($dir/shopify.app.toml|$dir/extensions/|package-lock.json)"; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::${{ matrix.app }}: unchanged, skipping"; echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'true'
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
-      - name: Check token is configured
-        run: |
-          if [ -z "$SHOPIFY_APP_AUTOMATION_TOKEN" ]; then
-            echo "::error::Add repo secret SHOPIFY_APP_AUTOMATION_TOKEN_CART_UPSELL (Dev Dashboard > app > Settings > App automation token)."
-            exit 1
-          fi
-      - name: Deploy app config
-        working-directory: apps/cart-upsell
+      - if: steps.gate.outputs.run == 'true'
+        run: npm ci
+      - name: Deploy app config and extensions
+        if: steps.gate.outputs.run == 'true'
+        working-directory: apps/${{ matrix.app }}
         run: >
           npx --yes @shopify/cli@latest app deploy
           --allow-updates

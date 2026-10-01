@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "upwise-reviews",
+  "main": "./workers/app.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  "routes": [{ "pattern": "reviews.upwise.dev", "custom_domain": true }],
+  "workers_dev": true,
+  "vars": {
+    // Public values. SHOPIFY_API_SECRET is an encrypted secret set in Cloudflare.
+    "SHOPIFY_API_KEY": "",
+    "SHOPIFY_APP_URL": "https://reviews.upwise.dev",
+    "SCOPES": "read_products,write_products",
+    "BILLING_TEST_MODE": "true",
+    // DEV ONLY: empty before launch.
+    "DEV_PLAN_OVERRIDES": "upwisedev.myshopify.com:growth"
+  },
+  "d1_databases": [{ "binding": "DB", "database_name": "upwise-reviews" }]
+}

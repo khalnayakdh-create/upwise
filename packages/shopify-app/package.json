@@ -1,0 +1,36 @@
+{
+  "name": "@upwise/shopify-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./react": "./src/react.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@shopify/app-bridge-react": "^4.2.13",
+    "@shopify/shopify-api": "^15.0.0",
+    "@shopify/shopify-app-react-router": "^3.0.1",
+    "@shopify/shopify-app-session-storage-drizzle": "^6.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router": "7.18.2"
+  },
+  "dependencies": {
+    "@upwise/platform": "*",
+    "drizzle-orm": "^0.45.3",
+    "isbot": "^5.1.31"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261001.1",
+    "@shopify/app-bridge-types": "^0.7.2",
+    "@types/react": "^18.3.25",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.9.3"
+  }
+}

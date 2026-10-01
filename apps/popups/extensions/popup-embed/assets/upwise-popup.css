@@ -1,0 +1,16 @@
+.upwise-popup{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45)}
+.upwise-popup[hidden]{display:none}
+.upwise-popup__card{position:relative;background:#fff;color:#111;border-radius:12px;max-width:400px;width:100%;padding:28px 24px 20px;box-shadow:0 20px 60px rgba(0,0,0,.25);font:inherit}
+.upwise-popup__close{position:absolute;top:8px;right:8px;width:36px;height:36px;border:0;background:transparent;font-size:22px;line-height:1;cursor:pointer;color:inherit;border-radius:50%}
+.upwise-popup__close:focus-visible,.upwise-popup__btn:focus-visible,.upwise-popup__input:focus-visible{outline:2px solid #111;outline-offset:2px}
+.upwise-popup__title{font-size:1.4em;font-weight:700;margin:0 0 8px;line-height:1.2}
+.upwise-popup__body{margin:0 0 16px}
+.upwise-popup__form{display:grid;gap:8px}
+.upwise-popup__input{font:inherit;padding:12px;border:1px solid #bbb;border-radius:6px;width:100%;box-sizing:border-box;color:#111;background:#fff}
+.upwise-popup__btn{font:inherit;font-weight:600;padding:12px;border:0;border-radius:6px;color:#fff;cursor:pointer}
+.upwise-popup__btn[disabled]{opacity:.6;cursor:progress}
+.upwise-popup__consent{font-size:.75em;color:#555;margin:6px 0 0;display:flex;gap:6px;align-items:flex-start}
+.upwise-popup__msg{font-size:.85em;margin:4px 0 0;min-height:1em}
+.upwise-popup__code{display:inline-block;margin-top:8px;padding:8px 12px;border:1px dashed #111;border-radius:6px;font-weight:700;letter-spacing:1px}
+.upwise-popup__brand{display:block;margin-top:12px;font-size:.7em;color:#888;text-align:center}
+.upwise-popup__hp{position:absolute;left:-9999px}

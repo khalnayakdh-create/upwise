@@ -1,0 +1,40 @@
+# Shopify app configuration for Upwise Reviews.
+client_id = "" # set after creating the app in the Dev Dashboard
+name = "Upwise Reviews"
+application_url = "https://reviews.upwise.dev"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
+
+[access_scopes]
+# write_products: write Shopify's standard reviews.rating / reviews.rating_count product metafields.
+scopes = "read_products,write_products"
+
+[auth]
+redirect_urls = ["https://reviews.upwise.dev/auth/callback"]
+
+# Storefront API: https://{shop}/apps/upwise-reviews/* -> {application_url}/proxy/*
+[app_proxy]
+url = "/proxy"
+subpath = "upwise-reviews"
+prefix = "apps"
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/webhooks/compliance"
+
+[pos]
+embedded = false

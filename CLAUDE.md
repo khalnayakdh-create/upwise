@@ -4,8 +4,14 @@ Monorepo for the Upwise family of Shopify apps (Cart Upsell, Reviews, Pop-ups, B
 The plan of record is `docs/blueprint.md`; decisions are logged in its §14.
 
 ## Layout
-- `apps/cart-upsell` — Shopify React Router app running on Cloudflare Workers (D1 database).
-- `packages/platform` — shared code for every app: D1 schema + in-Worker migrations, session table, shop records, webhook idempotency, privacy/compliance handling.
+- `apps/cart-upsell` — Upwise Cart Upsell (cart.upwise.dev): cart offers, offer discounts (Function), thank-you offers (checkout UI ext).
+- `apps/reviews` — Upwise Reviews (reviews.upwise.dev): review widget + star rating blocks, moderation, CSV import, standard reviews.rating metafields.
+- `apps/popups` — Upwise Pop-ups (popups.upwise.dev): email sign-up pop-up embed; sign-ups saved as Shopify customers (protected customer data).
+- `apps/bundles` — Upwise Bundles (bundles.upwise.dev): frequently-bought-together block + bundle discount Function.
+- `packages/platform` — D1 schema + in-Worker migrations, sessions, shop records, webhook idempotency, privacy/compliance.
+- `packages/shopify-app` — shared Shopify app factory (Workers adapter, billing), entry.server, shared webhook/health routes, Admin helpers, save bar.
+- `scripts/new-app.sh` — scaffolds a new app on the shared packages.
+- Each app: its own Shopify app (Dev Dashboard), Worker, D1 database, subdomain, app-proxy subpath, automation-token secret.
 
 ## Rules
 - Source of truth: shopify.dev docs/changelog and developers.cloudflare.com. Re-check before platform-dependent work.
@@ -22,6 +28,8 @@ The plan of record is `docs/blueprint.md`; decisions are logged in its §14.
 - npm 11 is fine locally; `allowScripts` in root package.json approves workerd/esbuild install scripts.
 
 ## Deploy
-Push to `main` → Cloudflare Workers Builds (connected to this repo) builds and deploys `apps/cart-upsell`.
-Settings: root directory `/`, build command `npm run build -w @upwise/cart-upsell`, deploy command `cd apps/cart-upsell && npx wrangler deploy`.
-Secret `SHOPIFY_API_SECRET` is set in the Cloudflare dashboard, never committed.
+Push to `main` → Cloudflare Workers Builds (one project per app, connected to this repo) builds and deploys.
+Per app: root directory `/`, build command `npm run build -w @upwise/<app>`, deploy command `cd apps/<app> && npx wrangler deploy`.
+Shopify config/extensions: `.github/workflows/shopify-deploy.yml` (matrix; secret `SHOPIFY_APP_AUTOMATION_TOKEN_<APP>`).
+Secret `SHOPIFY_API_SECRET` is set per Worker in the Cloudflare dashboard, never committed.
+`DEV_PLAN_OVERRIDES` (wrangler vars) unlocks paid features on upwisedev only — must be empty before launch (docs/launch-checklist.md).

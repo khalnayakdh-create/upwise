@@ -1,0 +1,26 @@
+{%- comment -%} Compact star rating for under the product title. Pure Liquid, no JavaScript. {%- endcomment -%}
+{%- assign rating = product.metafields.reviews.rating.value -%}
+{%- assign count = product.metafields.reviews.rating_count.value | default: 0 -%}
+<div class="upwise-rating" {{ block.shopify_attributes }}>
+  {%- if count > 0 -%}
+    <a href="#upwise-reviews" class="upwise-rating__link">
+      <span class="upwise-stars" style="--rating: {{ rating.rating }}" aria-hidden="true"></span>
+      <span class="upwise-rating__text">{{ rating.rating | round: 1 }} ({{ count }})</span>
+      <span class="visually-hidden">{{ rating.rating | round: 1 }} out of 5 stars, {{ count }} reviews</span>
+    </a>
+  {%- elsif block.settings.show_empty -%}
+    <span class="upwise-rating__text">No reviews yet</span>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Star rating",
+  "target": "section",
+  "stylesheet": "upwise-reviews.css",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "checkbox", "id": "show_empty", "label": "Show “No reviews yet”", "default": false }
+  ]
+}
+{% endschema %}

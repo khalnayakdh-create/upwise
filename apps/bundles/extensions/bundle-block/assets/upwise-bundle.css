@@ -1,0 +1,12 @@
+.upwise-bundle:empty{display:none}
+.upwise-bundle{margin:1.5rem 0;padding:1rem;border:1px solid rgba(var(--color-foreground,0,0,0),.12);border-radius:8px;font:inherit;color:inherit}
+.upwise-bundle__title{margin:0 0 .75rem;font-weight:600}
+.upwise-bundle__list{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
+.upwise-bundle__item{display:grid;grid-template-columns:auto 48px 1fr auto;gap:.6rem;align-items:center}
+.upwise-bundle__item img{width:48px;height:48px;object-fit:cover;border-radius:4px}
+.upwise-bundle__name{font-size:.9em}
+.upwise-bundle__price{font-size:.85em;opacity:.8;white-space:nowrap}
+.upwise-bundle__total{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.75rem;flex-wrap:wrap}
+.upwise-bundle__save{font-size:.85em}
+.upwise-bundle__btn{font:inherit;padding:.6rem 1rem;border:0;border-radius:4px;background:rgb(var(--color-button,0,0,0));color:rgb(var(--color-button-text,255,255,255));cursor:pointer}
+.upwise-bundle__btn[disabled]{opacity:.6}

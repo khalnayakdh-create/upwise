@@ -6,7 +6,8 @@
     "packages/*",
     "apps/*",
     "apps/cart-upsell/extensions/upwise-cart-discount",
-    "apps/cart-upsell/extensions/upwise-thank-you"
+    "apps/cart-upsell/extensions/upwise-thank-you",
+    "apps/bundles/extensions/upwise-bundle-discount"
   ],
   "engines": {
     "node": ">=22.12"

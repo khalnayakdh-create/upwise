@@ -1,0 +1,40 @@
+# Shopify app configuration for Upwise Pop-ups.
+client_id = "" # set after creating the app in the Dev Dashboard
+name = "Upwise Pop-ups"
+application_url = "https://popups.upwise.dev"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+include_config_on_deploy = true
+
+[access_scopes]
+# Customers: save pop-up sign-ups as Shopify customers with email marketing consent (protected customer data, Level 2: email).
+scopes = "read_customers,write_customers"
+
+[auth]
+redirect_urls = ["https://popups.upwise.dev/auth/callback"]
+
+# Storefront API: https://{shop}/apps/upwise-popups/* -> {application_url}/proxy/*
+[app_proxy]
+url = "/proxy"
+subpath = "upwise-popups"
+prefix = "apps"
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/webhooks/compliance"
+
+[pos]
+embedded = false
