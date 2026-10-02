@@ -12,7 +12,7 @@ import {
 } from "../app/lib/requests.server";
 import { createReview, exportCsv, reviewedFromRequest, validateRequestReview } from "../app/lib/reviews.server";
 import { signUploadToken, sniffImage, verifyUploadToken, parsePhotos } from "../app/lib/photos.server";
-import { reviewSignals } from "../app/lib/health.server";
+import { reviewSignals } from "../app/lib/health-signals";
 import { markRequest } from "../app/lib/requests.server";
 
 const proxy = await getPlatformProxy<{ DB: D1Database }>({
