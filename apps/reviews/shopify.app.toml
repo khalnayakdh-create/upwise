@@ -38,11 +38,10 @@ api_version = "2026-07"
   uri = "/webhooks/app/scopes_update"
 
   # Review requests: schedule an email when an order is fulfilled.
-  # Re-enable once protected customer data (Level 1 + email) is approved for this app;
-  # until then Shopify refuses to release a config that subscribes to order topics.
-  # [[webhooks.subscriptions]]
-  # topics = ["orders/fulfilled"]
-  # uri = "/webhooks/orders/fulfilled"
+  # Needs protected customer data (Level 1 + name + email) selected for this app.
+  [[webhooks.subscriptions]]
+  topics = ["orders/fulfilled"]
+  uri = "/webhooks/orders/fulfilled"
 
   [[webhooks.subscriptions]]
   compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
