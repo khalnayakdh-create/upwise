@@ -16,16 +16,16 @@ description = "A customer submitted a product review in Storevine Reviews."
   description = "Star rating, 1 to 5"
 
   [[settings.fields]]
-  type = "string"
+  type = "single_line_text_field"
   key = "Title"
 
   [[settings.fields]]
-  type = "string"
+  type = "single_line_text_field"
   key = "Body"
   description = "Review text"
 
   [[settings.fields]]
-  type = "string"
+  type = "single_line_text_field"
   key = "Author"
   description = "Name shown with the review"
 
@@ -35,7 +35,7 @@ description = "A customer submitted a product review in Storevine Reviews."
   description = "Written from a review-request email after a fulfilled order"
 
   [[settings.fields]]
-  type = "string"
+  type = "single_line_text_field"
   key = "Status"
   description = "published or pending (waiting for approval)"
 
