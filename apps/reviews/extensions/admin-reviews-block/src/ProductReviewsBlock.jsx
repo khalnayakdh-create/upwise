@@ -70,7 +70,7 @@ function Block() {
               </s-stack>
             </s-box>
           ))}
-          {d.count + d.pending > 0 ? <s-link href={`app:app/reviews?product=${numeric}`}>{i18n.translate("viewAll")}</s-link> : null}
+          {d.count + d.pending > 0 ? <s-link href={`shopify:admin/apps/upwise-reviews/app/reviews?product=${numeric}`}>{i18n.translate("viewAll")}</s-link> : null}
         </s-stack>
       ) : null}
     </s-admin-block>
