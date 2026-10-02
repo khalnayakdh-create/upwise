@@ -11,7 +11,7 @@ automatically_update_urls_on_dev = false
 
 [access_scopes]
 # Minimum scopes. Add only when a feature needs them (blueprint §6.7).
-scopes = "read_products,write_discounts"
+scopes = "read_products,write_discounts,read_orders"
 
 [auth]
 redirect_urls = [
@@ -39,6 +39,15 @@ api_version = "2026-07"
   [[webhooks.subscriptions]]
   topics = ["app/scopes_update"]
   uri = "/webhooks/app/scopes_update"
+
+  # Offer sales and holdout lift (needs protected customer data access, step 1).
+  [[webhooks.subscriptions]]
+  topics = ["orders/create"]
+  uri = "/webhooks/orders/create"
+
+  [[webhooks.subscriptions]]
+  topics = ["refunds/create"]
+  uri = "/webhooks/refunds/create"
 
   # Mandatory privacy webhooks (App Store requirement). One handler for all three.
   [[webhooks.subscriptions]]
