@@ -15,7 +15,12 @@
     box.__storevine = true;
     box.id = box.id || "storevine-reviews";
     var T = {};
-    try { T = JSON.parse(box.querySelector("[data-storevine-strings]").textContent); } catch (e) {}
+    try {
+      // Translations arrive HTML-escaped from the t filter (e.g. &#39;); textContent needs plain text.
+      var raw = JSON.parse(box.querySelector("[data-storevine-strings]").textContent);
+      var ta = document.createElement("textarea");
+      Object.keys(raw).forEach(function (k) { ta.innerHTML = String(raw[k]); T[k] = ta.value; });
+    } catch (e) {}
     function t(k, fallback) { return T[k] || fallback; }
     var productId = box.getAttribute("data-product-id");
     var list = box.querySelector("[data-storevine-list]");

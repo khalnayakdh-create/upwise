@@ -6,6 +6,8 @@
   var uid = 0;
 
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x != null) n.textContent = x; return n; }
+  /** Translations arrive HTML-escaped from the t filter (e.g. &#39;); textContent needs plain text. */
+  function decode(s) { var t = document.createElement("textarea"); t.innerHTML = String(s); return t.value; }
   function fill(s, map) { return String(s).replace(/%[a-z]/g, function (k) { return map[k] != null ? map[k] : k; }); }
   function money(cents) {
     try { return new Intl.NumberFormat(document.documentElement.lang || undefined, { style: "currency", currency: currency }).format(cents / 100); }
@@ -227,7 +229,10 @@
     if (!cfgEl) return;
     var cfg, T = {};
     try { cfg = JSON.parse(cfgEl.textContent); } catch (e) { return; }
-    try { T = JSON.parse(parent.querySelector("[data-storevine-bundle-strings]").textContent); } catch (e) {}
+    try {
+      var raw = JSON.parse(parent.querySelector("[data-storevine-bundle-strings]").textContent);
+      Object.keys(raw).forEach(function (k) { T[k] = decode(raw[k]); });
+    } catch (e) {}
     var pid = Number(box.getAttribute("data-product-id"));
     var buttonLabel = box.getAttribute("data-button") || "Add selected to cart";
     var matches = (cfg.bundles || []).filter(function (b) {

@@ -67,6 +67,8 @@ export default function BundleEditor() {
   const formRef = useRef<HTMLFormElement>(null);
   const [products, setProducts] = useState<Picked[]>(bundle.products);
   const [type, setType] = useState<BundleType>(bundle.type);
+  const DEFAULT_TITLES: Record<BundleType, string> = { fixed: "Frequently bought together", volume: "Buy more, save more" };
+  const [title, setTitle] = useState(bundle.title);
   const [tiers, setTiers] = useState<Tier[]>(bundle.tiers);
   const checkDirty = useSaveBar(formRef, "bundle-save-bar", bundle);
   const limit = PRODUCT_LIMITS[type];
@@ -105,6 +107,8 @@ export default function BundleEditor() {
             onChange={(e) => {
               const v = (e.currentTarget as unknown as { values: string[] }).values?.[0] === "volume" ? "volume" : "fixed";
               setType(v);
+              // Keep the default heading in step with the type unless the merchant wrote their own.
+              if (Object.values(DEFAULT_TITLES).includes(title)) setTitle(DEFAULT_TITLES[v]);
               checkDirty();
             }}
           >
@@ -115,7 +119,7 @@ export default function BundleEditor() {
         <s-section heading="Bundle">
           <s-stack gap="base">
             <s-text-field label="Name" name="name" value={bundle.name} details="Only you see this." error={errors.name} maxLength={80} />
-            <s-text-field label="Heading on your store" name="title" value={bundle.title} maxLength={80} />
+            <s-text-field label="Heading on your store" name="title" value={title} maxLength={80} onInput={(e) => setTitle(String(e.currentTarget.value))} />
             <s-switch label="Active" name="status" value="active" checked={bundle.status === "active"} error={errors.status} />
           </s-stack>
         </s-section>
