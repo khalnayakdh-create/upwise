@@ -2,6 +2,7 @@ import type { Route } from "./+types/write";
 import { getDb } from "@upwise/platform";
 import { gql, type GraphqlFn } from "@upwise/shopify-app";
 import { getShopify } from "../shopify.server";
+import { notifyReviewSubmitted } from "../lib/flow.server";
 import { syncProductRating } from "../lib/admin.server";
 import { createReview, getSettings, reviewedFromRequest, validateRequestReview } from "../lib/reviews.server";
 import { getRequest, verifyToken } from "../lib/requests.server";
@@ -86,6 +87,9 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
     return back({ done: numeric, s: "pending" });
   }
   if (status === "published") await syncProductRating(graphql, env, claim.shop, productId);
+  context.cloudflare.ctx.waitUntil(
+    notifyReviewSubmitted(graphql, { ...input, productId, verified: true, status, photos: photos.keys.length }),
+  );
   return back({ done: numeric, s: status });
 };
 

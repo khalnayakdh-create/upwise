@@ -260,3 +260,22 @@ describe("health signals", () => {
     expect(row?.sent_at).toBe("2026-10-01T12:00:00.000Z");
   });
 });
+
+describe("BFS: Flow trigger payload and admin block", () => {
+  it("maps a review to the Flow trigger fields", async () => {
+    const { reviewSubmittedPayload } = await import("../app/lib/flow-payload");
+    expect(
+      reviewSubmittedPayload({ productId: "gid://shopify/Product/42", rating: 4, title: "Nice", body: "x".repeat(6000), author: "Ann", verified: true, status: "pending", photos: 2 }),
+    ).toMatchObject({ product_id: 42, Rating: 4, Title: "Nice", Author: "Ann", Verified: true, Status: "pending", Photos: 2 });
+  });
+  it("summarises a product for the admin block", async () => {
+    const { productAdminSummary } = await import("../app/lib/reviews.server");
+    const P = "gid://shopify/Product/9";
+    await createReview(db, SHOP, { productId: P, rating: 5, title: "A", body: "Great", author: "Ann", status: "published" });
+    await createReview(db, SHOP, { productId: P, rating: 3, title: "B", body: "Ok", author: "Bo", status: "published" });
+    await createReview(db, SHOP, { productId: P, rating: 1, title: "C", body: "Bad", author: "Cy", status: "pending" });
+    const s = await productAdminSummary(db, SHOP, P);
+    expect(s).toMatchObject({ count: 2, average: 4, pending: 1 });
+    expect(s.latest).toHaveLength(3);
+  });
+});

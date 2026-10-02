@@ -1,0 +1,45 @@
+# Shopify Flow trigger: fires when a shopper submits a review (widget or review-request email).
+[[extensions]]
+name = "Review submitted"
+type = "flow_trigger"
+handle = "review-submitted"
+description = "A customer submitted a product review in Storevine Reviews."
+
+[settings]
+
+  [[settings.fields]]
+  type = "product_reference"
+
+  [[settings.fields]]
+  type = "number_integer"
+  key = "Rating"
+  description = "Star rating, 1 to 5"
+
+  [[settings.fields]]
+  type = "string"
+  key = "Title"
+
+  [[settings.fields]]
+  type = "string"
+  key = "Body"
+  description = "Review text"
+
+  [[settings.fields]]
+  type = "string"
+  key = "Author"
+  description = "Name shown with the review"
+
+  [[settings.fields]]
+  type = "boolean"
+  key = "Verified"
+  description = "Written from a review-request email after a fulfilled order"
+
+  [[settings.fields]]
+  type = "string"
+  key = "Status"
+  description = "published or pending (waiting for approval)"
+
+  [[settings.fields]]
+  type = "number_integer"
+  key = "Photos"
+  description = "Number of photos attached"

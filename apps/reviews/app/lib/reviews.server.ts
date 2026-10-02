@@ -138,10 +138,16 @@ export async function recentSubmissions(db: Db, shop: string, now = new Date()) 
 }
 export const MAX_SUBMISSIONS_PER_HOUR = 30;
 
-export async function listReviews(db: Db, shop: string, opts: { status?: ReviewStatus; limit?: number; offset?: number } = {}) {
-  const where = opts.status
-    ? and(eq(reviewTable.shop, shop), eq(reviewTable.status, opts.status))
-    : eq(reviewTable.shop, shop);
+export async function listReviews(
+  db: Db,
+  shop: string,
+  opts: { status?: ReviewStatus; productId?: string; limit?: number; offset?: number } = {},
+) {
+  const where = and(
+    eq(reviewTable.shop, shop),
+    opts.status ? eq(reviewTable.status, opts.status) : undefined,
+    opts.productId ? eq(reviewTable.productId, opts.productId) : undefined,
+  );
   return db
     .select()
     .from(reviewTable)
@@ -193,6 +199,29 @@ export async function productSummary(db: Db, shop: string, productId: string): P
     total += Number(r.n) * r.rating;
   }
   return { count, average: count ? Math.round((total / count) * 10) / 10 : 0, distribution };
+}
+
+/** Data for the admin product-page block: published summary, pending count, latest reviews. */
+export async function productAdminSummary(db: Db, shop: string, productId: string) {
+  const [summary, [pending], latest] = await Promise.all([
+    productSummary(db, shop, productId),
+    db
+      .select({ n: sql<number>`count(*)` })
+      .from(reviewTable)
+      .where(and(eq(reviewTable.shop, shop), eq(reviewTable.productId, productId), eq(reviewTable.status, "pending"))),
+    db
+      .select({ id: reviewTable.id, rating: reviewTable.rating, title: reviewTable.title, body: reviewTable.body, author: reviewTable.author, status: reviewTable.status, verified: reviewTable.verified, createdAt: reviewTable.createdAt })
+      .from(reviewTable)
+      .where(and(eq(reviewTable.shop, shop), eq(reviewTable.productId, productId)))
+      .orderBy(desc(reviewTable.createdAt))
+      .limit(3),
+  ]);
+  return {
+    count: summary.count,
+    average: summary.average,
+    pending: Number(pending?.n ?? 0),
+    latest: latest.map((r) => ({ ...r, body: r.body.slice(0, 160), verified: Boolean(r.verified) })),
+  };
 }
 
 export async function setStatus(db: Db, shop: string, id: string, status: ReviewStatus) {

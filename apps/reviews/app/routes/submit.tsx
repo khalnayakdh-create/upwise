@@ -1,6 +1,7 @@
 import type { Route } from "./+types/submit";
 import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
+import { notifyReviewSubmitted } from "../lib/flow.server";
 import { productInfo, syncProductRating } from "../lib/admin.server";
 import { createReview, getSettings, MAX_SUBMISSIONS_PER_HOUR, recentSubmissions, validateSubmission } from "../lib/reviews.server";
 import { deletePhotos, savePhotos, verifyUploadToken } from "../lib/photos.server";
@@ -57,6 +58,9 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
     throw e;
   }
   if (status === "published") await syncProductRating(graphql, env, shop, input.productId);
+  context.cloudflare.ctx.waitUntil(
+    notifyReviewSubmitted(graphql, { ...input, verified: false, status, photos: photos.keys.length }),
+  );
   return json({ ok: true, status });
 };
 

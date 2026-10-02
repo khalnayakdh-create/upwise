@@ -1,0 +1,15 @@
+{
+  "heading": "Storevine reviews",
+  "loading": "Loading reviews…",
+  "error": "Reviews couldn't load. Try reloading the page.",
+  "none": "No reviews yet for this product.",
+  "summary": "{{average}} out of 5 from {{total}} published reviews",
+  "summaryOne": "{{average}} out of 5 from 1 published review",
+  "pending": "{{total}} waiting for approval",
+  "pendingOne": "1 waiting for approval",
+  "verified": "Verified buyer",
+  "statusPending": "Pending",
+  "statusHidden": "Hidden",
+  "viewAll": "View all reviews for this product",
+  "review": "Review"
+}

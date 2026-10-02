@@ -7,7 +7,8 @@
     "apps/*",
     "apps/cart-upsell/extensions/storevine-cart-discount",
     "apps/cart-upsell/extensions/storevine-thank-you",
-    "apps/bundles/extensions/storevine-bundle-discount"
+    "apps/bundles/extensions/storevine-bundle-discount",
+    "apps/reviews/extensions/admin-reviews-block"
   ],
   "engines": {
     "node": ">=22.12"

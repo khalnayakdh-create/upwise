@@ -1,0 +1,11 @@
+api_version = "2026-07"
+
+# Product page block in the Shopify admin: rating summary, reviews waiting for approval, latest reviews.
+[[extensions]]
+name = "Storevine reviews"
+handle = "storevine-admin-reviews"
+type = "ui_extension"
+
+[[extensions.targeting]]
+module = "./src/ProductReviewsBlock.jsx"
+target = "admin.product-details.block.render"

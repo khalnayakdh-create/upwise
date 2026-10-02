@@ -1,6 +1,7 @@
 import type { Route } from "./+types/proxy.reviews";
 import { getDb } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
+import { notifyReviewSubmitted } from "../lib/flow.server";
 import { productInfo, syncProductRating } from "../lib/admin.server";
 import { createReview, getSettings, MAX_SUBMISSIONS_PER_HOUR, productSummary, publishedForProduct, recentSubmissions, validateSubmission } from "../lib/reviews.server";
 import { parsePhotos, publicPhotoUrl, signUploadToken } from "../lib/photos.server";
@@ -62,5 +63,6 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
   const status = autoPublish ? "published" : "pending";
   await createReview(db, session.shop, { ...input, productHandle: product.handle, productTitle: product.title, status });
   if (status === "published") await syncProductRating(admin.graphql as never, env, session.shop, input.productId);
+  context.cloudflare.ctx.waitUntil(notifyReviewSubmitted(admin.graphql as never, { ...input, verified: false, status, photos: 0 }));
   return json({ ok: true, status });
 };

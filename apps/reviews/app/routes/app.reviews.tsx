@@ -16,7 +16,10 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { session } = await getShopify(env).authenticate.admin(request);
   const url = new URL(request.url);
   const status = STATUSES.find((s) => s === url.searchParams.get("status"));
-  const rows = await listReviews(getDb(env.DB), session.shop, { status, limit: 100 });
+  // ?product=<numeric id> comes from the product-page admin block.
+  const productParam = url.searchParams.get("product");
+  const productId = productParam && /^\d+$/.test(productParam) ? `gid://shopify/Product/${productParam}` : undefined;
+  const rows = await listReviews(getDb(env.DB), session.shop, { status, productId, limit: 100 });
   // Photos of unpublished reviews aren't public, so the admin gets short-lived signed links.
   const reviews = await Promise.all(
     rows.map(async (r) => ({
