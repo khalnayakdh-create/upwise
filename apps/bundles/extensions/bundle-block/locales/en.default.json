@@ -1,1 +1,21 @@
-{}
+{
+  "bundle": {
+    "this_item": "(this item)",
+    "include": "Include {{ title }}",
+    "option_for": "Option for {{ title }}",
+    "quantity_for": "Quantity for {{ title }}",
+    "total": "Total {{ amount }}",
+    "save_with_all": "(save {{ percent }}% with all {{ n }})",
+    "add_all_to_save": "— add all {{ n }} to save {{ percent }}%",
+    "try_again": "Try again",
+    "buy_one": "Buy 1",
+    "buy_n": "Buy {{ n }}",
+    "save_percent": "Save {{ percent }}%",
+    "each": "{{ price }} each",
+    "add_n": "Add {{ n }} to cart",
+    "add_to_cart": "Add to cart",
+    "progress": "Add {{ n }} more to save {{ percent }}%",
+    "reached": "You're saving {{ percent }}% on these items",
+    "unavailable": "Sold out"
+  }
+}

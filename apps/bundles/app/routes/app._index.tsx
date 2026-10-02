@@ -6,7 +6,7 @@ import { getDb } from "@upwise/platform";
 import { storeHandle } from "@upwise/shopify-app";
 import { getShopify } from "../shopify.server";
 import { resolvePlan, syncAll } from "../lib/admin.server";
-import { bundleStats, listBundles } from "../lib/bundles.server";
+import { bundleSales, bundleStats, listBundles } from "../lib/bundles.server";
 import { PLAN_COPY } from "../lib/plans";
 
 export const BLOCK_HANDLE = "frequently-bought-together";
@@ -17,11 +17,17 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const db = getDb(env.DB);
   const { plan } = await resolvePlan(billing as never, env, session.shop);
   await syncAll(admin.graphql as never, env, session.shop, plan);
-  const [bundles, stats] = await Promise.all([listBundles(db, session.shop), bundleStats(db, session.shop)]);
+  const [bundles, stats, sales] = await Promise.all([listBundles(db, session.shop), bundleStats(db, session.shop), bundleSales(db, session.shop)]);
   let impressions = 0;
   let adds = 0;
   for (const s of stats.values()) { impressions += s.impressions; adds += s.adds; }
+  let revenueCents = 0;
+  let orders = 0;
+  let currency = "USD";
+  for (const s of sales.values()) { revenueCents += s.revenueCents; orders += s.orders; currency = s.currency; }
   return {
+    revenue: orders ? new Intl.NumberFormat("en", { style: "currency", currency }).format(revenueCents / 100) : null,
+    orders,
     planName: PLAN_COPY[plan].name,
     bundleCount: bundles.length,
     impressions,
@@ -31,7 +37,7 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 };
 
 export default function Dashboard() {
-  const { planName, bundleCount, impressions, adds, addBlockUrl } = useLoaderData<typeof loader>();
+  const { planName, bundleCount, impressions, adds, addBlockUrl, revenue, orders } = useLoaderData<typeof loader>();
   return (
     <s-page heading="Storevine Bundles">
       <s-button slot="primary-action" variant="primary" href="/app/bundles/new">Create bundle</s-button>
@@ -50,10 +56,11 @@ export default function Dashboard() {
         </s-ordered-list>
       </s-section>
       <s-section heading="Last 30 days">
-        <s-grid gridTemplateColumns="repeat(3, 1fr)" gap="base">
+        <s-grid gridTemplateColumns="repeat(4, 1fr)" gap="base">
           <s-box><s-text color="subdued">Bundle views</s-text><s-heading>{impressions.toLocaleString()}</s-heading></s-box>
           <s-box><s-text color="subdued">Bundles added</s-text><s-heading>{adds.toLocaleString()}</s-heading></s-box>
           <s-box><s-text color="subdued">Add rate</s-text><s-heading>{impressions ? `${((adds / impressions) * 100).toFixed(1)}%` : "–"}</s-heading></s-box>
+          <s-box><s-text color="subdued">Bundle revenue</s-text><s-heading>{revenue ?? "–"}</s-heading>{orders ? <s-text color="subdued">{orders} order{orders === 1 ? "" : "s"}</s-text> : null}</s-box>
         </s-grid>
       </s-section>
       <s-section slot="aside" heading="Plan">

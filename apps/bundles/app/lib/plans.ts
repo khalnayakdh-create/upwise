@@ -12,12 +12,12 @@ export const PLAN_COPY: Record<PlanKey, { name: string; price: string; features:
   free: {
     name: "Free",
     price: "$0",
-    features: ["1 active bundle", "Frequently bought together block", "Automatic bundle discount", "Basic analytics"],
+    features: ["1 active bundle of any type", "Bought together, quantity breaks or mix and match", "Automatic discount at checkout", "Sales report: orders and revenue"],
   },
   growth: {
     name: "Growth",
     billingName: GROWTH_PLAN,
     price: "$14.99 / 30 days",
-    features: ["Unlimited bundles", "Per-bundle analytics", "Mix-and-match bundles (coming soon)", "7-day free trial"],
+    features: ["Unlimited bundles", "No revenue caps, ever", "Priority human support", "7-day free trial"],
   },
 };

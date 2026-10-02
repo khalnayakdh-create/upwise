@@ -94,4 +94,13 @@ describe("webhooks", () => {
     expect(res.status).toBe(200);
     expect(html).not.toMatch(/name="shop"/);
   });
+
+  it("orders/create with a valid HMAC is accepted and ignores unknown bundles", async () => {
+    const res = await webhook("/webhooks/orders/create", "orders/create", {
+      id: 77, admin_graphql_api_id: "gid://shopify/Order/77", created_at: "2026-10-01T00:00:00Z", currency: "USD",
+      line_items: [{ quantity: 1, price: "10.00", properties: [{ name: "_storevine_bundle", value: "11111111-2222-3333-4444-555555555555" }] }],
+    }, { id: "oc-1" });
+    expect(res.status).toBe(200);
+  });
 });
+

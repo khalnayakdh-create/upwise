@@ -9,7 +9,7 @@ automatically_update_urls_on_dev = false
 
 [access_scopes]
 # write_discounts: the automatic bundle discount (storevine-bundle-discount Function).
-scopes = "read_products,write_discounts"
+scopes = "read_products,write_discounts,read_orders"
 
 [auth]
 redirect_urls = ["https://bundles.storevine.app/auth/callback"]
@@ -35,6 +35,11 @@ api_version = "2026-07"
   [[webhooks.subscriptions]]
   topics = ["app/scopes_update"]
   uri = "/webhooks/app/scopes_update"
+
+  # Bundle sales report: orders with lines added from the bundle block. Needs protected customer data (Level 1).
+  [[webhooks.subscriptions]]
+  topics = ["orders/create"]
+  uri = "/webhooks/orders/create"
 
   [[webhooks.subscriptions]]
   compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]

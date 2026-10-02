@@ -3,6 +3,27 @@
 <div class="storevine-bundle" data-storevine-bundle data-product-id="{{ product.id }}" data-button="{{ block.settings.button_label | escape }}" {{ block.shopify_attributes }}></div>
 {%- if storevine_bundles -%}
   <script type="application/json" data-storevine-bundles-config>{{ storevine_bundles | json }}</script>
+  <script type="application/json" data-storevine-bundle-strings>
+    {
+      "thisItem": {{ 'bundle.this_item' | t | json }},
+      "include": {{ 'bundle.include' | t: title: '%t' | json }},
+      "optionFor": {{ 'bundle.option_for' | t: title: '%t' | json }},
+      "quantityFor": {{ 'bundle.quantity_for' | t: title: '%t' | json }},
+      "total": {{ 'bundle.total' | t: amount: '%a' | json }},
+      "saveWithAll": {{ 'bundle.save_with_all' | t: percent: '%p', n: '%n' | json }},
+      "addAllToSave": {{ 'bundle.add_all_to_save' | t: percent: '%p', n: '%n' | json }},
+      "tryAgain": {{ 'bundle.try_again' | t | json }},
+      "buyOne": {{ 'bundle.buy_one' | t | json }},
+      "buyN": {{ 'bundle.buy_n' | t: n: '%n' | json }},
+      "savePercent": {{ 'bundle.save_percent' | t: percent: '%p' | json }},
+      "each": {{ 'bundle.each' | t: price: '%a' | json }},
+      "addN": {{ 'bundle.add_n' | t: n: '%n' | json }},
+      "addToCart": {{ 'bundle.add_to_cart' | t | json }},
+      "progress": {{ 'bundle.progress' | t: n: '%n', percent: '%p' | json }},
+      "reached": {{ 'bundle.reached' | t: percent: '%p' | json }},
+      "unavailable": {{ 'bundle.unavailable' | t | json }}
+    }
+  </script>
 {%- endif -%}
 
 {% schema %}

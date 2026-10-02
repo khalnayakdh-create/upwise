@@ -1,6 +1,6 @@
 import { getDb, shopTable } from "@upwise/platform";
 import { devPlanOverride, gql, setAppDataJson, type GraphqlFn } from "@upwise/shopify-app";
-import { discountConfig, getSetting, listBundles, setSetting, storefrontConfig, type BundleProduct } from "./bundles.server";
+import { discountConfig, getSetting, hasDiscounts, listBundles, setSetting, storefrontConfig, type BundleProduct } from "./bundles.server";
 import { GROWTH_PLAN, type PlanKey } from "./plans";
 
 type Billing = {
@@ -66,7 +66,7 @@ export async function syncAll(graphql: GraphqlFn, env: Env, shop: string, plan: 
   await setAppDataJson(graphql, "storevine_bundles", "config", storefrontConfig(bundles, plan));
   const config = discountConfig(bundles, plan);
   let discountId: string | null = await getSetting(db, shop, "discount_id");
-  if (!discountId && !config.bundles.length) return null;
+  if (!discountId && !hasDiscounts(config)) return null;
   const value = JSON.stringify(config);
   try {
     if (discountId) {

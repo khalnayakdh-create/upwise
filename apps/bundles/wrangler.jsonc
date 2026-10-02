@@ -12,7 +12,7 @@
     // Public values. SHOPIFY_API_SECRET is an encrypted secret set in Cloudflare.
     "SHOPIFY_API_KEY": "d1c8b13293b07718447b5f039c8e455a",
     "SHOPIFY_APP_URL": "https://bundles.storevine.app",
-    "SCOPES": "read_products,write_discounts",
+    "SCOPES": "read_products,write_discounts,read_orders",
     "BILLING_TEST_MODE": "true",
     // DEV ONLY: empty before launch.
     "DEV_PLAN_OVERRIDES": "upwisedev.myshopify.com:growth"
