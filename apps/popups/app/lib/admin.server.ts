@@ -1,4 +1,6 @@
+import { and, eq } from "drizzle-orm";
 import { getDb, shopTable } from "@upwise/platform";
+import { appSettingTable } from "./schema";
 import { devPlanOverride, gql, setAppDataJson, type GraphqlFn } from "@upwise/shopify-app";
 import { getConfig, storefrontConfig } from "./popup.server";
 import { GROWTH_PLAN, PLAN_LIMITS, type PlanKey } from "./plans";
@@ -26,8 +28,43 @@ export async function resolvePlan(billing: Billing, env: Env, shop: string) {
 }
 
 export async function publishConfig(graphql: GraphqlFn, env: Env, shop: string, plan: PlanKey) {
-  const config = await getConfig(getDb(env.DB), shop);
+  const db = getDb(env.DB);
+  const config = await getConfig(db, shop);
   await setAppDataJson(graphql, "storevine_popups", "config", storefrontConfig(config, PLAN_LIMITS[plan].branding));
+  await ensureConsentDefinition(graphql, db, shop).catch((e) => console.error("consent definition failed", e instanceof Error ? e.message : e));
+}
+
+/**
+ * Create a pinned "Pop-up consent" customer metafield definition once, so the
+ * consent record shows on each customer's page in the Shopify admin.
+ */
+export async function ensureConsentDefinition(graphql: GraphqlFn, db: ReturnType<typeof getDb>, shop: string) {
+  const [done] = await db
+    .select({ value: appSettingTable.value })
+    .from(appSettingTable)
+    .where(and(eq(appSettingTable.shop, shop), eq(appSettingTable.key, "consent_definition")));
+  if (done) return;
+  const r = await gql<{ metafieldDefinitionCreate: { userErrors: Array<{ code: string | null; message: string }> } }>(
+    graphql,
+    `#graphql
+    mutation StorevineConsentDefinition($definition: MetafieldDefinitionInput!) {
+      metafieldDefinitionCreate(definition: $definition) { createdDefinition { id } userErrors { code message } }
+    }`,
+    {
+      definition: {
+        name: "Pop-up consent",
+        namespace: "storevine",
+        key: "popup_consent",
+        type: "json",
+        ownerType: "CUSTOMER",
+        description: "What the customer agreed to in the Storevine pop-up, on which page and when.",
+        pin: true,
+      },
+    },
+  );
+  const errors = r.metafieldDefinitionCreate.userErrors.filter((e) => e.code !== "TAKEN");
+  if (errors.length) throw new Error(errors.map((e) => e.message).join("; "));
+  await db.insert(appSettingTable).values({ shop, key: "consent_definition", value: "1" }).onConflictDoNothing();
 }
 
 /**
