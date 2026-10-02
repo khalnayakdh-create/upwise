@@ -446,12 +446,12 @@ Source: owner's "Shopify app feature gap analysis" (Oct 2026). Its core finding:
 
 | # | App | Item | Notes |
 |---|---|---|---|
-| 1 | Reviews | Review-request emails after fulfillment, with send log + unsubscribe | Core collection mechanism; needs `read_orders`, order email (protected data Level 2) and an email sender |
-| 2 | Reviews | Photo reviews (R2), Google rich results (AggregateRating JSON-LD), CSV export, unlimited free imports, storefront translations | Free-tier parity with Judge.me; migration is the main acquisition path |
+| 1 ✅ | Reviews | Review-request emails after fulfillment, with send log + unsubscribe | Core collection mechanism; needs `read_orders`, order email (protected data Level 2) and an email sender |
+| 2 ✅ | Reviews | Photo reviews (R2), Google rich results (AggregateRating JSON-LD), CSV export, unlimited free imports, storefront translations | Free-tier parity with Judge.me; migration is the main acquisition path |
 | 3 | Reviews | BFS: admin block + Flow trigger | BFS category requirement |
-| 4 | Bundles | Quantity breaks, per-item variant pickers, mix-and-match, bundle sales report | Current app is fixed FBT only |
-| 5 | All | WCAG 2.2 AA pass on every widget; locale files for all storefront strings | EAA enforceable; lawsuits cited |
-| 6 | All | Health alerts: daily check, in-app banner + email when views/sign-ups/requests/adds drop abnormally | "Silent failure" is unclaimed white space |
+| 4 ✅ | Bundles | Quantity breaks, per-item variant pickers, mix-and-match, bundle sales report | Current app is fixed FBT only |
+| 5 ✅ | All | WCAG 2.2 AA pass on every widget; locale files for all storefront strings | EAA enforceable; lawsuits cited |
+| 6 ✅ | All | Health alerts: daily check, in-app banner + email when views/sign-ups/requests/adds drop abnormally | "Silent failure" is unclaimed white space. Built: daily cron 15:11 UTC, views drop-to-zero (Cart, Bundles, Pop-ups), failed/overdue request emails (Reviews); email from alerts@storevine.app, max once per issue per 7 days |
 | 7 | Cart Upsell | Order attribution (influenced orders + revenue net of refunds) then always-on holdout lift report | Needs `read_orders`; holdout found at no competitor |
 | 8 | Pop-ups | Hide/vary for signed-in customers; bot shield (rate limit, disposable domains, "bots blocked" counter); unique single-use codes; consent record; free plan gated on features not sign-up count | Unique codes need `write_discounts` |
 | 9 | All | Final prices (no human-support promise on any plan — owner decision 2026-10-01) | §14.2 |
