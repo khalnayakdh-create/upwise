@@ -19,6 +19,6 @@ export const PLAN_COPY: Record<PlanKey, { name: string; price: string; features:
     name: "Growth",
     billingName: GROWTH_PLAN,
     price: "$7.99 / 30 days",
-    features: ["Everything in Free", "Unlimited review-request emails", "Google Shopping feed (coming soon)", "Priority human support"],
+    features: ["Everything in Free", "Unlimited review-request emails", "Google Shopping feed (coming soon)"],
   },
 };

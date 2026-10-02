@@ -18,6 +18,6 @@ export const PLAN_COPY: Record<PlanKey, { name: string; price: string; features:
     name: "Growth",
     billingName: GROWTH_PLAN,
     price: "$14.99 / 30 days",
-    features: ["Unlimited bundles", "No revenue caps, ever", "Priority human support", "7-day free trial"],
+    features: ["Unlimited bundles", "No revenue caps, ever", "Remove limits on every bundle type", "7-day free trial"],
   },
 };

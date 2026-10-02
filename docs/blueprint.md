@@ -454,7 +454,7 @@ Source: owner's "Shopify app feature gap analysis" (Oct 2026). Its core finding:
 | 6 | All | Health alerts: daily check, in-app banner + email when views/sign-ups/requests/adds drop abnormally | "Silent failure" is unclaimed white space |
 | 7 | Cart Upsell | Order attribution (influenced orders + revenue net of refunds) then always-on holdout lift report | Needs `read_orders`; holdout found at no competitor |
 | 8 | Pop-ups | Hide/vary for signed-in customers; bot shield (rate limit, disposable domains, "bots blocked" counter); unique single-use codes; consent record; free plan gated on features not sign-up count | Unique codes need `write_discounts` |
-| 9 | All | Final prices; human support promise on paid plans | §14.2 |
+| 9 | All | Final prices (no human-support promise on any plan — owner decision 2026-10-01) | §14.2 |
 
 **After launch (v1.1+):** verified-buyer import matched to orders + Shopify standard review metaobject + full export with media; FTC/Omnibus compliance kit; pop-up A/B tests and revenue attribution ($29–49); bundle component SKU breakdown (cart transform, Bundles only) and subscription-safe bundles; product-page and swap/upgrade upsells; post-purchase page with skip-rate reporting; suite-wide message budget and shared identity layer.
 
@@ -502,6 +502,7 @@ Source: owner's "Shopify app feature gap analysis" (Oct 2026). Its core finding:
 | 2026-10-01 | **Rebrand: Upwise → Storevine** (Upwise is trademark-protected). Domain **storevine.app**; apps on `cart.`, `reviews.`, `popups.`, `bundles.storevine.app` | Name checked against the App Store, app stores and web (no conflicts; storevine.com is parked for sale). "Upcartley" rejected: too close to three existing "Upcart" cart-upsell apps. USPTO search still to do before launch |
 | 2026-10-01 | Rebrand covers everything merchants or shoppers can see (app names, URLs, legal pages, emails, storefront CSS/JS, line properties, proxy subpaths, metafield namespaces, extension handles, customer tag, branding). Internal names stay `upwise` (Worker and D1 names, npm scope `@upwise/*`, repo, dev store upwisedev) | Renaming Workers or D1 would mean new Cloudflare projects and empty databases for no user-visible gain |
 
+| 2026-10-01 | No "human support" promise on any plan | Owner decision; support is docs-first and email, without a stated guarantee |
 | 2026-10-01 | Adopt the gap-analysis pre-launch plan (§12.2); build order Reviews → Bundles → cross-app (a11y, translations, health alerts) → Cart Upsell attribution/holdout → Pop-ups list quality | Leads with the largest category (Reviews) and the thinnest app (Bundles); differentiates on reliability and measurement rather than widget count |
 
 ### 14.2 Still open
