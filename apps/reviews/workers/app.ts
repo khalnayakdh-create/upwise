@@ -2,6 +2,7 @@ import { createRequestHandler } from "react-router";
 import { ensureMigrated, platformMigrations } from "@upwise/platform";
 import { appMigrations } from "../app/lib/schema";
 import { runScheduledSends } from "../app/lib/send-context.server";
+import { runDailyHealthCheck } from "../app/lib/health.server";
 
 declare module "react-router" {
   export interface AppLoadContext {
@@ -20,9 +21,10 @@ export default {
     await ensureMigrated(env.DB, migrations);
     return requestHandler(request, { cloudflare: { env, ctx } });
   },
-  // Cron (wrangler.jsonc triggers): send review-request emails that are due.
-  async scheduled(_controller, env, ctx) {
+  // Crons (wrangler.jsonc triggers): due review-request emails every 15 min; health check daily.
+  async scheduled(controller, env, ctx) {
     await ensureMigrated(env.DB, migrations);
-    ctx.waitUntil(runScheduledSends(env));
+    if (controller.cron === "11 15 * * *") ctx.waitUntil(runDailyHealthCheck(env));
+    else ctx.waitUntil(runScheduledSends(env));
   },
 } satisfies ExportedHandler<Env>;

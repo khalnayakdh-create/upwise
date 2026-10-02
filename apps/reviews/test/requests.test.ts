@@ -12,6 +12,8 @@ import {
 } from "../app/lib/requests.server";
 import { createReview, exportCsv, reviewedFromRequest, validateRequestReview } from "../app/lib/reviews.server";
 import { signUploadToken, sniffImage, verifyUploadToken, parsePhotos } from "../app/lib/photos.server";
+import { reviewSignals } from "../app/lib/health.server";
+import { markRequest } from "../app/lib/requests.server";
 
 const proxy = await getPlatformProxy<{ DB: D1Database }>({
   configPath: join(import.meta.dirname, "../../../packages/platform/test/wrangler.test.jsonc"),
@@ -221,5 +223,40 @@ describe("photos and export", () => {
     expect(row).toContain('"Big, ""great"""');
     expect(csv).toContain('"Line1\nLine2"');
     expect(row).toContain(",yes,");
+  });
+});
+
+describe("health signals", () => {
+  const insert = (id: string, status: string, sendAfter: string, sentAt: string | null) =>
+    d1
+      .prepare("INSERT INTO review_request (id, shop, order_id, email, product_ids, send_after, status, sent_at, created_at) VALUES (?, ?, ?, 'x@example.com', '[]', ?, ?, ?, ?)")
+      .bind(id, SHOP, `gid://shopify/Order/${id}`, sendAfter, status, sentAt, sendAfter)
+      .run();
+  const now = new Date("2026-10-01T15:11:00Z");
+  const problems = async () => Object.fromEntries((await reviewSignals(d1, SHOP, now)).map((s) => [s.key, s.problem]));
+
+  it("is healthy with nothing to send", async () => {
+    expect(await problems()).toEqual({ request_failures: null, request_backlog: null });
+  });
+  it("flags failures that outnumber sends in the last day", async () => {
+    await insert("1", "failed", "2026-10-01T10:00:00Z", "2026-10-01T10:00:00Z");
+    expect((await problems()).request_failures).toMatch(/^1 review request email failed/);
+    await insert("2", "sent", "2026-10-01T10:00:00Z", "2026-10-01T10:00:00Z");
+    await insert("3", "sent", "2026-10-01T11:00:00Z", "2026-10-01T11:00:00Z");
+    expect((await problems()).request_failures).toBeNull();
+  });
+  it("ignores old failures and flags overdue requests", async () => {
+    await insert("4", "failed", "2026-09-20T10:00:00Z", "2026-09-20T10:00:00Z");
+    await insert("5", "scheduled", "2026-10-01T01:00:00Z", null);
+    await insert("6", "scheduled", "2026-10-01T14:00:00Z", null); // due, but within the grace period
+    const p = await problems();
+    expect(p.request_failures).toBeNull();
+    expect(p.request_backlog).toBe("1 review request email is overdue and not sending.");
+  });
+  it("records when a failure happened", async () => {
+    await insert("7", "scheduled", "2026-10-01T01:00:00Z", null);
+    await markRequest(db, "7", "failed", "boom", new Date("2026-10-01T12:00:00Z"));
+    const row = await d1.prepare("SELECT sent_at FROM review_request WHERE id = '7'").first<{ sent_at: string }>();
+    expect(row?.sent_at).toBe("2026-10-01T12:00:00.000Z");
   });
 });

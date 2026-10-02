@@ -16,6 +16,7 @@ import {
   sessionTable,
   shopTable,
 } from "../src";
+import { buildHealthEmail, dropToZeroSignal, getHealthState, runHealthCheck } from "../src/health";
 
 const proxy = await getPlatformProxy<{ DB: D1Database }>({
   configPath: join(import.meta.dirname, "wrangler.test.jsonc"),
@@ -139,5 +140,49 @@ describe("shops and webhooks", () => {
     await expect(
       handleComplianceWebhook(db, { topic: "orders/create", shop: "a", payload: {} }),
     ).rejects.toThrow();
+  });
+});
+
+describe("health checks", () => {
+  const now = new Date("2026-10-10T12:00:00Z");
+  const rows = (yesterday: number, perDay: number) => [
+    { day: "2026-10-09", n: yesterday },
+    ...[2, 3, 4, 5, 6, 7, 8].map((i) => ({ day: new Date(now.getTime() - i * 86_400_000).toISOString().slice(0, 10), n: perDay })),
+  ];
+
+  it("flags a drop to zero only with enough normal traffic", () => {
+    expect(dropToZeroSignal("views", "cart offer views", rows(0, 20), now).problem).toMatch(/No cart offer views yesterday \(usually about 20 a day\)/);
+    expect(dropToZeroSignal("views", "views", rows(3, 20), now).problem).toBeNull();
+    expect(dropToZeroSignal("views", "views", rows(0, 2), now).problem).toBeNull(); // too little traffic to judge
+  });
+
+  it("alerts once per cooldown, keeps the banner, and clears on recovery", async () => {
+    await d1.exec("CREATE TABLE IF NOT EXISTS app_setting (shop TEXT NOT NULL, key TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (shop, key))");
+    await d1.exec("DELETE FROM app_setting");
+    await recordInstall(db, "h.myshopify.com");
+    let broken = true;
+    const sent: string[][] = [];
+    const run = (at: Date) =>
+      runHealthCheck({
+        d1,
+        now: at,
+        signalsFor: async () => [{ key: "views", problem: broken ? "No views" : null }],
+        notify: async (_shop, problems) => { sent.push(problems.map((p) => p.key)); },
+      });
+    await run(now);
+    await run(new Date(now.getTime() + 86_400_000)); // next day: still broken, inside cooldown
+    expect(sent).toEqual([["views"]]);
+    expect((await getHealthState(d1, "h.myshopify.com"))?.problems.map((p) => p.key)).toEqual(["views"]);
+    await run(new Date(now.getTime() + 8 * 86_400_000)); // after cooldown: one more email
+    expect(sent).toHaveLength(2);
+    broken = false;
+    await run(new Date(now.getTime() + 9 * 86_400_000));
+    expect((await getHealthState(d1, "h.myshopify.com"))?.problems).toEqual([]);
+  });
+
+  it("builds an escaped alert email", () => {
+    const e = buildHealthEmail({ appName: "Storevine Bundles", shopName: "Snow <Shop>", problems: ["No views"], adminUrl: "https://admin.shopify.com/store/x/apps/y" });
+    expect(e.html).toContain("Snow &lt;Shop&gt;");
+    expect(e.text).toContain("- No views");
   });
 });

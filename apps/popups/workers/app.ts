@@ -1,4 +1,5 @@
 import { createRequestHandler } from "react-router";
+import { runDailyHealthCheck } from "../app/lib/health.server";
 import { ensureMigrated, platformMigrations } from "@upwise/platform";
 import { appMigrations } from "../app/lib/schema";
 
@@ -18,5 +19,10 @@ export default {
   async fetch(request, env, ctx) {
     await ensureMigrated(env.DB, migrations);
     return requestHandler(request, { cloudflare: { env, ctx } });
+  },
+  // Daily cron (wrangler.jsonc triggers): health check + merchant alerts.
+  async scheduled(_controller, env, ctx) {
+    await ensureMigrated(env.DB, migrations);
+    ctx.waitUntil(runDailyHealthCheck(env));
   },
 } satisfies ExportedHandler<Env>;

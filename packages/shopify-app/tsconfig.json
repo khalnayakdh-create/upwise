@@ -4,7 +4,7 @@
     "module": "ES2022",
     "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["@cloudflare/workers-types", "@shopify/app-bridge-types"],
+    "types": ["@cloudflare/workers-types", "@shopify/app-bridge-types", "@shopify/polaris-types"],
     "jsx": "react-jsx",
     "strict": true,
     "skipLibCheck": true,

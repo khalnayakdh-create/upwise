@@ -17,5 +17,8 @@
     // DEV ONLY: empty before launch.
     "DEV_PLAN_OVERRIDES": "upwisedev.myshopify.com:growth"
   },
-  "d1_databases": [{ "binding": "DB", "database_name": "upwise-popups" }]
+  "d1_databases": [{ "binding": "DB", "database_name": "upwise-popups" }],
+  // Daily health check (UTC); alerts go out via Cloudflare Email Service from alerts@storevine.app.
+  "triggers": { "crons": ["11 15 * * *"] },
+  "send_email": [{ "name": "EMAIL" }]
 }

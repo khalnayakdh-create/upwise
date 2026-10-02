@@ -28,5 +28,8 @@
       // Tables are created by the Worker itself (see @upwise/platform migrations).
       "database_name": "upwise-cart-upsell"
     }
-  ]
+  ],
+  // Daily health check (UTC); alerts go out via Cloudflare Email Service from alerts@storevine.app.
+  "triggers": { "crons": ["11 15 * * *"] },
+  "send_email": [{ "name": "EMAIL" }]
 }

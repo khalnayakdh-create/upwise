@@ -150,7 +150,8 @@ export async function dueRequests(db: Db, now = new Date(), limit = 50) {
 export async function markRequest(db: Db, id: string, status: RequestStatus, note: string | null = null, now = new Date()) {
   await db
     .update(reviewRequestTable)
-    .set({ status, note, sentAt: status === "sent" ? now.toISOString() : null })
+    // sent_at doubles as "attempted at" for failures (the daily health check reads it).
+    .set({ status, note, sentAt: status === "sent" || status === "failed" ? now.toISOString() : null })
     .where(eq(reviewRequestTable.id, id));
 }
 

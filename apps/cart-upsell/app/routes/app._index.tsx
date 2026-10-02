@@ -2,7 +2,8 @@ import type { Route } from "./+types/app._index";
 import type { HeadersFunction } from "react-router";
 import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { getDb } from "@upwise/platform";
+import { HealthBanner } from "@upwise/shopify-app/react";
+import { getDb, getHealthState } from "@upwise/platform";
 import { getShopify } from "../shopify.server";
 import { resolvePlan, storeHandle, syncAll } from "../lib/admin.server";
 import { listOffers, statsByOffer, totals } from "../lib/offers.server";
@@ -22,6 +23,7 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const sum = totals(stats);
   const active = offers.filter((o) => o.status === "active").length;
   return {
+    health: (await getHealthState(context.cloudflare.env.DB as never, session.shop))?.problems ?? [],
     plan,
     planName: PLAN_COPY[plan].name,
     overLimit: active > PLAN_LIMITS[plan].maxActiveOffers,
@@ -37,11 +39,12 @@ function pct(n: number, d: number) {
 }
 
 export default function Dashboard() {
-  const { planName, overLimit, offerCount, activeCount, stats, embedUrl } = useLoaderData<typeof loader>();
+  const { health, planName, overLimit, offerCount, activeCount, stats, embedUrl } = useLoaderData<typeof loader>();
   const seenOnStore = stats.impressions > 0;
 
   return (
     <s-page heading="Storevine Cart Upsell">
+      <HealthBanner problems={health} />
       <s-button slot="primary-action" variant="primary" href="/app/offers/new">
         Create offer
       </s-button>

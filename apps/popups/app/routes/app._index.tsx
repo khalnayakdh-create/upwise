@@ -2,7 +2,8 @@ import type { Route } from "./+types/app._index";
 import type { HeadersFunction } from "react-router";
 import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { getDb } from "@upwise/platform";
+import { HealthBanner } from "@upwise/shopify-app/react";
+import { getDb, getHealthState } from "@upwise/platform";
 import { storeHandle } from "@upwise/shopify-app";
 import { getShopify } from "../shopify.server";
 import { publishConfig, resolvePlan } from "../lib/admin.server";
@@ -20,6 +21,7 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const [config, s, month] = await Promise.all([getConfig(db, session.shop), stats(db, session.shop), signupsThisMonth(db, session.shop)]);
   const limit = PLAN_LIMITS[plan].signupsPerMonth;
   return {
+    health: (await getHealthState(context.cloudflare.env.DB as never, session.shop))?.problems ?? [],
     planName: PLAN_COPY[plan].name,
     enabled: config.enabled,
     stats: s,
@@ -30,10 +32,11 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 };
 
 export default function Dashboard() {
-  const { planName, enabled, stats, month, limit, embedUrl } = useLoaderData<typeof loader>();
+  const { health, planName, enabled, stats, month, limit, embedUrl } = useLoaderData<typeof loader>();
   const rate = stats.impressions ? `${((stats.signups / stats.impressions) * 100).toFixed(1)}%` : "–";
   return (
     <s-page heading="Storevine Pop-ups">
+      <HealthBanner problems={health} />
       {limit !== null && month >= limit ? (
         <s-banner tone="warning" heading="You've reached this month's sign-up limit">
           The pop-up is paused until next month. Upgrade for unlimited sign-ups.

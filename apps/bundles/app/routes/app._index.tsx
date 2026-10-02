@@ -2,7 +2,8 @@ import type { Route } from "./+types/app._index";
 import type { HeadersFunction } from "react-router";
 import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { getDb } from "@upwise/platform";
+import { HealthBanner } from "@upwise/shopify-app/react";
+import { getDb, getHealthState } from "@upwise/platform";
 import { storeHandle } from "@upwise/shopify-app";
 import { getShopify } from "../shopify.server";
 import { resolvePlan, syncAll } from "../lib/admin.server";
@@ -26,6 +27,7 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
   let currency = "USD";
   for (const s of sales.values()) { revenueCents += s.revenueCents; orders += s.orders; currency = s.currency; }
   return {
+    health: (await getHealthState(context.cloudflare.env.DB as never, session.shop))?.problems ?? [],
     revenue: orders ? new Intl.NumberFormat("en", { style: "currency", currency }).format(revenueCents / 100) : null,
     orders,
     planName: PLAN_COPY[plan].name,
@@ -37,9 +39,10 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 };
 
 export default function Dashboard() {
-  const { planName, bundleCount, impressions, adds, addBlockUrl, revenue, orders } = useLoaderData<typeof loader>();
+  const { health, planName, bundleCount, impressions, adds, addBlockUrl, revenue, orders } = useLoaderData<typeof loader>();
   return (
     <s-page heading="Storevine Bundles">
+      <HealthBanner problems={health} />
       <s-button slot="primary-action" variant="primary" href="/app/bundles/new">Create bundle</s-button>
       <s-section heading="Get set up">
         <s-ordered-list>

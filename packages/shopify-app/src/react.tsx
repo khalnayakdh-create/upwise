@@ -74,3 +74,21 @@ export function FormSaveBar({ id, formRef, saving }: { id: string; formRef: RefO
     </SaveBar>
   );
 }
+
+const DEFAULT_HEALTH_CAUSES =
+  "Common causes: the app block or embed was removed or turned off in a theme change, the theme was switched, or the products in it went out of stock.";
+
+/** Dashboard banner for problems found by the daily health check (see runAppHealthCheck). */
+export function HealthBanner({ problems, causes = DEFAULT_HEALTH_CAUSES }: { problems: Array<{ key: string; problem: string; since: string }>; causes?: string }) {
+  if (!problems.length) return null;
+  return (
+    <s-banner tone="warning" heading="Something needs a look">
+      <s-stack gap="small">
+        {problems.map((p) => (
+          <s-paragraph key={p.key}>{p.problem}</s-paragraph>
+        ))}
+        <s-paragraph>{causes} This clears after the next daily check once things are back to normal.</s-paragraph>
+      </s-stack>
+    </s-banner>
+  );
+}

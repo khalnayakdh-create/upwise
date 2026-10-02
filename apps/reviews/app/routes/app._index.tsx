@@ -2,13 +2,15 @@ import type { Route } from "./+types/app._index";
 import type { HeadersFunction } from "react-router";
 import { useLoaderData } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
-import { getDb } from "@upwise/platform";
+import { HealthBanner } from "@upwise/shopify-app/react";
+import { getDb, getHealthState } from "@upwise/platform";
 import { storeHandle } from "@upwise/shopify-app";
 import { getShopify } from "../shopify.server";
 import { resolvePlan } from "../lib/admin.server";
 import { getSettings, shopTotals } from "../lib/reviews.server";
 import { requestStats } from "../lib/requests.server";
 import { PLAN_COPY } from "../lib/plans";
+import { REVIEW_HEALTH_CAUSES } from "../lib/health-causes";
 
 export const BLOCK_HANDLE = "product-reviews";
 
@@ -24,6 +26,7 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
     requestStats(db, session.shop, 30),
   ]);
   return {
+    health: (await getHealthState(context.cloudflare.env.DB as never, session.shop))?.problems ?? [],
     planName: PLAN_COPY[plan].name,
     totals,
     requestsEnabled: settings.requestsEnabled,
@@ -35,9 +38,10 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
 };
 
 export default function Dashboard() {
-  const { planName, totals, addBlockUrl, requestsEnabled, failedThisWeek, limitedThisWeek, sentThisMonth } = useLoaderData<typeof loader>();
+  const { health, planName, totals, addBlockUrl, requestsEnabled, failedThisWeek, limitedThisWeek, sentThisMonth } = useLoaderData<typeof loader>();
   return (
     <s-page heading="Storevine Reviews">
+      <HealthBanner problems={health} causes={REVIEW_HEALTH_CAUSES} />
       {failedThisWeek > 0 ? (
         <s-banner tone="critical" heading={`${failedThisWeek} review request${failedThisWeek === 1 ? "" : "s"} failed to send this week`}>
           <s-paragraph>We'll keep trying new orders. Check the reasons in Settings, or contact support and a person will look into it.</s-paragraph>
