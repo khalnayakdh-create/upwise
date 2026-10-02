@@ -19,12 +19,14 @@ export default function Privacy() {
         <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Storevine plan.</li>
         <li><strong>Access credentials</strong>: the access token Shopify issues when you install the App, used only to call Shopify on your behalf.</li>
         <li><strong>Offer settings</strong>: the offers you create (names, headlines, priorities) and the product IDs, titles, handles and image links you choose.</li>
-        <li><strong>Aggregated usage counts</strong>: daily totals of how often each offer was shown, clicked and added to cart on your storefront.</li>
+        <li><strong>Aggregated usage counts</strong>: daily totals of how often each offer was shown, clicked and added to cart on your storefront, and daily counts of carts in each group of the holdout test.</li>
+        <li><strong>Order totals for reporting</strong>: when an order is placed or refunded, the App reads it from Shopify and keeps only the order ID, date, currency, the amounts of items added from Storevine offers, the order subtotal, refunded amounts, and the holdout test group. Customer details in the order are not stored.</li>
       </ul>
       <p>
-        The App does <strong>not</strong> collect or store personal information about your customers — no names,
-        email addresses, phone numbers, addresses, order details or payment information. Storefront counts are
-        anonymous totals and are not linked to any shopper.
+        The App does <strong>not</strong> store personal information about your customers — no names,
+        email addresses, phone numbers, addresses or payment information. Storefront counts are anonymous totals
+        and are not linked to any shopper. To run the holdout test, the storefront script keeps a random group
+        letter in the shopper's browser storage and in a hidden cart attribute; it identifies no one.
       </p>
 
       <h2>How we use information</h2>
@@ -45,7 +47,7 @@ export default function Privacy() {
       <p>
         We keep your data while the App is installed. When you uninstall, we delete your access credentials
         immediately and Shopify asks us to erase your store's data 48 hours later; we then delete all offers,
-        settings and usage counts for your store. We honor Shopify's customer data request and erasure requests;
+        settings, usage counts and order totals for your store. We honor Shopify's customer data request and erasure requests;
         because the App stores no customer personal data, there is nothing to return or delete for an individual
         customer.
       </p>

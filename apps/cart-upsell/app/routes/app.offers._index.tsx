@@ -8,15 +8,17 @@ import { getDb, shopTable } from "@upwise/platform";
 import { eq } from "drizzle-orm";
 import { getShopify } from "../shopify.server";
 import { listOffers, statsByOffer } from "../lib/offers.server";
+import { offerSales } from "../lib/attribution.server";
 import { PLAN_LIMITS, type PlanKey } from "../lib/plans";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { env } = context.cloudflare;
   const { session } = await getShopify(env).authenticate.admin(request);
   const db = getDb(env.DB);
-  const [offers, stats, [shopRow]] = await Promise.all([
+  const [offers, stats, sales, [shopRow]] = await Promise.all([
     listOffers(db, session.shop),
     statsByOffer(db, session.shop),
+    offerSales(db, session.shop),
     db.select({ plan: shopTable.plan }).from(shopTable).where(eq(shopTable.shop, session.shop)),
   ]);
   const plan = (shopRow?.plan as PlanKey) ?? "free";
@@ -36,6 +38,10 @@ export const loader = async ({ request, context }: Route.LoaderArgs) => {
         products: o.offerProducts.map((p) => p.title).join(", "),
         image: o.offerProducts[0]?.image ?? null,
         ...s,
+        orders: sales.get(o.id)?.orders ?? 0,
+        sales: sales.has(o.id)
+          ? new Intl.NumberFormat("en", { style: "currency", currency: sales.get(o.id)!.currency }).format(sales.get(o.id)!.netCents / 100)
+          : "–",
       };
     }),
   };
@@ -77,6 +83,8 @@ export default function Offers() {
               <s-table-header>Shown when</s-table-header>
               <s-table-header format="numeric">Views (30d)</s-table-header>
               <s-table-header format="numeric">Adds (30d)</s-table-header>
+              <s-table-header format="numeric">Orders (30d)</s-table-header>
+              <s-table-header format="numeric">Sales (30d)</s-table-header>
             </s-table-header-row>
             <s-table-body>
               {offers.map((o) => (
@@ -104,6 +112,8 @@ export default function Offers() {
                   <s-table-cell>{o.trigger}</s-table-cell>
                   <s-table-cell>{o.impressions.toLocaleString()}</s-table-cell>
                   <s-table-cell>{o.adds.toLocaleString()}</s-table-cell>
+                  <s-table-cell>{o.orders.toLocaleString()}</s-table-cell>
+                  <s-table-cell>{o.sales}</s-table-cell>
                 </s-table-row>
               ))}
             </s-table-body>

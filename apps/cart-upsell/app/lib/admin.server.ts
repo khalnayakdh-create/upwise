@@ -4,6 +4,7 @@ import type { Shopify } from "../shopify.server";
 import { buildDiscountConfig, buildStorefrontConfig, listOffers, type OfferProduct } from "./offers.server";
 import { PAID_PLANS, PLAN_LIMITS, planFromSubscriptionName, type PlanKey } from "./plans";
 import { appSettingTable } from "./schema";
+import { getHoldoutPercent } from "./attribution.server";
 
 export type AdminContext = Awaited<ReturnType<Shopify["authenticate"]["admin"]>>;
 
@@ -238,7 +239,7 @@ export async function syncAll(admin: AdminContext["admin"], env: Env, shop: stri
 /** Write the storefront config to an app-owned metafield (read by the theme extension). */
 export async function syncStorefrontConfig(admin: AdminContext["admin"], env: Env, shop: string, plan: PlanKey) {
   const offers = await listOffers(getDb(env.DB), shop);
-  const config = buildStorefrontConfig(offers, plan);
+  const config = buildStorefrontConfig(offers, plan, await getHoldoutPercent(getDb(env.DB), shop));
   const idResponse = await admin.graphql(`#graphql
     query AppInstallationId { currentAppInstallation { id } }`);
   const { data: idData } = (await idResponse.json()) as {

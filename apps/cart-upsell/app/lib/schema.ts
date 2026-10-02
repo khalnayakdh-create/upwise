@@ -45,6 +45,50 @@ export const appSettingTable = sqliteTable(
   (t) => [primaryKey({ columns: [t.shop, t.key] })],
 );
 
+/** Order lines added from a cart offer (tagged _storevine_offer). Money in shop currency cents. No customer data. */
+export const offerOrderTable = sqliteTable(
+  "offer_order",
+  {
+    shop: text("shop").notNull(),
+    orderId: text("order_id").notNull(),
+    offerId: text("offer_id").notNull(),
+    day: text("day").notNull(),
+    units: integer("units").notNull(),
+    revenueCents: integer("revenue_cents").notNull(),
+    discountCents: integer("discount_cents").notNull(),
+    refundedCents: integer("refunded_cents").notNull().default(0),
+    currency: text("currency").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.shop, t.orderId, t.offerId] })],
+);
+
+/** Orders from carts that were in the holdout test ("h" = offers hidden, "s" = offers shown). */
+export const cartOrderTable = sqliteTable(
+  "cart_order",
+  {
+    shop: text("shop").notNull(),
+    orderId: text("order_id").notNull(),
+    day: text("day").notNull(),
+    grp: text("grp").notNull(),
+    totalCents: integer("total_cents").notNull(),
+    refundedCents: integer("refunded_cents").notNull().default(0),
+    currency: text("currency").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.shop, t.orderId] })],
+);
+
+/** Eligible carts per holdout group per day (denominator for conversion and revenue per cart). */
+export const holdoutStatTable = sqliteTable(
+  "holdout_stat_daily",
+  {
+    shop: text("shop").notNull(),
+    day: text("day").notNull(),
+    grp: text("grp").notNull(),
+    carts: integer("carts").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.shop, t.day, t.grp] })],
+);
+
 /** App-specific migrations. IDs 100+ (platform uses 1-99). Append only. */
 export const cartUpsellMigrations: Migration[] = [
   {
@@ -96,6 +140,29 @@ export const cartUpsellMigrations: Migration[] = [
         key TEXT NOT NULL,
         value TEXT NOT NULL,
         PRIMARY KEY (shop, key)
+      )`,
+    ],
+  },
+  {
+    id: 105,
+    name: "attribution_and_holdout",
+    sql: [
+      `CREATE TABLE IF NOT EXISTS offer_order (
+        shop TEXT NOT NULL, order_id TEXT NOT NULL, offer_id TEXT NOT NULL, day TEXT NOT NULL,
+        units INTEGER NOT NULL, revenue_cents INTEGER NOT NULL, discount_cents INTEGER NOT NULL,
+        refunded_cents INTEGER NOT NULL DEFAULT 0, currency TEXT NOT NULL,
+        PRIMARY KEY (shop, order_id, offer_id)
+      )`,
+      `CREATE INDEX IF NOT EXISTS offer_order_day_idx ON offer_order (shop, day)`,
+      `CREATE TABLE IF NOT EXISTS cart_order (
+        shop TEXT NOT NULL, order_id TEXT NOT NULL, day TEXT NOT NULL, grp TEXT NOT NULL,
+        total_cents INTEGER NOT NULL, refunded_cents INTEGER NOT NULL DEFAULT 0, currency TEXT NOT NULL,
+        PRIMARY KEY (shop, order_id)
+      )`,
+      `CREATE INDEX IF NOT EXISTS cart_order_day_idx ON cart_order (shop, day)`,
+      `CREATE TABLE IF NOT EXISTS holdout_stat_daily (
+        shop TEXT NOT NULL, day TEXT NOT NULL, grp TEXT NOT NULL, carts INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (shop, day, grp)
       )`,
     ],
   },

@@ -25,6 +25,7 @@
   var DRAWER = ["cart-drawer .drawer__footer", "#CartDrawer .drawer__footer", ".cart-drawer__footer", "#cart-drawer .cart-drawer__footer", ".drawer--cart .drawer__footer"];
   var PAGE = [".cart__footer", ".cart-footer", "#main-cart-footer", "form[action$='/cart'] .cart__blocks"];
   var isCartPage = /\/cart\/?$/.test(location.pathname);
+  var nf = window.fetch.bind(window); // before our cart-sync wrapper below
 
   /* ---------- analytics (aggregated counts only) ---------- */
   var queue = [], seen = {}, timer;
@@ -39,6 +40,50 @@
     timer = setTimeout(flush, 1500);
   }
   addEventListener("pagehide", flush);
+
+  /* ---------- always-on holdout test ----------
+     A small share of shoppers (cfg.holdout %) never see offers, so the app can
+     measure the real lift. The group goes in a hidden cart attribute, which
+     Shopify copies to the order. Nothing identifies the shopper. */
+  var HOLD = Math.max(0, Math.min(50, Number(cfg.holdout) || 0));
+  var GROUP_KEY = "_storevine_group", LS_KEY = "storevine_cart_group";
+  var marked = {};
+  function measuringAllowed() {
+    // Respect the shopper's analytics choice when the store collects consent.
+    try {
+      var cp = window.Shopify && window.Shopify.customerPrivacy;
+      if (cp && typeof cp.analyticsProcessingAllowed === "function") return cp.analyticsProcessingAllowed() !== false;
+    } catch (e) {}
+    return true;
+  }
+  function groupFor(cart) {
+    if (!HOLD || !measuringAllowed()) return null;
+    var g = cart.attributes && cart.attributes[GROUP_KEY];
+    if (g === "h" || g === "s") return g;
+    try {
+      var saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+      if (saved && (saved.g === "h" || saved.g === "s") && Date.now() - saved.t < 60 * 86400000) return saved.g;
+    } catch (e) {}
+    g = Math.random() * 100 < HOLD ? "h" : "s";
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ g: g, t: Date.now() })); } catch (e) {}
+    return g;
+  }
+  function markCart(cart, g) {
+    if ((cart.attributes && cart.attributes[GROUP_KEY]) === g || marked[cart.token]) return;
+    marked[cart.token] = 1;
+    var attrs = {};
+    attrs[GROUP_KEY] = g;
+    nf(root + "cart/update.js", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ attributes: attrs })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("update failed");
+      queue.push({ type: "cart", group: g });
+      clearTimeout(timer);
+      timer = setTimeout(flush, 1500);
+    }).catch(function () { marked[cart.token] = 0; });
+  }
 
   /* ---------- data ---------- */
   var productCache = {};
@@ -160,6 +205,9 @@
       var m = match(cart);
       var cs = containers();
       if (!m) { cs.forEach(function (c) { c.replaceChildren(); c.removeAttribute("data-key"); }); return; }
+      var g = groupFor(cart);
+      if (g) markCart(cart, g);
+      if (g === "h") { cs.forEach(function (c) { c.replaceChildren(); c.removeAttribute("data-key"); }); return; }
       return Promise.all(m.products.map(function (p) {
         return getProduct(p.handle).then(function (d) {
           if (!d) return null;

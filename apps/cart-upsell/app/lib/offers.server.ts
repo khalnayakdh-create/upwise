@@ -2,6 +2,7 @@ import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
 import type { Db } from "@upwise/platform";
 import { appSettingTable, offerStatTable, offerTable } from "./schema";
 import { PLAN_LIMITS, type PlanKey } from "./plans";
+import { purgeAttribution } from "./attribution.server";
 
 export interface OfferProduct {
   productId: string; // gid://shopify/Product/...
@@ -158,6 +159,7 @@ export async function purgeCartUpsellShop(db: Db, shop: string) {
   await db.delete(offerTable).where(eq(offerTable.shop, shop));
   await db.delete(offerStatTable).where(eq(offerStatTable.shop, shop));
   await db.delete(appSettingTable).where(eq(appSettingTable.shop, shop));
+  await purgeAttribution(db, shop);
 }
 
 export function numericId(gid: string): number {
@@ -167,6 +169,8 @@ export function numericId(gid: string): number {
 /** Storefront config stored in an app-owned metafield and read by the theme extension. */
 export interface StorefrontConfig {
   v: 1;
+  /** Percent of shoppers who don't see offers (always-on holdout test); 0 = off. */
+  holdout: number;
   offers: Array<{
     id: string;
     headline: string;
@@ -177,11 +181,12 @@ export interface StorefrontConfig {
   }>;
 }
 
-export function buildStorefrontConfig(offers: Offer[], plan: PlanKey): StorefrontConfig {
+export function buildStorefrontConfig(offers: Offer[], plan: PlanKey, holdout = 0): StorefrontConfig {
   const limit = PLAN_LIMITS[plan].maxActiveOffers;
   const active = offers.filter((o) => o.status === "active" && o.offerProducts.length > 0).slice(0, limit);
   return {
     v: 1,
+    holdout,
     offers: active.map((o) => ({
       id: o.id,
       headline: o.headline,
