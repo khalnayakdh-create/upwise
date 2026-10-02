@@ -2,6 +2,9 @@
   "cart_offers": {
     "add": "Add",
     "adding": "Adding…",
-    "retry": "Try again"
+    "retry": "Try again",
+    "percent_off": "{{ percent }}% off",
+    "was_now": "Was {{ was }}, now {{ now }}",
+    "add_item": "Add {{ title }} to cart"
   }
 }

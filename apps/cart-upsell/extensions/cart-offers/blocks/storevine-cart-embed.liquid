@@ -14,6 +14,12 @@
       buttonLabel: {{ block.settings.button_label | json }},
       maxProducts: {{ block.settings.max_products | json }}
     };
+    window.StorevineCart.strings = {
+      retry: {{ 'cart_offers.retry' | t | json }},
+      percentOff: {{ 'cart_offers.percent_off' | t: percent: '%p' | json }},
+      wasNow: {{ 'cart_offers.was_now' | t: was: '%w', now: '%n' | json }},
+      addItem: {{ 'cart_offers.add_item' | t: title: '%t' | json }}
+    };
   </script>
 {%- endif -%}
 

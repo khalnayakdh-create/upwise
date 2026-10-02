@@ -6,11 +6,16 @@
 .storevine-popup__title{font-size:1.4em;font-weight:700;margin:0 0 8px;line-height:1.2}
 .storevine-popup__body{margin:0 0 16px}
 .storevine-popup__form{display:grid;gap:8px}
-.storevine-popup__input{font:inherit;padding:12px;border:1px solid #bbb;border-radius:6px;width:100%;box-sizing:border-box;color:#111;background:#fff}
+.storevine-popup__input{font:inherit;padding:12px;border:1px solid #767676;border-radius:6px;width:100%;box-sizing:border-box;color:#111;background:#fff}
 .storevine-popup__btn{font:inherit;font-weight:600;padding:12px;border:0;border-radius:6px;color:#fff;cursor:pointer}
 .storevine-popup__btn[disabled]{opacity:.6;cursor:progress}
 .storevine-popup__consent{font-size:.75em;color:#555;margin:6px 0 0;display:flex;gap:6px;align-items:flex-start}
 .storevine-popup__msg{font-size:.85em;margin:4px 0 0;min-height:1em}
 .storevine-popup__code{display:inline-block;margin-top:8px;padding:8px 12px;border:1px dashed #111;border-radius:6px;font-weight:700;letter-spacing:1px}
-.storevine-popup__brand{display:block;margin-top:12px;font-size:.7em;color:#888;text-align:center}
+.storevine-popup__brand{display:block;margin-top:12px;font-size:.75em;color:#666;text-align:center}
 .storevine-popup__hp{position:absolute;left:-9999px}
+.storevine-popup__input[aria-invalid=true]{border-color:#b00020}
+.storevine-popup__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.storevine-popup__consent input:focus-visible{outline:2px solid #111;outline-offset:2px}
+@media (prefers-reduced-motion: no-preference){.storevine-popup__card{animation:storevine-pop .18s ease-out}}
+@keyframes storevine-pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}

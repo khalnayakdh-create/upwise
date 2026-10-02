@@ -3,6 +3,17 @@
 {%- if storevine_popup and storevine_popup.enabled -%}
   {%- unless storevine_popup.pages == 'home' and request.page_type != 'index' -%}
     <script type="application/json" id="storevine-popup-config">{{ storevine_popup | json }}</script>
+    <script type="application/json" id="storevine-popup-strings">
+      {
+        "emailLabel": {{ 'popup.email_label' | t | json }},
+        "close": {{ 'popup.close' | t | json }},
+        "consentRequired": {{ 'popup.consent_required' | t | json }},
+        "invalidEmail": {{ 'popup.invalid_email' | t | json }},
+        "error": {{ 'popup.error' | t | json }},
+        "poweredBy": {{ 'popup.powered_by' | t | json }},
+        "codeLabel": {{ 'popup.code_label' | t | json }}
+      }
+    </script>
     <script src="{{ 'storevine-popup.js' | asset_url }}" defer></script>
     <link rel="stylesheet" href="{{ 'storevine-popup.css' | asset_url }}" media="print" onload="this.media='all'">
   {%- endunless -%}

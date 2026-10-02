@@ -1,1 +1,11 @@
-{}
+{
+  "popup": {
+    "email_label": "Email address",
+    "close": "Close",
+    "consent_required": "Please tick the box to agree to receive emails.",
+    "invalid_email": "Enter a valid email address.",
+    "error": "Something went wrong. Please try again.",
+    "powered_by": "Powered by Storevine",
+    "code_label": "Your discount code"
+  }
+}

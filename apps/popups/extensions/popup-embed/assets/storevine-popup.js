@@ -8,6 +8,21 @@
   try { c = JSON.parse(cfgEl.textContent); } catch (e) { return; }
   if (!c || !c.enabled) return;
   if (window.Shopify && window.Shopify.designMode) return; // not in theme editor
+  var T = {};
+  try {
+    var raw = JSON.parse(document.getElementById("storevine-popup-strings").textContent);
+    var ta = document.createElement("textarea");
+    Object.keys(raw).forEach(function (k) { ta.innerHTML = String(raw[k]); T[k] = ta.value; });
+  } catch (e) {}
+  /** Black or white text, whichever reads better on the merchant's button colour (WCAG contrast). */
+  function textOn(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || "").trim());
+    if (!m) return "#fff";
+    var n = parseInt(m[1], 16);
+    var lin = function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    var L = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+    return (L + 0.05) / 0.05 > 1.05 / (L + 0.05) ? "#111" : "#fff";
+  }
 
   var KEY = "storevine_popup_until";
   try {
@@ -59,7 +74,7 @@
     var card = el("div", "storevine-popup__card");
     var x = el("button", "storevine-popup__close", "×");
     x.type = "button";
-    x.setAttribute("aria-label", "Close");
+    x.setAttribute("aria-label", T.close || "Close");
     x.addEventListener("click", close);
     var title = el("p", "storevine-popup__title", c.headline);
     title.id = "storevine-popup-title";
@@ -71,24 +86,32 @@
     form.noValidate = true;
     var input = el("input", "storevine-popup__input");
     input.type = "email"; input.name = "email"; input.required = true; input.autocomplete = "email";
-    input.placeholder = "Email address"; input.setAttribute("aria-label", "Email address");
+    input.id = "storevine-popup-email";
+    input.placeholder = T.emailLabel || "Email address";
+    var emailLabel = el("label", "storevine-popup__sr", T.emailLabel || "Email address");
+    emailLabel.htmlFor = input.id;
     var hp = el("input", "storevine-popup__hp");
     hp.name = "website"; hp.tabIndex = -1; hp.autocomplete = "off"; hp.setAttribute("aria-hidden", "true");
     var btn = el("button", "storevine-popup__btn", c.buttonLabel);
     btn.type = "submit";
     btn.style.background = c.accentColor || "#111";
+    btn.style.color = textOn(c.accentColor || "#111");
     var consent = el("label", "storevine-popup__consent");
     var box = el("input");
     box.type = "checkbox"; box.name = "consent"; box.required = true;
     consent.appendChild(box);
     consent.appendChild(el("span", null, c.consentText));
     var msg = el("p", "storevine-popup__msg");
+    msg.id = "storevine-popup-msg";
     msg.setAttribute("role", "status");
+    input.setAttribute("aria-describedby", msg.id);
+    form.appendChild(emailLabel);
     form.appendChild(input); form.appendChild(hp); form.appendChild(btn); form.appendChild(consent); form.appendChild(msg);
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (!box.checked) { msg.textContent = "Please tick the box to agree to receive emails."; box.focus(); return; }
-      if (!input.value || input.value.indexOf("@") < 1) { msg.textContent = "Enter a valid email address."; input.focus(); return; }
+      input.removeAttribute("aria-invalid");
+      if (!input.value || input.value.indexOf("@") < 1) { input.setAttribute("aria-invalid", "true"); msg.textContent = T.invalidEmail || "Enter a valid email address."; input.focus(); return; }
+      if (!box.checked) { msg.textContent = T.consentRequired || "Please tick the box to agree to receive emails."; box.focus(); return; }
       btn.disabled = true;
       msg.textContent = "";
       fetch(API + "subscribe", {
@@ -99,15 +122,19 @@
         if (d && d.ok) {
           try { localStorage.setItem(KEY, String(Date.now() + 365 * 86400000)); } catch (e) {}
           form.replaceChildren(el("p", "storevine-popup__body", c.successMessage));
-          if (d.discountCode) form.appendChild(el("span", "storevine-popup__code", d.discountCode));
+          if (d.discountCode) {
+            var code = el("span", "storevine-popup__code", d.discountCode);
+            code.setAttribute("aria-label", (T.codeLabel || "Your discount code") + ": " + d.discountCode);
+            form.appendChild(code);
+          }
         } else {
           btn.disabled = false;
-          msg.textContent = (d && d.error) || "Something went wrong. Please try again.";
+          msg.textContent = (d && d.error) || T.error || "Something went wrong. Please try again.";
         }
-      }).catch(function () { btn.disabled = false; msg.textContent = "Something went wrong. Please try again."; });
+      }).catch(function () { btn.disabled = false; msg.textContent = T.error || "Something went wrong. Please try again."; });
     });
     card.appendChild(form);
-    if (c.branding) card.appendChild(el("span", "storevine-popup__brand", "Powered by Storevine"));
+    if (c.branding) card.appendChild(el("span", "storevine-popup__brand", T.poweredBy || "Powered by Storevine"));
     overlay.appendChild(card);
     document.body.appendChild(overlay);
     document.addEventListener("keydown", onKey);
