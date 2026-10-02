@@ -19,7 +19,15 @@ export default function Privacy() {
         <li><strong>Store information</strong>: your shop's myshopify domain, install and uninstall dates, and your Storevine plan.</li>
         <li><strong>Access credentials</strong>: the access token Shopify issues when you install the App.</li>
         <li><strong>Pop-up settings</strong>: the text, colors and display rules you choose.</li>
-        <li><strong>Anonymous counts</strong>: daily totals of pop-up views and sign-ups.</li>
+        <li><strong>Anonymous counts</strong>: daily totals of pop-up views, sign-ups and blocked bot sign-ups.</li>
+        <li>
+          <strong>Abuse protection</strong>: to stop automated sign-ups, the shopper's IP address (as forwarded by Shopify) is used
+          for a short-lived rate-limit counter at Cloudflare. It is not stored by the App.
+        </li>
+        <li>
+          <strong>Consent record</strong>: when someone signs up, the App saves the consent text they agreed to, the page and the time
+          on that customer's record in your Shopify store (a customer metafield), not in Storevine.
+        </li>
         <li>
           <strong>Sign-up emails</strong>: when a visitor enters their email and agrees to receive marketing, the App sends
           the address directly to your Shopify store, where it's saved as a customer subscribed to email marketing. Storevine

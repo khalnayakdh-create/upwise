@@ -44,7 +44,9 @@
     return n;
   }
 
-  var shown = false, lastFocus = null, overlay;
+  var shown = false, lastFocus = null, overlay, openedAt = 0;
+  var prefill = "";
+  try { prefill = JSON.parse(document.getElementById("storevine-popup-customer").textContent).email || ""; } catch (e) {}
   function close() {
     if (!overlay) return;
     overlay.hidden = true;
@@ -65,6 +67,7 @@
   function show() {
     if (shown) return;
     shown = true;
+    openedAt = Date.now();
     lastFocus = document.activeElement;
     overlay = el("div", "storevine-popup");
     overlay.setAttribute("role", "dialog");
@@ -88,6 +91,7 @@
     input.type = "email"; input.name = "email"; input.required = true; input.autocomplete = "email";
     input.id = "storevine-popup-email";
     input.placeholder = T.emailLabel || "Email address";
+    if (prefill) input.value = prefill;
     var emailLabel = el("label", "storevine-popup__sr", T.emailLabel || "Email address");
     emailLabel.htmlFor = input.id;
     var hp = el("input", "storevine-popup__hp");
@@ -117,7 +121,7 @@
       fetch(API + "subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ email: input.value, consent: true, website: hp.value })
+        body: JSON.stringify({ email: input.value, consent: true, website: hp.value, elapsed: Date.now() - openedAt, page: location.pathname })
       }).then(function (r) { return r.json(); }).then(function (d) {
         if (d && d.ok) {
           try { localStorage.setItem(KEY, String(Date.now() + 365 * 86400000)); } catch (e) {}

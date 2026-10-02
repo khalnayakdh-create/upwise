@@ -54,9 +54,9 @@ export async function subscribeCustomer(graphql: GraphqlFn, email: string, now =
   const existing = found.customers.nodes[0];
   if (existing) {
     const state = existing.emailMarketingConsent?.marketingState;
-    if (state === "SUBSCRIBED") return { status: "already" as const };
+    if (state === "SUBSCRIBED") return { status: "already" as const, customerId: existing.id };
     // Respect an earlier unsubscribe: a pop-up form can't prove the address owner is opting back in.
-    if (state === "UNSUBSCRIBED" || state === "REDACTED") return { status: "skipped" as const };
+    if (state === "UNSUBSCRIBED" || state === "REDACTED") return { status: "skipped" as const, customerId: existing.id };
     const r = await gql<{ customerEmailMarketingConsentUpdate: { userErrors: Array<{ message: string }> } }>(
       graphql,
       `#graphql
@@ -67,9 +67,9 @@ export async function subscribeCustomer(graphql: GraphqlFn, email: string, now =
     );
     const errors = r.customerEmailMarketingConsentUpdate.userErrors;
     if (errors.length) throw new Error(errors.map((e) => e.message).join("; "));
-    return { status: "updated" as const };
+    return { status: "updated" as const, customerId: existing.id };
   }
-  const created = await gql<{ customerCreate: { userErrors: Array<{ message: string }> } }>(
+  const created = await gql<{ customerCreate: { customer: { id: string } | null; userErrors: Array<{ message: string }> } }>(
     graphql,
     `#graphql
     mutation StorevineCreateCustomer($input: CustomerInput!) {
@@ -79,5 +79,63 @@ export async function subscribeCustomer(graphql: GraphqlFn, email: string, now =
   );
   const errors = created.customerCreate.userErrors;
   if (errors.length) throw new Error(errors.map((e) => e.message).join("; "));
-  return { status: "created" as const };
+  return { status: "created" as const, customerId: created.customerCreate.customer?.id ?? null };
+}
+
+export interface ConsentRecord {
+  /** The exact consent text the shopper ticked. */
+  text: string;
+  /** Storefront page path the pop-up was on (no query string). */
+  page: string;
+  at: string;
+  source: "Storevine pop-up";
+  optInLevel: "SINGLE_OPT_IN";
+}
+
+/**
+ * Keep proof of consent on the Shopify customer (metafield storevine.popup_consent),
+ * so it lives with the merchant's customer record rather than in Storevine.
+ */
+export async function writeConsentRecord(graphql: GraphqlFn, customerId: string, record: ConsentRecord) {
+  const r = await gql<{ metafieldsSet: { userErrors: Array<{ message: string }> } }>(
+    graphql,
+    `#graphql
+    mutation StorevineConsentRecord($metafields: [MetafieldsSetInput!]!) {
+      metafieldsSet(metafields: $metafields) { userErrors { message } }
+    }`,
+    { metafields: [{ ownerId: customerId, namespace: "storevine", key: "popup_consent", type: "json", value: JSON.stringify(record) }] },
+  );
+  const errors = r.metafieldsSet.userErrors;
+  if (errors.length) throw new Error(errors.map((e) => e.message).join("; "));
+}
+
+/** A single-use code for one customer (needs write_discounts). */
+export async function createUniqueCode(
+  graphql: GraphqlFn,
+  args: { code: string; customerId: string; percent: number; days: number; now?: Date },
+) {
+  const now = args.now ?? new Date();
+  const r = await gql<{ discountCodeBasicCreate: { codeDiscountNode: { id: string } | null; userErrors: Array<{ message: string }> } }>(
+    graphql,
+    `#graphql
+    mutation StorevineWelcomeCode($basicCodeDiscount: DiscountCodeBasicInput!) {
+      discountCodeBasicCreate(basicCodeDiscount: $basicCodeDiscount) { codeDiscountNode { id } userErrors { message } }
+    }`,
+    {
+      basicCodeDiscount: {
+        title: `Storevine pop-up welcome ${args.percent}%`,
+        code: args.code,
+        startsAt: now.toISOString(),
+        endsAt: new Date(now.getTime() + args.days * 86_400_000).toISOString(),
+        customerGets: { value: { percentage: args.percent / 100 }, items: { all: true } },
+        context: { customers: { add: [args.customerId] } },
+        usageLimit: 1,
+        appliesOncePerCustomer: true,
+        tags: ["Storevine pop-up"],
+      },
+    },
+  );
+  const errors = r.discountCodeBasicCreate.userErrors;
+  if (errors.length) throw new Error(errors.map((e) => e.message).join("; "));
+  return args.code;
 }

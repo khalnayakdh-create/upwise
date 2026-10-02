@@ -10,11 +10,17 @@ import { redirect } from "react-router";
 import { getShopify } from "../shopify.server";
 import { publishConfig, resolvePlan } from "../lib/admin.server";
 import { getConfig, saveConfig, validateConfig, type PopupConfig } from "../lib/popup.server";
+import { PLAN_LIMITS } from "../lib/plans";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { env } = context.cloudflare;
-  const { session } = await getShopify(env).authenticate.admin(request);
-  return { config: await getConfig(getDb(env.DB), session.shop) };
+  const { session, billing } = await getShopify(env).authenticate.admin(request);
+  const { plan } = await resolvePlan(billing as never, env, session.shop);
+  return {
+    config: await getConfig(getDb(env.DB), session.shop),
+    uniqueAllowed: PLAN_LIMITS[plan].uniqueCodes,
+    hasDiscountAccess: (session.scope ?? "").split(",").includes("write_discounts"),
+  };
 };
 
 export const action = async ({ request, context }: Route.ActionArgs) => {
@@ -42,7 +48,8 @@ function Preview({ c }: { c: PopupConfig }) {
 }
 
 export default function PopupEditor() {
-  const { config } = useLoaderData<typeof loader>();
+  const { config, uniqueAllowed, hasDiscountAccess } = useLoaderData<typeof loader>();
+  const [codeMode, setCodeMode] = useState(config.codeMode);
   const saving = useNavigation().state === "submitting";
   const shopify = useAppBridge();
   const [params] = useSearchParams();
@@ -61,6 +68,7 @@ export default function PopupEditor() {
     const v = Object.fromEntries(new FormData(f));
     setDraft((d) => ({ ...d, headline: String(v.headline ?? d.headline), body: String(v.body ?? ""), buttonLabel: String(v.buttonLabel ?? d.buttonLabel), consentText: String(v.consentText ?? d.consentText), accentColor: String(v.accentColor ?? d.accentColor) }));
     setTrigger((String(v.trigger ?? "delay") as PopupConfig["trigger"]));
+    setCodeMode(v.codeMode === "unique" ? "unique" : "static");
   };
 
   return (
@@ -76,10 +84,48 @@ export default function PopupEditor() {
             <s-text-area label="Message" name="body" value={config.body} maxLength={240} rows={2} />
             <s-text-field label="Button label" name="buttonLabel" value={config.buttonLabel} maxLength={30} />
             <s-text-field label="Message after signing up" name="successMessage" value={config.successMessage} maxLength={160} />
-            <s-text-field label="Discount code to show after signing up (optional)" name="discountCode" value={config.discountCode} maxLength={40} details="Create the code in Shopify Discounts first." />
             <s-text-area label="Consent text" name="consentText" value={config.consentText} maxLength={240} rows={2} details="Tell people they're agreeing to marketing emails." />
             <s-color-field label="Button color" name="accentColor" value={config.accentColor} />
           </s-stack>
+        </s-section>
+        <s-section heading="Discount after signing up">
+          <s-stack gap="base">
+            <s-select label="Code" name="codeMode" value={uniqueAllowed ? config.codeMode : "static"}>
+              <s-option value="static">The same code for everyone (or none)</s-option>
+              <s-option value="unique" disabled={!uniqueAllowed}>
+                A unique single-use code for each new subscriber{uniqueAllowed ? "" : " (Growth plan)"}
+              </s-option>
+            </s-select>
+            {codeMode === "unique" && uniqueAllowed ? (
+              <>
+                {!hasDiscountAccess ? (
+                  <s-banner tone="warning" heading="Discount permission needed">
+                    Reopen the app to approve the discount permission. Until then, the shared code below is shown instead.
+                  </s-banner>
+                ) : null}
+                <s-number-field label="Percent off" name="uniquePercent" value={String(config.uniquePercent)} min={1} max={90} suffix="%" />
+                <s-number-field label="Valid for" name="uniqueDays" value={String(config.uniqueDays)} min={1} max={365} suffix="days" details="Each code works once, only for the customer who signed up, so it can't be shared on coupon sites." />
+              </>
+            ) : (
+              <>
+                <input type="hidden" name="uniquePercent" value={config.uniquePercent} />
+                <input type="hidden" name="uniqueDays" value={config.uniqueDays} />
+              </>
+            )}
+            <s-text-field
+              label={codeMode === "unique" && uniqueAllowed ? "Backup shared code (optional)" : "Discount code to show after signing up (optional)"}
+              name="discountCode"
+              value={config.discountCode}
+              maxLength={40}
+              details="Create the code in Shopify Discounts first."
+            />
+          </s-stack>
+        </s-section>
+        <s-section heading="Who sees it">
+          <s-select label="Signed-in customers" name="signedIn" value={config.signedIn}>
+            <s-option value="hide">Don't show the pop-up</s-option>
+            <s-option value="unsubscribed">Show it only if they haven't subscribed yet (email filled in)</s-option>
+          </s-select>
         </s-section>
         <s-section heading="When to show it">
           <s-stack gap="base">

@@ -1,7 +1,19 @@
 {%- comment -%} Storevine Pop-ups: email sign-up pop-up. Settings come from the Storevine admin (app metafield). {%- endcomment -%}
 {%- assign storevine_popup = app.metafields.storevine_popups.config.value -%}
-{%- if storevine_popup and storevine_popup.enabled -%}
+{%- assign storevine_hide = false -%}
+{%- if customer -%}
+  {%- comment -%} Signed-in shoppers: hidden by default; optionally shown only to those not yet subscribed. {%- endcomment -%}
+  {%- if storevine_popup.signedIn == 'unsubscribed' -%}
+    {%- if customer.accepts_marketing -%}{%- assign storevine_hide = true -%}{%- endif -%}
+  {%- else -%}
+    {%- assign storevine_hide = true -%}
+  {%- endif -%}
+{%- endif -%}
+{%- if storevine_popup and storevine_popup.enabled and storevine_hide == false -%}
   {%- unless storevine_popup.pages == 'home' and request.page_type != 'index' -%}
+    {%- if customer -%}
+      <script type="application/json" id="storevine-popup-customer">{"email": {{ customer.email | json }}}</script>
+    {%- endif -%}
     <script type="application/json" id="storevine-popup-config">{{ storevine_popup | json }}</script>
     <script type="application/json" id="storevine-popup-strings">
       {

@@ -9,7 +9,7 @@ automatically_update_urls_on_dev = false
 
 [access_scopes]
 # Customers: save pop-up sign-ups as Shopify customers with email marketing consent (protected customer data, Level 2: email).
-scopes = "read_customers,write_customers"
+scopes = "read_customers,write_customers,write_discounts"
 
 [auth]
 redirect_urls = ["https://popups.storevine.app/auth/callback"]

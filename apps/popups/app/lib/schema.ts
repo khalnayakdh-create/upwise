@@ -15,6 +15,8 @@ export const popupStatTable = sqliteTable(
     day: text("day").notNull(),
     impressions: integer("impressions").notNull().default(0),
     signups: integer("signups").notNull().default(0),
+    /** Sign-ups rejected by the bot shield (honeypot, too fast, rate limit, throwaway domain). */
+    blocked: integer("blocked").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.shop, t.day] })],
 );
@@ -33,5 +35,10 @@ export const appMigrations: Migration[] = [
         PRIMARY KEY (shop, day)
       )`,
     ],
+  },
+  {
+    id: 102,
+    name: "popup_blocked_counter",
+    sql: [`ALTER TABLE popup_stat_daily ADD COLUMN blocked INTEGER NOT NULL DEFAULT 0`],
   },
 ];

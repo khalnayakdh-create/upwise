@@ -8,8 +8,10 @@ import { getDb, platformMigrations, runMigrations } from "@upwise/platform";
 import { appMigrations } from "../app/lib/schema";
 import {
   bump, DEFAULT_CONFIG, getConfig, purgePopupsShop, saveConfig, signupsThisMonth, stats,
-  storefrontConfig, validateConfig, validEmail,
+  storefrontConfig, validateConfig, validEmail, screenSignup, uniqueCode, MIN_FILL_MS,
 } from "../app/lib/popup.server";
+import { isDisposable } from "../app/lib/disposable";
+import { PLAN_LIMITS } from "../app/lib/plans";
 
 const proxy = await getPlatformProxy<{ DB: D1Database }>({
   configPath: join(import.meta.dirname, "../../../packages/platform/test/wrangler.test.jsonc"),
@@ -56,9 +58,47 @@ describe("storage and stats", () => {
     await bump(db, SHOP, "impressions", 3);
     await bump(db, SHOP, "signups");
     await bump(db, SHOP, "signups");
-    expect(await stats(db, SHOP)).toEqual({ impressions: 3, signups: 2 });
+    expect(await stats(db, SHOP)).toEqual({ impressions: 3, signups: 2, blocked: 0 });
     expect(await signupsThisMonth(db, SHOP)).toBe(2);
     await purgePopupsShop(db, SHOP);
-    expect(await stats(db, SHOP)).toEqual({ impressions: 0, signups: 0 });
+    expect(await stats(db, SHOP)).toEqual({ impressions: 0, signups: 0, blocked: 0 });
+  });
+});
+
+describe("bot shield and codes", () => {
+  const good = { email: "Ann@Example.com", consent: true, elapsed: 4000 };
+  it("passes a real sign-up", () => {
+    expect(screenSignup(good, isDisposable)).toEqual({ ok: true, email: "ann@example.com" });
+  });
+  it("silently blocks bots", () => {
+    expect(screenSignup({ ...good, website: "x" }, isDisposable)).toEqual({ ok: false, blocked: "honeypot" });
+    expect(screenSignup({ ...good, elapsed: MIN_FILL_MS - 1 }, isDisposable)).toEqual({ ok: false, blocked: "too_fast" });
+  });
+  it("rejects throwaway domains with a message", () => {
+    const r = screenSignup({ ...good, email: "a@mailinator.com" }, isDisposable);
+    expect(r).toMatchObject({ ok: false, blocked: "disposable" });
+    expect(isDisposable("x@inbox.mailinator.com")).toBe(true);
+    expect(isDisposable("x@gmail.com")).toBe(false);
+  });
+  it("still asks for consent and a valid email", () => {
+    expect(screenSignup({ ...good, consent: false }, isDisposable)).toMatchObject({ ok: false, status: 400 });
+    expect(screenSignup({ ...good, email: "nope" }, isDisposable)).toMatchObject({ ok: false, status: 400 });
+  });
+  it("makes readable unique codes", () => {
+    const a = uniqueCode();
+    expect(a).toMatch(/^WELCOME-[2-9A-HJ-NP-Z]{8}$/);
+    expect(uniqueCode()).not.toBe(a);
+  });
+  it("validates new settings and gates unique codes by plan", () => {
+    const c = validateConfig({ signedIn: "unsubscribed", codeMode: "unique", uniquePercent: "200", uniqueDays: "0" });
+    expect(c).toMatchObject({ signedIn: "unsubscribed", codeMode: "unique", uniquePercent: 90, uniqueDays: 30 });
+    expect(validateConfig({}).signedIn).toBe("hide");
+    expect(storefrontConfig(c, true)).toMatchObject({ signedIn: "unsubscribed" });
+    expect(storefrontConfig(c, true)).not.toHaveProperty("uniquePercent");
+    expect(PLAN_LIMITS.free.uniqueCodes).toBe(false);
+  });
+  it("counts blocked sign-ups", async () => {
+    await bump(db, SHOP, "blocked", 3);
+    expect((await stats(db, SHOP)).blocked).toBe(3);
   });
 });
