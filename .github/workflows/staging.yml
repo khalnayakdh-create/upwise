@@ -48,6 +48,9 @@ jobs:
           if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             echo "::notice::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID to deploy staging Workers"; exit 0
           fi
+          # Tolerate secrets pasted with extra blank lines or spaces: use the first non-empty line.
+          export CLOUDFLARE_API_TOKEN="$(printf '%s\n' "$CLOUDFLARE_API_TOKEN" | grep -m1 -v '^[[:space:]]*$' | tr -d '[:space:]')"
+          export CLOUDFLARE_ACCOUNT_ID="$(printf '%s\n' "$CLOUDFLARE_ACCOUNT_ID" | grep -m1 -v '^[[:space:]]*$' | tr -d '[:space:]')"
           CLOUDFLARE_ENV=staging npm run build -w @upwise/${{ matrix.app }}
           cd apps/${{ matrix.app }} && npx wrangler deploy
       - name: Release staging Shopify app config and extensions
