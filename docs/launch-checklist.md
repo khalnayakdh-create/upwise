@@ -5,7 +5,7 @@ Run for **each** app (cart-upsell, reviews, popups, bundles) before submitting i
 ## Configuration (apps/<app>/wrangler.jsonc)
 - [ ] `DEV_PLAN_OVERRIDES` is `""` (it unlocks paid features on upwisedev)
 - [ ] `BILLING_TEST_MODE` is `"false"` (otherwise real merchants get free test subscriptions)
-- [ ] Final plan prices set in `app/lib/plans.ts` (all current prices are placeholders)
+- [x] Final plan prices set in `app/lib/plans.ts` (approved 2026-10-03, blueprint §14.2.1)
 - [ ] App set to **public distribution** in the Dev Dashboard (required for the Billing API)
 
 ## Shopify

@@ -1,42 +1,43 @@
 # App Store listing draft — Storevine Cart Upsell
 
-Limits from Shopify's listing requirements (checked 2026-09-30). Counts in brackets.
+Limits from Shopify's listing requirements (checked 2026-09-30). Counts in brackets. Prices approved 2026-10-03.
 
-**App name** [18/30]: Storevine Cart Upsell
+**App name** [21/30]: Storevine Cart Upsell
 
 **App card subtitle** (no keyword stuffing, no superlatives or stats):
-Recommend the right add-ons in the cart drawer and cart page
+Recommend add-ons in the cart and see what they really earn
 
-**Introduction** [≤100]:
-Show shoppers the products that go with their cart, right where they're about to check out.
+**Introduction** [99/100]:
+Show shoppers products that go with their cart, and see the extra revenue offers actually bring in.
 
-**App details** [≤500]:
-Storevine Cart Upsell adds a clean "You may also like" offer to your cart drawer and cart page. Pick the products to recommend, choose whether the offer shows for any cart or only when certain products are in it, and Storevine skips anything the shopper already has. It turns on from your theme editor with one switch — no code, and it removes cleanly when uninstalled. See views, adds and add rate for each offer in your dashboard.
+**App details** [459/500]:
+Storevine Cart Upsell adds a clean offer to your cart drawer and cart page. Choose the products, show them for any cart or only when certain items are in it, and add an optional discount that applies at checkout. Track sales from offers after refunds, and run a built-in lift test: a small share of shoppers don't see offers, so you can compare and see what offers really add. Thank-you page offers included on Growth. Turns on from the theme editor; no code.
 
 **Features** [each ≤80]:
-1. Product recommendations in the cart drawer and on the cart page
-2. Show offers for any cart or when specific products are added
-3. Skips products already in the cart automatically
-4. One-click add to cart that updates the drawer in place
-5. Turns on from the theme editor; no theme code edits
-6. Views, adds and add rate for every offer
+1. Offers in the cart drawer and on the cart page
+2. Show offers for any cart or when specific products are in it
+3. Optional offer discount, applied at checkout by a Shopify discount
+4. Sales from offers, after refunds and discounts
+5. Lift test that compares shoppers who see offers with those who don't
+6. Thank-you page product offers (Growth)
+7. Turns on from the theme editor; no theme code edits
 
 **Search terms** [≤5, complete words, one idea each]:
 - cart upsell
 - cart drawer upsell
 - cross sell
+- thank you page upsell
 - product recommendations
-- frequently bought together
 
-**Pricing** (placeholder until pricing is set):
-- Free: 1 active offer, up to 3 products, cart drawer + cart page, basic analytics
-- Growth: $9.99 / 30 days, 7-day trial — unlimited offers, priority ordering, per-offer analytics
+**Pricing**:
+- Free: 1 active offer, cart drawer and cart page, sales from offers, lift test
+- Growth $14.99 / 30 days, 7-day free trial: unlimited offers, offer discounts, thank-you page offers. Flat price, never based on your orders.
 
 **URLs**
 - Privacy policy: https://cart.storevine.app/legal/privacy
 - Terms: https://cart.storevine.app/legal/terms
-- Support email: support@storevine.app (needs forwarding set up — see handoff)
+- Support email: support@storevine.app (needs forwarding set up)
 
-**Screenshots to capture** (1600×900, real product): cart drawer with offer; cart page with offer; offer editor; offers list with stats; dashboard setup checklist.
+**Screenshots to capture** (1600×900, real product): cart drawer with an offer; cart page with an offer; offer editor with discount; home page with sales from offers and the lift test; thank-you page offer.
 
-**Rules to remember**: don't mention other Storevine apps in the listing (rule 4.4); no "best/#1/only"; no review requests in admin blocks or checkout surfaces.
+**Rules to remember**: don't mention other Storevine apps in the listing (rule 4.4); no "best/#1/only" or statistics; no review requests in admin blocks or checkout surfaces.
