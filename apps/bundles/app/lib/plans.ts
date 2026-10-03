@@ -1,6 +1,6 @@
-/** Plans (prices are placeholders until pricing is decided, blueprint §14.2). */
+/** Plans (approved 2026-10-03, blueprint §14.2.1). */
 export const GROWTH_PLAN = "Growth";
-export const PAID_PLANS = [{ name: GROWTH_PLAN, amount: 14.99 }];
+export const PAID_PLANS = [{ name: GROWTH_PLAN, amount: 19.99 }];
 export type PlanKey = "free" | "growth";
 
 export const PLAN_LIMITS: Record<PlanKey, { maxActiveBundles: number }> = {
@@ -17,7 +17,7 @@ export const PLAN_COPY: Record<PlanKey, { name: string; price: string; features:
   growth: {
     name: "Growth",
     billingName: GROWTH_PLAN,
-    price: "$14.99 / 30 days",
-    features: ["Unlimited bundles", "No revenue caps, ever", "Remove limits on every bundle type", "7-day free trial"],
+    price: "$19.99 / 30 days",
+    features: ["Unlimited bundles", "No revenue caps, ever", "Flat price: never based on bundle sales", "7-day free trial"],
   },
 };

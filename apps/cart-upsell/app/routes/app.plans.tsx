@@ -4,7 +4,7 @@ import { Form, useActionData, useLoaderData, useNavigation } from "react-router"
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { getShopify } from "../shopify.server";
 import { resolvePlan, storeHandle, syncAll } from "../lib/admin.server";
-import { GROWTH_PLAN, PLAN_COPY, PRO_PLAN, type PlanKey } from "../lib/plans";
+import { GROWTH_PLAN, OFFERED_PLANS, PLAN_COPY } from "../lib/plans";
 
 export const loader = async ({ request, context }: Route.LoaderArgs) => {
   const { env } = context.cloudflare;
@@ -28,7 +28,7 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
     return { billingError: null };
   }
 
-  const target = form.get("plan") === PRO_PLAN ? PRO_PLAN : GROWTH_PLAN;
+  const target = GROWTH_PLAN;
   try {
     return await billing.request({
       plan: target,
@@ -59,9 +59,10 @@ export default function Plans() {
         </s-banner>
       ) : null}
       <s-grid gridTemplateColumns="repeat(auto-fit, minmax(220px, 1fr))" gap="base">
-        {(Object.keys(PLAN_COPY) as PlanKey[]).map((key) => {
+        {OFFERED_PLANS.map((key) => {
           const copy = PLAN_COPY[key];
-          const current = key === plan;
+          // Legacy Pro subscribers have everything Growth has.
+          const current = key === plan || (key === "growth" && plan === "pro");
           return (
             <s-section key={key} heading={copy.name}>
               <s-stack gap="base">

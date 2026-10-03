@@ -106,7 +106,7 @@ export default function ThankYouSettings() {
           <s-empty-state heading="Recommend products after checkout">
             <s-paragraph>
               Show up to 3 products and an optional discount code on your order confirmation page. Available on
-              the Pro plan.
+              the Growth plan.
             </s-paragraph>
             <s-button slot="primary-action" variant="primary" href="/app/plans">
               View plans

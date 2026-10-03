@@ -3,7 +3,7 @@ import { render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 
 /**
- * Thank-you page offers (Storevine Cart Upsell, Pro plan).
+ * Thank-you page offers (Storevine Cart Upsell, Growth plan).
  * Reads $app:thank_you_config (shop metafield written by the app):
  *   { enabled, heading, body, discountCode, products: [{ handle }] }
  * Shows up to 3 products with live data from the Storefront API.
@@ -39,7 +39,7 @@ function EditorNote({ reason }) {
   // Only merchants see this, in the checkout editor.
   if (!shopify.extension.editor) return null;
   const text = {
-    "no-config": "Storevine: set up thank-you offers in the Storevine Cart Upsell app (Pro plan).",
+    "no-config": "Storevine: set up thank-you offers in the Storevine Cart Upsell app (Growth plan).",
     disabled: "Storevine: thank-you offers are turned off in the app, or your plan doesn't include them.",
     "no-products": "Storevine: no available products to show. Pick products in the app.",
     loading: "Storevine: loading products…",

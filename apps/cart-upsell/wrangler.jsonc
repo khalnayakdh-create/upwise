@@ -19,7 +19,7 @@
     // "true" = Shopify test charges (dev store). Set "false" for production.
     "BILLING_TEST_MODE": "true",
     // DEV ONLY: lets the dev store test paid features. Empty this before launch.
-    "DEV_PLAN_OVERRIDES": "upwisedev.myshopify.com:pro"
+    "DEV_PLAN_OVERRIDES": "upwisedev.myshopify.com:growth"
   },
   "d1_databases": [
     {

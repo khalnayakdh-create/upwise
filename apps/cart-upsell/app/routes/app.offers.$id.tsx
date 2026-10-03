@@ -197,7 +197,7 @@ export default function OfferEditor() {
               details={
                 canDiscount
                   ? "Applied automatically at checkout when the shopper adds a product from this offer. 0 = no discount."
-                  : "Available on Growth and Pro plans."
+                  : "Available on the Growth plan."
               }
             />
             {!canDiscount ? <s-link href="/app/plans">Compare plans</s-link> : null}

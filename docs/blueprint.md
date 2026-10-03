@@ -454,7 +454,7 @@ Source: owner's "Shopify app feature gap analysis" (Oct 2026). Its core finding:
 | 6 ✅ | All | Health alerts: daily check, in-app banner + email when views/sign-ups/requests/adds drop abnormally | "Silent failure" is unclaimed white space. Built: daily cron 15:11 UTC, views drop-to-zero (Cart, Bundles, Pop-ups), failed/overdue request emails (Reviews); email from alerts@storevine.app, max once per issue per 7 days |
 | 7 ✅ | Cart Upsell | Order attribution (influenced orders + revenue net of refunds) then always-on holdout lift report | Built and verified on upwisedev 2026-10-03: test order #1002 recorded the offer line ($21.21 after 15% off) and holdout group; refunding that line netted it to $0. Holdout default 10% |
 | 8 ✅ | Pop-ups | Hide/vary for signed-in customers; bot shield (rate limit, disposable domains, "bots blocked" counter); unique single-use codes; consent record; free plan gated on features not sign-up count | Unique codes need `write_discounts`. Built: rate limits (per IP 5/min, per store 120/min), honeypot, too-fast check, throwaway domains, "Bots blocked" tile; consent record as customer metafield `storevine.popup_consent`; signed-in rule; Growth unique codes (needs merchant to approve `write_discounts`); free plan = unlimited sign-ups |
-| 9 | All | Final prices (no human-support promise on any plan — owner decision 2026-10-01) | §14.2 |
+| 9 ✅ | All | Final prices (no human-support promise on any plan — owner decision 2026-10-01) | §14.2 |
 
 **After launch (v1.1+):** verified-buyer import matched to orders + Shopify standard review metaobject + full export with media; FTC/Omnibus compliance kit; pop-up A/B tests and revenue attribution ($29–49); bundle component SKU breakdown (cart transform, Bundles only) and subscription-safe bundles; product-page and swap/upgrade upsells; post-purchase page with skip-rate reporting; suite-wide message budget and shared identity layer.
 
@@ -504,13 +504,14 @@ Source: owner's "Shopify app feature gap analysis" (Oct 2026). Its core finding:
 
 | 2026-10-01 | No "human support" promise on any plan | Owner decision; support is docs-first and email, without a stated guarantee |
 | 2026-10-01 | Adopt the gap-analysis pre-launch plan (§12.2); build order Reviews → Bundles → cross-app (a11y, translations, health alerts) → Cart Upsell attribution/holdout → Pop-ups list quality | Leads with the largest category (Reviews) and the thinnest app (Bundles); differentiates on reliability and measurement rather than widget count |
+| 2026-10-03 | Prices: Reviews $9.99, Cart Upsell $14.99 (Pro folded into Growth; legacy Pro still honoured), Pop-ups $9.99, Bundles $19.99; free plans as in 14.2.1; never billed on usage | Below anchors while features are thinner; flat pricing answers the category's top complaint |
 
 ### 14.2 Still open
 
 1. **Storevine trademark + social handles** (domain done: storevine.app). USPTO search classes 9 and 42.
-2. **Pricing** — proposal below, awaiting owner approval (2026-10-03).
+2. ~~Pricing~~ — approved by the owner 2026-10-03 (see 14.2.1); live in all four apps.
 
-#### 14.2.1 Pricing proposal (draft, not yet approved)
+#### 14.2.1 Pricing (approved 2026-10-03)
 
 Rules: a real free tier, one flat paid tier per app, never billed on orders, pageviews, contacts or bundle revenue; 7-day trial; billed through Shopify; 30 days' notice before any price change and launch prices locked for early installs. Prices sit below the anchors because Storevine ships fewer features today (no Q&A/AI/video in Reviews, no A/B tests or ESP sync in Pop-ups, no SKU breakdown in Bundles, no post-purchase page in Cart Upsell).
 
