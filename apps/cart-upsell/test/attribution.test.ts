@@ -147,3 +147,16 @@ describe("holdout", () => {
     expect(row?.n).toBe(25);
   });
 });
+
+describe("refund payload shapes", () => {
+  it("falls back to line price when subtotal is missing, and to transactions for amount-only refunds", () => {
+    const priced = parseRefund({
+      order_id: 9,
+      refund_line_items: [{ quantity: 1, line_item: { price: "24.95", quantity: 1, discount_allocations: [{ amount: "3.74" }], properties: [{ name: "_storevine_offer", value: "o1" }] } }],
+    });
+    expect(priced.byOffer.get("o1")).toBe(2121);
+    const amountOnly = parseRefund({ order_id: 9, refund_line_items: [], transactions: [{ kind: "refund", status: "success", amount: "10.00" }] });
+    expect(amountOnly).toMatchObject({ totalCents: 1000, lines: 0 });
+    expect(amountOnly.byOffer.size).toBe(0);
+  });
+});

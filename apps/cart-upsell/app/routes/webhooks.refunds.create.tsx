@@ -9,6 +9,9 @@ export const action = async ({ request, context }: Route.ActionArgs) => {
   const { shop, topic, webhookId, payload } = await getShopify(env).authenticate.webhook(request);
   const db = getDb(env.DB);
   if (!(await claimWebhook(db, webhookId, topic, shop))) return new Response();
-  await recordRefund(db, shop, parseRefund(payload));
+  const parsed = parseRefund(payload);
+  // Shape only (no customer data), so attribution gaps can be diagnosed.
+  console.log("refund", JSON.stringify({ lines: parsed.lines, offers: parsed.byOffer.size, totalCents: parsed.totalCents, transactionCents: parsed.transactionCents }));
+  await recordRefund(db, shop, parsed);
   return new Response();
 };

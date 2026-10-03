@@ -110,7 +110,25 @@ export async function recordOrder(db: Db, shop: string, parsed: ReturnType<typeo
 
 interface RefundPayload {
   order_id?: number | string;
-  refund_line_items?: Array<{ quantity?: number; subtotal?: string | number; subtotal_set?: Money; line_item?: { properties?: Prop[] } }>;
+  refund_line_items?: Array<{
+    quantity?: number;
+    subtotal?: string | number;
+    subtotal_set?: Money;
+    line_item?: { properties?: Prop[]; price?: string; price_set?: Money; quantity?: number; discount_allocations?: Array<{ amount?: string; amount_set?: Money }> };
+  }>;
+  transactions?: Array<{ kind?: string; status?: string; amount?: string }>;
+}
+
+/** Refund value of one refunded line: Shopify's subtotal, else unit price after its share of discounts. */
+function refundLineCents(line: NonNullable<RefundPayload["refund_line_items"]>[number]) {
+  const subtotal = line.subtotal_set?.shop_money?.amount ?? line.subtotal;
+  if (subtotal != null && subtotal !== "") return cents(subtotal);
+  const li = line.line_item;
+  if (!li) return 0;
+  const qty = Math.max(0, Number(line.quantity ?? 0));
+  const liQty = Math.max(1, Number(li.quantity ?? 1));
+  const discount = (li.discount_allocations ?? []).reduce((n, d) => n + cents(d.amount_set?.shop_money?.amount ?? d.amount), 0);
+  return Math.round((cents(li.price_set?.shop_money?.amount ?? li.price) - discount / liQty) * qty);
 }
 
 export function parseRefund(payload: unknown) {
@@ -119,12 +137,17 @@ export function parseRefund(payload: unknown) {
   const byOffer = new Map<string, number>();
   let totalCents = 0;
   for (const line of r.refund_line_items ?? []) {
-    const amount = cents(line.subtotal_set?.shop_money?.amount ?? line.subtotal);
+    const amount = refundLineCents(line);
     totalCents += amount;
     const offerId = propValue(line.line_item?.properties, OFFER_PROPERTY);
     if (offerId) byOffer.set(offerId, (byOffer.get(offerId) ?? 0) + amount);
   }
-  return { orderId, byOffer, totalCents };
+  // An amount-only refund (no items selected) still lowers the order's value for the lift report.
+  const transactionCents = (r.transactions ?? [])
+    .filter((t) => t.kind === "refund" && (t.status ?? "success") === "success")
+    .reduce((n, t) => n + cents(t.amount), 0);
+  if (totalCents === 0 && transactionCents > 0) totalCents = transactionCents;
+  return { orderId, byOffer, totalCents, lines: r.refund_line_items?.length ?? 0, transactionCents };
 }
 
 /** Apply a refund to orders we track. Call once per refund (guard with claimWebhook). */
