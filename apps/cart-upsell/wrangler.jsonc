@@ -31,5 +31,24 @@
   ],
   // Daily health check (UTC); alerts go out via Cloudflare Email Service from alerts@storevine.app.
   "triggers": { "crons": ["11 15 * * *"] },
-  "send_email": [{ "name": "EMAIL" }]
+  "send_email": [{ "name": "EMAIL" }],
+  // Staging: separate Shopify app, Worker, database and domain for testing, so test data never
+  // touches production. Build with CLOUDFLARE_ENV=staging (see .github/workflows/staging.yml).
+  "env": {
+    "staging": {
+      "name": "upwise-cart-upsell-staging",
+      "routes": [{ "pattern": "cart-staging.storevine.app", "custom_domain": true }],
+      "vars": {
+        "SHOPIFY_API_KEY": "69beea41fb7d1ee279056440c3569e0c",
+        "SHOPIFY_APP_URL": "https://cart-staging.storevine.app",
+        "SCOPES": "read_products,write_discounts,read_orders",
+        "BILLING_TEST_MODE": "true",
+        // Staging stays on test billing; paid features unlocked for the staging store.
+        "DEV_PLAN_OVERRIDES": "storevine-staging.myshopify.com:growth"
+      },
+      "d1_databases": [{ "binding": "DB", "database_name": "upwise-cart-upsell-staging" }],
+      "triggers": { "crons": ["11 15 * * *"] },
+      "send_email": [{ "name": "EMAIL" }]
+    }
+  }
 }

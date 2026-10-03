@@ -1,0 +1,60 @@
+name: Staging deploy
+
+# Deploys every app to its STAGING Worker (upwise-<app>-staging, own D1 database,
+# <app>-staging.storevine.app) and releases the staging Shopify app config + extensions.
+# Runs on pushes to the `staging` branch, or manually.
+#
+# Repo secrets needed:
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID         (Workers + D1 + custom domains)
+#   SHOPIFY_APP_AUTOMATION_TOKEN_STAGING_<APP>          (one per staging Shopify app)
+# A job step skips (with a notice) when its secret is missing.
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+concurrency:
+  group: staging-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: cart-upsell
+            secret: SHOPIFY_APP_AUTOMATION_TOKEN_STAGING_CART_UPSELL
+          - app: reviews
+            secret: SHOPIFY_APP_AUTOMATION_TOKEN_STAGING_REVIEWS
+          - app: popups
+            secret: SHOPIFY_APP_AUTOMATION_TOKEN_STAGING_POPUPS
+          - app: bundles
+            secret: SHOPIFY_APP_AUTOMATION_TOKEN_STAGING_BUNDLES
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets[matrix.secret] }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Deploy staging Worker
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::notice::Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID to deploy staging Workers"; exit 0
+          fi
+          CLOUDFLARE_ENV=staging npm run build -w @upwise/${{ matrix.app }}
+          cd apps/${{ matrix.app }} && npx wrangler deploy
+      - name: Release staging Shopify app config and extensions
+        working-directory: apps/${{ matrix.app }}
+        run: |
+          if [ -z "$SHOPIFY_APP_AUTOMATION_TOKEN" ]; then
+            echo "::notice::Add ${{ matrix.secret }} to release the staging Shopify app"; exit 0
+          fi
+          npx --yes @shopify/cli@latest app deploy --config staging --allow-updates \
+            --source-control-url "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"

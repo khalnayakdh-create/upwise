@@ -18,4 +18,4 @@ Run for **each** app (cart-upsell, reviews, popups, bundles) before submitting i
 - [ ] `privacy@storevine.app` and `support@storevine.app` forward to a monitored inbox (Cloudflare Email Routing)
 - [ ] Privacy policies and terms reviewed by a lawyer
 - [ ] "Storevine" trademark search done (USPTO classes 9, 42)
-- [ ] Separate staging apps + Workers (own D1 databases) for testing after launch
+- [ ] Staging environment finished (`docs/staging.md`): staging apps, Workers, D1, dev store; all testing moves there

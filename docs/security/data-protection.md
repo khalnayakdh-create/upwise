@@ -38,7 +38,7 @@ Field reasons (free text) to paste:
 | # | Requirement | Answer | Evidence / action |
 |---|---|---|---|
 | 10 | Encrypt data backups | Yes | D1 point-in-time recovery (Time Travel) is stored by Cloudflare under the same at-rest encryption; no other backups or exports of customer data are made. |
-| 11 | Keep test and production data separate | **⚠ Not yet** | Today the dev store uses the production Workers and databases. Before submitting: create staging Shopify apps + Workers + D1 databases for testing (launch checklist item). Claude can set these up. |
+| 11 | Keep test and production data separate | Yes, once staging setup is finished | Separate staging Shopify apps, Workers, D1 databases, R2 bucket, domains and dev store (`docs/staging.md`). Production holds only merchant installs and our review store. **⚠ Owner:** finish the one-time setup in `docs/staging.md`. |
 | 12 | Have a data loss prevention strategy | Yes, once 11 and 13–14 are done | Minimal data held; no customer-data exports; secrets only in Cloudflare/GitHub encrypted secrets; HMAC-verified webhooks; deletion on redact; D1 Time Travel for recovery. |
 | 13 | Limit staff access | Yes | Only the owner has access to Cloudflare, GitHub, Shopify Partners. No contractors. **⚠ Owner:** confirm no other members on those accounts. |
 | 14 | Require strong passwords for staff accounts | **⚠ Owner** | Turn on two-factor authentication for Cloudflare, GitHub and Shopify Partners, and use a password manager. Answer yes once done. |
@@ -48,5 +48,5 @@ Field reasons (free text) to paste:
 ## To finish before answering
 
 1. ⚠ Owner: 2FA on Cloudflare, GitHub and Shopify Partners (item 14); confirm sole access (13).
-2. Staging environment for testing (item 11) — Claude can build it: separate Shopify apps, Workers and D1 databases, and point the dev store at staging.
+2. Finish the staging one-time setup in `docs/staging.md` (item 11). The apps, config and deploy workflow are already built.
 3. ⚠ Owner: lawyer review of terms and privacy policies (item 7).

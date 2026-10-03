@@ -20,5 +20,24 @@
   "d1_databases": [{ "binding": "DB", "database_name": "upwise-bundles" }],
   // Daily health check (UTC); alerts go out via Cloudflare Email Service from alerts@storevine.app.
   "triggers": { "crons": ["11 15 * * *"] },
-  "send_email": [{ "name": "EMAIL" }]
+  "send_email": [{ "name": "EMAIL" }],
+  // Staging: separate Shopify app, Worker, database and domain for testing, so test data never
+  // touches production. Build with CLOUDFLARE_ENV=staging (see .github/workflows/staging.yml).
+  "env": {
+    "staging": {
+      "name": "upwise-bundles-staging",
+      "routes": [{ "pattern": "bundles-staging.storevine.app", "custom_domain": true }],
+      "vars": {
+        "SHOPIFY_API_KEY": "f40e2458703c5ecd7daaf4934c3ae3c2",
+        "SHOPIFY_APP_URL": "https://bundles-staging.storevine.app",
+        "SCOPES": "read_products,write_discounts,read_orders",
+        "BILLING_TEST_MODE": "true",
+        // Staging stays on test billing; paid features unlocked for the staging store.
+        "DEV_PLAN_OVERRIDES": "storevine-staging.myshopify.com:growth"
+      },
+      "d1_databases": [{ "binding": "DB", "database_name": "upwise-bundles-staging" }],
+      "triggers": { "crons": ["11 15 * * *"] },
+      "send_email": [{ "name": "EMAIL" }]
+    }
+  }
 }

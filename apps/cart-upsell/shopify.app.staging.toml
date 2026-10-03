@@ -1,0 +1,60 @@
+# STAGING copy of shopify.app.toml: deploy with `shopify app deploy --config staging`.
+# Keep in sync with shopify.app.toml (scopes, webhooks, proxy); only client_id, name and URLs differ.
+# Shopify app configuration for Storevine Cart Upsell.
+# Release config changes with the "Shopify app config" GitHub Action (runs on push to main when this file changes).
+
+client_id = "69beea41fb7d1ee279056440c3569e0c"
+name = "Storevine Cart Upsell Staging"
+application_url = "https://cart-staging.storevine.app"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+
+[access_scopes]
+# Minimum scopes. Add only when a feature needs them (blueprint §6.7).
+scopes = "read_products,write_discounts,read_orders"
+
+[auth]
+redirect_urls = [
+  "https://cart-staging.storevine.app/auth/callback",
+]
+
+# Storefront analytics: https://{shop}/apps/storevine-cart/* -> {application_url}/proxy/*
+[app_proxy]
+url = "/proxy"
+subpath = "storevine-cart"
+prefix = "apps"
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app/uninstalled"
+
+  # Plan changes (upgrade, cancel, trial end): re-sync paid features immediately.
+  [[webhooks.subscriptions]]
+  topics = ["app_subscriptions/update"]
+  uri = "/webhooks/app/subscriptions_update"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri = "/webhooks/app/scopes_update"
+
+  # Offer sales and holdout lift (needs protected customer data access, step 1).
+  [[webhooks.subscriptions]]
+  topics = ["orders/create"]
+  uri = "/webhooks/orders/create"
+
+  [[webhooks.subscriptions]]
+  topics = ["refunds/create"]
+  uri = "/webhooks/refunds/create"
+
+  # Mandatory privacy webhooks (App Store requirement). One handler for all three.
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/webhooks/compliance"
+
+[pos]
+embedded = false

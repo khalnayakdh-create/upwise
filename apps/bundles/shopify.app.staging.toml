@@ -1,0 +1,51 @@
+# STAGING copy of shopify.app.toml: deploy with `shopify app deploy --config staging`.
+# Keep in sync with shopify.app.toml (scopes, webhooks, proxy); only client_id, name and URLs differ.
+# Shopify app configuration for Storevine Bundles.
+client_id = "f40e2458703c5ecd7daaf4934c3ae3c2"
+name = "Storevine Bundles Staging"
+application_url = "https://bundles-staging.storevine.app"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = false
+
+[access_scopes]
+# write_discounts: the automatic bundle discount (storevine-bundle-discount Function).
+scopes = "read_products,write_discounts,read_orders"
+
+[auth]
+redirect_urls = ["https://bundles-staging.storevine.app/auth/callback"]
+
+# Storefront API: https://{shop}/apps/storevine-bundles/* -> {application_url}/proxy/*
+[app_proxy]
+url = "/proxy"
+subpath = "storevine-bundles"
+prefix = "apps"
+
+[webhooks]
+api_version = "2026-07"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app/uninstalled"
+
+  # Plan changes (upgrade, cancel, trial end): re-sync paid features immediately.
+  [[webhooks.subscriptions]]
+  topics = ["app_subscriptions/update"]
+  uri = "/webhooks/app/subscriptions_update"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri = "/webhooks/app/scopes_update"
+
+  # Bundle sales report: orders with lines added from the bundle block. Needs protected customer data (Level 1).
+  [[webhooks.subscriptions]]
+  topics = ["orders/create"]
+  uri = "/webhooks/orders/create"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "/webhooks/compliance"
+
+[pos]
+embedded = false

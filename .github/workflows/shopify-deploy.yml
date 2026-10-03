@@ -76,5 +76,5 @@ jobs:
         run: |
           extra=""
           if [ "$ALLOW_DELETES" = "true" ]; then extra="--allow-deletes"; fi
-          npx --yes @shopify/cli@latest app deploy --allow-updates $extra \
+          npx --yes @shopify/cli@latest app deploy --config shopify.app.toml --allow-updates $extra \
             --source-control-url "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"

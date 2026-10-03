@@ -23,5 +23,25 @@
   // Cloudflare Email Service: storevine.app onboarded under Compute > Email Service > Email Sending.
   "send_email": [{ "name": "EMAIL" }],
   // Review photos (bucket created manually; R2 buckets are not auto-created).
-  "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "storevine-review-photos" }]
+  "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "storevine-review-photos" }],
+  // Staging: separate Shopify app, Worker, database and domain for testing, so test data never
+  // touches production. Build with CLOUDFLARE_ENV=staging (see .github/workflows/staging.yml).
+  "env": {
+    "staging": {
+      "name": "upwise-reviews-staging",
+      "routes": [{ "pattern": "reviews-staging.storevine.app", "custom_domain": true }],
+      "vars": {
+        "SHOPIFY_API_KEY": "57d1954ee3dc645b1a29797096a88a22",
+        "SHOPIFY_APP_URL": "https://reviews-staging.storevine.app",
+        "SCOPES": "read_products,write_products,read_orders",
+        "BILLING_TEST_MODE": "true",
+        // Staging stays on test billing; paid features unlocked for the staging store.
+        "DEV_PLAN_OVERRIDES": "storevine-staging.myshopify.com:growth"
+      },
+      "d1_databases": [{ "binding": "DB", "database_name": "upwise-reviews-staging" }],
+      "triggers": { "crons": ["*/15 * * * *", "11 15 * * *"] },
+      "send_email": [{ "name": "EMAIL" }],
+      "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "storevine-review-photos-staging" }]
+    }
+  }
 }
