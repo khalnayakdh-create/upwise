@@ -508,7 +508,20 @@ Source: owner's "Shopify app feature gap analysis" (Oct 2026). Its core finding:
 ### 14.2 Still open
 
 1. **Storevine trademark + social handles** (domain done: storevine.app). USPTO search classes 9 and 42.
-2. **Pricing** for each plan (draft after competitor review in Phase 1).
+2. **Pricing** — proposal below, awaiting owner approval (2026-10-03).
+
+#### 14.2.1 Pricing proposal (draft, not yet approved)
+
+Rules: a real free tier, one flat paid tier per app, never billed on orders, pageviews, contacts or bundle revenue; 7-day trial; billed through Shopify; 30 days' notice before any price change and launch prices locked for early installs. Prices sit below the anchors because Storevine ships fewer features today (no Q&A/AI/video in Reviews, no A/B tests or ESP sync in Pop-ups, no SKU breakdown in Bundles, no post-purchase page in Cart Upsell).
+
+| App | Free | Paid (flat, per 30 days) | Main anchors (gap analysis, Oct 2026) |
+|---|---|---|---|
+| Reviews | Unlimited reviews and photos, rich results, imports, export, admin block, Flow trigger, 100 review-request emails/month | **Growth $9.99**: unlimited request emails, priority on new features (Q&A, Google Shopping feed) | Judge.me free / $15 ceiling; Okendo $19+; Loox $49.99+ |
+| Cart Upsell | 1 active offer, cart drawer + cart page, sales from offers, lift test | **Growth $14.99**: unlimited offers, offer discounts, thank-you page offers (merges today's Growth and Pro) | UpCart $29.99+; AfterSell $34.99+ usage; ReConvert up to $199 |
+| Pop-ups | Unlimited sign-ups, all triggers, bot shield, consent record, shared code, Storevine branding | **Growth $9.99**: unique single-use codes, no branding | Pop Convert $15+; Privy $24; OptiMonk $29 |
+| Bundles | 1 active bundle of any type, sales report | **Growth $19.99**: unlimited bundles, no revenue cap | Kaching $14.99–59.99 by revenue; Appstle $39.99; Bundler $19.99 |
+
+All four paid plans: **$54.96/month**, versus roughly $180 for a comparable separate stack. Shopify billing can't discount across separate apps, so there is no suite price yet; revisit annual plans (about two months free) after launch.
 3. **Email provider** for review requests and value emails; **SMS provider** for Pop-ups (later).
 4. **Legal entity and country** (affects tax forms and regulatory fees).
 5. **Team:** solo + Claude, or occasional contractors for design/support.
