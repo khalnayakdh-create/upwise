@@ -16,7 +16,7 @@ Testing happens on staging, so test data never touches production (Shopify prote
 
 ## One-time setup (owner)
 
-1. **Staging dev store:** Dev Dashboard → Stores → Create store → Dev → tick "Generate test data" → create. Tell Claude the store's myshopify handle (it goes in `DEV_PLAN_OVERRIDES`).
+1. ✅ **Staging dev store:** Dev Dashboard → Stores → Create store → Dev → tick "Generate test data" → create. Done: dhyanmart-i9ehpjgq.myshopify.com (set in `DEV_PLAN_OVERRIDES`).
 2. **Cloudflare API token** (dash.cloudflare.com → My Profile → API Tokens → Create token → "Edit Cloudflare Workers" template; add *Account → D1 → Edit*; zone *storevine.app*). Add GitHub repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` (`fcb6b477dfc3113ec91be3f259204dc0`).
 3. **Automation tokens:** for each staging app, Dev Dashboard → app → Settings → Create automation token; add as GitHub secrets `SHOPIFY_APP_AUTOMATION_TOKEN_STAGING_CART_UPSELL`, `..._REVIEWS`, `..._POPUPS`, `..._BUNDLES`.
 4. Run "Staging deploy" (Actions tab) once. It creates the four staging Workers, databases and domains.

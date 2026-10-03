@@ -38,7 +38,7 @@
         "SCOPES": "read_customers,write_customers,write_discounts",
         "BILLING_TEST_MODE": "true",
         // Staging stays on test billing; paid features unlocked for the staging store.
-        "DEV_PLAN_OVERRIDES": "storevine-staging.myshopify.com:growth"
+        "DEV_PLAN_OVERRIDES": "dhyanmart-i9ehpjgq.myshopify.com:growth"
       },
       "d1_databases": [{ "binding": "DB", "database_name": "upwise-popups-staging" }],
       "triggers": { "crons": ["11 15 * * *"] },
