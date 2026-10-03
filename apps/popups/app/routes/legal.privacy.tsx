@@ -33,6 +33,10 @@ export default function Privacy() {
           the address directly to your Shopify store, where it's saved as a customer subscribed to email marketing. Storevine
           does not keep a copy.
         </li>
+        <li>
+          <strong>Unique discount codes</strong> (Growth plan, if you turn them on): the App creates a single-use discount in
+          your Shopify store that only the new subscriber can use. The code lives in your Shopify Discounts, not in Storevine.
+        </li>
       </ul>
 
       <h2>How we use information</h2>

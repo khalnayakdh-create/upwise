@@ -279,3 +279,22 @@ describe("BFS: Flow trigger payload and admin block", () => {
     expect(s.latest).toHaveLength(3);
   });
 });
+
+describe("retention", () => {
+  it("erases email and name from handled requests after 60 days, keeps scheduled ones", async () => {
+    const { eraseExpiredRequestData } = await import("../app/lib/requests.server");
+    const ins = (id: string, status: string, sendAfter: string) =>
+      d1.prepare("INSERT INTO review_request (id, shop, order_id, email, first_name, product_ids, send_after, status, created_at) VALUES (?, ?, ?, 'a@example.com', 'Ann', '[]', ?, ?, ?)")
+        .bind(id, SHOP, `gid://shopify/Order/r${id}`, sendAfter, status, sendAfter).run();
+    await ins("old-sent", "sent", "2026-07-01T00:00:00Z");
+    await ins("old-scheduled", "scheduled", "2026-07-01T00:00:00Z");
+    await ins("new-sent", "sent", "2026-09-20T00:00:00Z");
+    expect(await eraseExpiredRequestData(db, new Date("2026-10-01T00:00:00Z"))).toBe(1);
+    const rows = await d1.prepare("SELECT id, email, first_name FROM review_request ORDER BY id").all();
+    expect(rows.results).toEqual([
+      { id: "new-sent", email: "a@example.com", first_name: "Ann" },
+      { id: "old-scheduled", email: "a@example.com", first_name: "Ann" },
+      { id: "old-sent", email: "", first_name: "" },
+    ]);
+  });
+});

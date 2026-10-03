@@ -20,11 +20,12 @@ export default function Privacy() {
         <li><strong>Access credentials</strong>: the access token Shopify issues when you install the App, used only to call Shopify on your behalf.</li>
         <li><strong>Bundle settings</strong>: the bundles you create, their discounts, and the product IDs, titles, handles and image links you choose.</li>
         <li><strong>Aggregated usage counts</strong>: daily totals of how often each bundle was shown and added to cart on your storefront.</li>
+        <li><strong>Bundle sales</strong>: when an order is placed, the App reads it from Shopify and keeps only the order ID, date, currency, and the quantity, revenue and discount of items added through a Storevine bundle. Customer details in the order are not stored.</li>
       </ul>
       <p>
-        The App does <strong>not</strong> collect or store personal information about your customers — no names,
-        email addresses, phone numbers, addresses, order details or payment information. Storefront counts are
-        anonymous totals and are not linked to any shopper.
+        The App does <strong>not</strong> store personal information about your customers — no names, email
+        addresses, phone numbers, addresses or payment information. Storefront counts are anonymous totals and are not
+        linked to any shopper.
       </p>
 
       <h2>How we use information</h2>
@@ -44,7 +45,7 @@ export default function Privacy() {
       <h2>Retention and deletion</h2>
       <p>
         We keep your data while the App is installed. When you uninstall, we delete your access credentials
-        immediately and Shopify asks us to erase your store's data 48 hours later; we then delete all bundles, settings and usage counts for your store. We honor Shopify's customer data request and erasure requests;
+        immediately and Shopify asks us to erase your store's data 48 hours later; we then delete all bundles, settings, usage counts and bundle sales for your store. We honor Shopify's customer data request and erasure requests;
         because the App stores no customer personal data, there is nothing to return or delete for an individual
         customer.
       </p>

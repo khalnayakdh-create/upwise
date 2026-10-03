@@ -10,7 +10,7 @@
  * Wording is neutral and carries no incentive (FTC Consumer Review Rule):
  * every rating is welcome and nothing is offered in exchange.
  */
-import { and, asc, eq, gte, inArray, lte, or, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, lte, ne, or, sql } from "drizzle-orm";
 import type { Db } from "@upwise/platform";
 import { reviewRequestTable, reviewUnsubscribeTable } from "./schema";
 
@@ -258,6 +258,24 @@ export async function redactCustomerRequests(db: Db, shop: string, payload: unkn
   const deleted = await db.delete(reviewRequestTable).where(where).returning({ id: reviewRequestTable.id });
   // The opt-out stays, but only as a one-way hash, so we keep honouring it without holding the address.
   return `Deleted ${deleted.length} review request(s). Opt-out (if any) kept as a one-way hash.`;
+}
+
+/** Days after a request is handled before its email and first name are erased (retention policy). */
+export const REQUEST_RETENTION_DAYS = 60;
+
+/**
+ * Retention: once a request is no longer scheduled and is older than REQUEST_RETENTION_DAYS,
+ * blank its email address and first name. The row stays (order name, status, products) so the
+ * review link and the send log keep working, but no personal data is kept. Returns rows changed.
+ */
+export async function eraseExpiredRequestData(db: Db, now = new Date()) {
+  const cutoff = new Date(now.getTime() - REQUEST_RETENTION_DAYS * 86_400_000).toISOString();
+  const rows = await db
+    .update(reviewRequestTable)
+    .set({ email: "", firstName: "" })
+    .where(and(ne(reviewRequestTable.status, "scheduled"), lte(reviewRequestTable.sendAfter, cutoff), ne(reviewRequestTable.email, "")))
+    .returning({ id: reviewRequestTable.id });
+  return rows.length;
 }
 
 export async function purgeRequestsShop(db: Db, shop: string) {

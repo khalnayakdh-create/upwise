@@ -1,8 +1,9 @@
 import { createRequestHandler } from "react-router";
-import { ensureMigrated, platformMigrations } from "@upwise/platform";
+import { ensureMigrated, getDb, platformMigrations } from "@upwise/platform";
 import { appMigrations } from "../app/lib/schema";
 import { runScheduledSends } from "../app/lib/send-context.server";
 import { runDailyHealthCheck } from "../app/lib/health.server";
+import { eraseExpiredRequestData } from "../app/lib/requests.server";
 
 declare module "react-router" {
   export interface AppLoadContext {
@@ -24,7 +25,11 @@ export default {
   // Crons (wrangler.jsonc triggers): due review-request emails every 15 min; health check daily.
   async scheduled(controller, env, ctx) {
     await ensureMigrated(env.DB, migrations);
-    if (controller.cron === "11 15 * * *") ctx.waitUntil(runDailyHealthCheck(env));
+    if (controller.cron === "11 15 * * *") {
+      ctx.waitUntil(runDailyHealthCheck(env));
+      // Retention: erase email and first name from handled requests older than 60 days.
+      ctx.waitUntil(eraseExpiredRequestData(getDb(env.DB)).then((n) => n && console.log("request data erased", n)));
+    }
     else ctx.waitUntil(runScheduledSends(env));
   },
 } satisfies ExportedHandler<Env>;
