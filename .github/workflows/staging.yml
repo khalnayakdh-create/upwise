@@ -59,5 +59,6 @@ jobs:
           if [ -z "$SHOPIFY_APP_AUTOMATION_TOKEN" ]; then
             echo "::notice::Add ${{ matrix.secret }} to release the staging Shopify app"; exit 0
           fi
+          export SHOPIFY_APP_AUTOMATION_TOKEN="$(printf '%s\n' "$SHOPIFY_APP_AUTOMATION_TOKEN" | grep -m1 -v '^[[:space:]]*$' | tr -d '[:space:]')"
           npx --yes @shopify/cli@latest app deploy --config staging --allow-updates \
             --source-control-url "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
