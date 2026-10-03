@@ -18,6 +18,7 @@ The plan of record is `docs/blueprint.md`; decisions are logged in its §14.
 - Source of truth: shopify.dev docs/changelog and developers.cloudflare.com. Re-check before platform-dependent work.
 - GraphQL Admin API only. Pinned API version: 2026-07 (`API_VERSION` in `app/shopify.server.ts`, `webhooks.api_version` in `shopify.app.toml`). Upgrade quarterly.
 - Storefront code only via theme app extensions. No ScriptTag, no theme file edits.
+- Storefront scripts: edit `apps/<app>/theme-src/<ext>/*.js`, then `npm run build:theme-assets` (minifies into the extension's assets/; Shopify flags app-block JS over 10 KB). CI fails if assets are stale.
 - All charges through Shopify billing. Never build a shop-domain login form.
 - Workers runtime: no Node-only libraries; per-request work must stay small; access bindings via `context.cloudflare.env` (use `Route.LoaderArgs`/`Route.ActionArgs` types so context is typed).
 - D1 schema changes: append a new migration in `packages/platform/src/migrations.ts` (never edit a shipped one) and mirror it in `schema.ts`.

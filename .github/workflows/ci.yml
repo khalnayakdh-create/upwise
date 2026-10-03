@@ -16,6 +16,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node scripts/check-extensions.mjs
+      - run: node scripts/build-theme-assets.mjs --check
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
