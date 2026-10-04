@@ -22,4 +22,4 @@ Testing happens on staging, so test data never touches production (Shopify prote
 4. ✅ Run "Staging deploy" (Actions tab) once. It creates the four staging Workers, databases and domains.
 5. ✅ **API secrets:** for each staging app, copy its Client secret (Dev Dashboard → app → Settings) into the matching staging Worker as secret `SHOPIFY_API_SECRET` (Cloudflare → Workers → upwise-<app>-staging → Settings → Variables and secrets).
 6. ✅ **Protected customer data step 1** for each staging app (same selections as production).
-7. Install the staging apps on the staging store (Dev Dashboard → app → Install app).
+7. ✅ Install the staging apps on the staging store (Dev Dashboard → app → Install app). Done 2026-10-03: all four installed on dhyanmart-i9ehpjgq and open on the Growth plan; the pop-up and cart offers app embeds are on in the test theme.

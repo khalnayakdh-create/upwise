@@ -26,7 +26,7 @@ Status on 2026-10-03, checked against blueprint §5.1 (App Store requirements) a
 
 ## Before pressing "Submit" (in this order)
 
-1. ⬜ **Owner:** in the Partner Dashboard, for each app, complete **protected customer data step 2** using the drafted answers in `docs/security/data-protection.md`. First: 2FA on Cloudflare, GitHub and Partners, and a staging environment for testing (item 11 in that file).
+1. ⬜ **Owner:** in the Partner Dashboard, for each app, complete **protected customer data step 2** using the drafted answers in `docs/security/data-protection.md`. First: 2FA on Cloudflare, GitHub and Partners. (Staging for item 11 is done.)
 2. ⬜ **Owner:** set each app to **public distribution** in the Dev Dashboard (needed for real billing).
 3. ⬜ **Owner:** set up **support@storevine.app** and **privacy@storevine.app** forwarding to a monitored inbox (Cloudflare Email Routing on storevine.app).
 4. 🟡 Icon drafts ready in `docs/listing/assets/icon-*.png` (1200×1200). **Owner:** approve or ask for changes, then upload.

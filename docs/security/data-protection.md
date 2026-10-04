@@ -38,8 +38,8 @@ Field reasons (free text) to paste:
 | # | Requirement | Answer | Evidence / action |
 |---|---|---|---|
 | 10 | Encrypt data backups | Yes | D1 point-in-time recovery (Time Travel) is stored by Cloudflare under the same at-rest encryption; no other backups or exports of customer data are made. |
-| 11 | Keep test and production data separate | Yes, once staging setup is finished | Separate staging Shopify apps, Workers, D1 databases, R2 bucket, domains and dev store (`docs/staging.md`). Production holds only merchant installs and our review store. **⚠ Owner:** finish the one-time setup in `docs/staging.md`. |
-| 12 | Have a data loss prevention strategy | Yes, once 11 and 13–14 are done | Minimal data held; no customer-data exports; secrets only in Cloudflare/GitHub encrypted secrets; HMAC-verified webhooks; deletion on redact; D1 Time Travel for recovery. |
+| 11 | Keep test and production data separate | Yes | Separate staging Shopify apps, Workers, D1 databases, R2 bucket, domains and dev store (`docs/staging.md`). Production holds only merchant installs and our review store. |
+| 12 | Have a data loss prevention strategy | Yes, once 13–14 are done | Minimal data held; no customer-data exports; secrets only in Cloudflare/GitHub encrypted secrets; HMAC-verified webhooks; deletion on redact; D1 Time Travel for recovery. |
 | 13 | Limit staff access | Yes | Only the owner has access to Cloudflare, GitHub, Shopify Partners. No contractors. **⚠ Owner:** confirm no other members on those accounts. |
 | 14 | Require strong passwords for staff accounts | **⚠ Owner** | Turn on two-factor authentication for Cloudflare, GitHub and Shopify Partners, and use a password manager. Answer yes once done. |
 | 15 | Keep an access log to protected customer data | Yes | Cloudflare account audit logs (dashboard/API access) and Workers Logs for every request that reads or writes customer data. **⚠ Owner:** keep audit logs enabled (default). |
@@ -48,5 +48,5 @@ Field reasons (free text) to paste:
 ## To finish before answering
 
 1. ⚠ Owner: 2FA on Cloudflare, GitHub and Shopify Partners (item 14); confirm sole access (13).
-2. Finish the staging one-time setup in `docs/staging.md` (item 11). The apps, config and deploy workflow are already built.
+2. ✅ Staging set up and installed (item 11), see `docs/staging.md`.
 3. ⚠ Owner: lawyer review of terms and privacy policies (item 7).
